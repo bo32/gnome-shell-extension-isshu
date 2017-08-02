@@ -12,8 +12,6 @@ const FavouriteConnectionsBox = new Lang.Class({
             layout_manager: new Clutter.BinLayout()
         });
 
-        // /usr/share/icons/gnome/scalable/actions
-
         this._itemBox = new St.BoxLayout({
             vertical: true
         });
@@ -26,10 +24,6 @@ const FavouriteConnectionsBox = new Lang.Class({
             Gtk.PolicyType.AUTOMATIC);
         this._scrollView.add_actor(this._itemBox);
         this.add_child(this._scrollView);
-
-        // this.contentLayout.add(this._stack, {
-        //     expand: true
-        // });
     }
 
 });

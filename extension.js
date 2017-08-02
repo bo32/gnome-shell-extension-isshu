@@ -70,8 +70,8 @@ function init() {
 
 function enable() {
     menu = new ISSHUMenuButton();
-    let host_finder = new HostsFinder();
-    host_finder.get_local_hosts();
+    // let host_finder = new HostsFinder();
+    // host_finder.get_local_hosts();
     Main.panel.addToStatusArea('iSSHu', menu);
 }
 
