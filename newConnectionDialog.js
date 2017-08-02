@@ -40,7 +40,6 @@ const NewConnectionDialog = new Lang.Class({
             text: _("New connection")
         });
         titleBox.add(title);
-        // titleBox.add(subtitle);
 
         headline.add(icon);
         headline.add(titleBox);
@@ -84,7 +83,7 @@ const NewConnectionDialog = new Lang.Class({
             // y_align: Clutter.ActorAlign.CENTER,
             // x_align: Clutter.ActorAlign.START,
             // style_class: 'run-dialog-label',
-            text: 'Port'
+            text: 'Port (optional)'
 		});
         port_box.add(port_label);
 
@@ -163,9 +162,17 @@ const NewConnectionDialog = new Lang.Class({
     connect: function() {
         var username = this.user_field.get_text();
         var address = this.address_field.get_text();
+        var port = 22;
+        if (this.port_field.get_text() != '') {
+            port = this.port_field.get_text();
+        }
+
+        var ssh_command = 'ssh ' + username + '@' + address + ' -p ' + port;
+        global.log(ssh_command);
 
         // can also use 'xterm'
-        Util.spawn(['gnome-terminal', '-e', 'ssh ' + username + '@' + address]);
+        // TODO need to be able to choose the terminal
+        Util.spawn(['gnome-terminal', '-e', ssh_command]);
     }
 
 });
