@@ -8,6 +8,7 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
 const FavouriteConnectionsBox = Me.imports.favourite_connections_box.FavouriteConnectionsBox;
+const SavedConfiguration = Me.imports.saved_configuration.SavedConfiguration;
 
 const HTML_CODE_BULLET_CHARACTER = 8226;
 
@@ -19,6 +20,7 @@ const NewConnectionDialog = new Lang.Class({
         this.parent({
             styleClass: 'nm-dialog'
         });
+        this.savedConfig = new SavedConfiguration();
         this._buildLayout();
         // this.activtyManager = new ActivityManager();
     },
@@ -128,7 +130,11 @@ const NewConnectionDialog = new Lang.Class({
             label: 'Add as a favourite'
         });
         add_fav_button.connect('clicked', Lang.bind(this, function () {
-            global.log('add as fav!');
+            let connection = new Array();
+            connection.address = 'aaa';
+            connection.port = 'aa';
+            connection.username = 'user';
+            this.savedConfig.save_connection_as_a_favourite(connection);
         }));
         this.contentLayout.add(add_fav_button, {
             y_align: St.Align.START
