@@ -47,6 +47,7 @@ const NewConnectionDialog = new Lang.Class({
         // this.contentLayout.style_class = 'nm-dialog-content';
         this.contentLayout.add(headline);
 
+        
 
         // ADDRESS BOX
         let address_box = new St.BoxLayout({
@@ -121,25 +122,42 @@ const NewConnectionDialog = new Lang.Class({
             y_align: St.Align.START
         });
 
-        let password_label = new St.Label({
-            text: 'Password' 
+        let add_fav_button = new St.Button({
+            style_class: 'panel-button',
+            reactive: true,
+            label: 'Add as a favourite'
         });
-        this.contentLayout.add(password_label, {
+        add_fav_button.connect('clicked', Lang.bind(this, function () {
+            global.log('add as fav!');
+        }));
+        this.contentLayout.add(add_fav_button, {
             y_align: St.Align.START
         });
 
-        this.password_field = new St.Entry({
-            style_class: 'run-dialog-entry'
-        });
-        this.password_field.clutter_text.password_char = HTML_CODE_BULLET_CHARACTER;
-        this.contentLayout.add(this.password_field, {
-            y_align: St.Align.START
-        });
+        // let password_label = new St.Label({
+        //     text: 'Password' 
+        // });
+        // this.contentLayout.add(password_label, {
+        //     y_align: St.Align.START
+        // });
 
+        // this.password_field = new St.Entry({
+        //     style_class: 'run-dialog-entry'
+        // });
+        // this.password_field.clutter_text.password_char = HTML_CODE_BULLET_CHARACTER;
+        // this.contentLayout.add(this.password_field, {
+        //     y_align: St.Align.START
+        // });
 
+        let favBox_header = new St.Label({
+            style_class: 'nm-dialog-header',
+            text: 'Favourite connections'
+        });
         let favConnectionsBox = new FavouriteConnectionsBox();
+        this.contentLayout.add(favBox_header, {
+            expand: false
+        });
         this.contentLayout.add(favConnectionsBox, {
-
             expand: true
         });
 
