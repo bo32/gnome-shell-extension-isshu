@@ -200,6 +200,8 @@ const NewConnectionDialog = new Lang.Class({
         // can also use 'xterm'
         // TODO need to be able to choose the terminal
         Util.spawn(['gnome-terminal', '-e', ssh_command]);
-    }
+
+        this.close();
+    },
 
 });
