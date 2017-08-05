@@ -9,6 +9,7 @@ const Me = ExtensionUtils.getCurrentExtension();
 
 const FavouriteConnectionsBox = Me.imports.favourite_connections_box.FavouriteConnectionsBox;
 const SavedConfiguration = Me.imports.saved_configuration.SavedConfiguration;
+const NmapPanel = Me.imports.nmap_menu.NmapPanel;
 
 const HTML_CODE_BULLET_CHARACTER = 8226;
 
@@ -124,21 +125,15 @@ const NewConnectionDialog = new Lang.Class({
             y_align: St.Align.START
         });
 
-        let add_fav_button = new St.Button({
-            style_class: 'panel-button',
-            reactive: true,
-            label: 'Add as a favourite'
-        });
-        add_fav_button.connect('clicked', Lang.bind(this, function () {
-            let connection = new Array();
-            connection.address = 'aaa';
-            connection.port = 'aa';
-            connection.username = 'user';
-            this.savedConfig.save_connection_as_a_favourite(connection);
-        }));
-        this.contentLayout.add(add_fav_button, {
-            y_align: St.Align.START
-        });
+        // let add_fav_button = new St.Button({
+        //     style_class: 'call-entry item',
+        //     reactive: true,
+        //     label: 'Add as a favourite'
+        // });
+        
+        // this.contentLayout.add(add_fav_button, {
+        //     y_align: St.Align.START
+        // });
 
         // let password_label = new St.Label({
         //     text: 'Password' 
@@ -167,10 +162,15 @@ const NewConnectionDialog = new Lang.Class({
             expand: true
         });
 
-         this._connectButton = this.addButton({
+        this._connectButton = this.addButton({
             action: Lang.bind(this, this.connect),
             label: "Connect",
             key: Clutter.Return
+        });
+        this._nmapButton = this.addButton({
+            action: Lang.bind(this, this.showNmap),
+            label: "NMap"
+            // key: Clutter.Return
         });
         this._cancelButton = this.addButton({
             action: Lang.bind(this, this.close),
@@ -181,6 +181,27 @@ const NewConnectionDialog = new Lang.Class({
             x_fill: false,
             x_align: St.Align.END
         });
+
+        // this._addFavouriteButton = this.addButton({
+        //     action: Lang.bind(this, this.close),
+        //     label: _("Add favourite"),
+        //     key: Clutter.Escape
+        // }, {
+        //     expand: true,
+        //     x_fill: false,
+        //     x_align: St.Align.END
+        // });
+
+        // add_fav_button.connect('clicked', Lang.bind(this, function () {
+        // }));
+    },
+
+    add_favourite: function() {
+        let connection = new Array();
+        connection.address = this.address_field.get_text();
+        connection.port = this.port_field.get_text();
+        connection.username = this.user_field.get_text();
+        this.savedConfig.save_connection_as_a_favourite(connection);
     },
 
     connect: function() {
@@ -203,5 +224,12 @@ const NewConnectionDialog = new Lang.Class({
 
         this.close();
     },
+
+    showNmap: function() {
+        let nmapPanel = new NmapPanel();
+        this.contentLayout.add(nmapPanel, {
+            expand: false
+        });
+    }
 
 });

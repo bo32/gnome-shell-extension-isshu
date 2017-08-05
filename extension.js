@@ -11,7 +11,6 @@ const ConnectionsMenu = Me.imports.connections_menu.ConnectionsMenu;
 const NewConnectionDialog = Me.imports.newConnectionDialog;
 const SavedConfiguration = Me.imports.saved_configuration.SavedConfiguration;
 
-const HostsFinder = Me.imports.hosts_finder.HostsFinder;
 
 let icon_size = 16;
 
@@ -70,8 +69,6 @@ function init() {
 
 function enable() {
     menu = new ISSHUMenuButton();
-    // let host_finder = new HostsFinder();
-    // host_finder.get_local_hosts();
     Main.panel.addToStatusArea('iSSHu', menu);
 }
 
