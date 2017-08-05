@@ -15,7 +15,7 @@
    version="1.1"
    id="SVGRoot"
    inkscape:version="0.92+devel unknown"
-   sodipodi:docname="dessin-symbolic.1.svg">
+   sodipodi:docname="dessin-symbolic.svg">
   <sodipodi:namedview
      id="base"
      pagecolor="#ffffff"
@@ -65,16 +65,16 @@
        id="rect4286"
        inkscape:connector-curvature="0" />
     <path
-       transform="matrix(0.87680593,-0.48084443,0.32167594,0.94684982,0,0)"
        style="fill:#bebebe;stroke-width:1.02881622"
        d="M -5.8501611,22.624149 H 15.532247 v 2.970095 H -5.8501611 Z"
        id="rect4286-7"
-       inkscape:connector-curvature="0" />
+       inkscape:connector-curvature="0"
+       transform="matrix(0.87680593,-0.48084443,0.32167594,0.94684982,0,0)" />
     <path
-       transform="matrix(-0.87680593,-0.48084443,-0.32167594,0.94684982,0,0)"
        style="fill:#bebebe;stroke-width:1.02881622"
        d="M -25.264868,1.3950547 H -3.8824596 V 4.3651491 H -25.264868 Z"
        id="rect4286-6"
-       inkscape:connector-curvature="0" />
+       inkscape:connector-curvature="0"
+       transform="matrix(-0.87680593,-0.48084443,-0.32167594,0.94684982,0,0)" />
   </g>
 </svg>

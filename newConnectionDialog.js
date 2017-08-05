@@ -194,6 +194,9 @@ const NewConnectionDialog = new Lang.Class({
         var ssh_command = 'ssh ' + username + '@' + address + ' -p ' + port;
         global.log(ssh_command);
 
+        var connection = this.savedConfig.get_connection_from_details(address, port, username);
+        this.savedConfig.save_connection_as_a_latest(connection);
+
         // can also use 'xterm'
         // TODO need to be able to choose the terminal
         Util.spawn(['gnome-terminal', '-e', ssh_command]);
