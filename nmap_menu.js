@@ -4,6 +4,9 @@ const St = imports.gi.St;
 const Clutter = imports.gi.Clutter; 
 const Gtk = imports.gi.Gtk;
 const GLib = imports.gi.GLib; 
+const ExtensionUtils = imports.misc.extensionUtils;
+const Me = ExtensionUtils.getCurrentExtension();
+const SimpleXML = Me.imports.simpleXML.SimpleXML;
 
 const NmapPanel = new Lang.Class({
     Name: 'NmapPanel',
@@ -43,21 +46,23 @@ const NmapPanel = new Lang.Class({
         // let results = Util.spawn(['nmap', '-sn', '192.168.0.1/24']);
         // // global.log(Util.spawn(['ls', '-l']));
 
-        let [_, out, err, stat]  = GLib.spawn_command_line_sync('nmap -sn 192.168.0.1/24');
+        // TODO Cannot manage to parse the result XML, so use the option -oG instead of -oX
+        let [_, out, err, stat]  = GLib.spawn_command_line_sync('nmap -sn -oG - 192.168.0.1/24');
         global.log('out: ' + out);
         let res = out.toString();
+        global.log(res);
 
-        let raw = res.split('Nmap scan report for ');
+        let raw = res.split('Host:');
         let hosts = [];
         for (let h in raw) {
-            let host = raw[h];
-            if (host.indexOf('Starting Nmap ') != 1) {
-                let index = host.indexOf('Host is up (');
-                hosts.push(host.slice(0, index).trim());
-            }
+            let tmp = raw[h];
+            let index = tmp.indexOf('()');
+            let host = tmp.slice(0, index).trim();
+            hosts.push(host);
         }
 
-        return hosts;
+
+        return res;
     }
 });
 
