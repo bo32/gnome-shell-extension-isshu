@@ -1,5 +1,6 @@
 const Lang = imports.lang;
 const St = imports.gi.St;
+const Gio = imports.gi.Gio;
 const PopupMenu = imports.ui.popupMenu;
 
 const ConnectionsMenu = new Lang.Class({
@@ -7,8 +8,10 @@ const ConnectionsMenu = new Lang.Class({
 	Name: 'ConnectionsMenu',
 	Extends: PopupMenu.PopupSubMenuMenuItem,
 
-    _init: function(label, connections) {
-		this.parent(label);
+    _init: function(label, connections, icon) {
+		this.parent(label, true);
+		this.icon.gicon = Gio.icon_new_for_string(icon);
+		this.icon.icon_size = 16;
 
 		for(var c in connections) {
 			let menu = new PopupMenu.PopupBaseMenuItem();

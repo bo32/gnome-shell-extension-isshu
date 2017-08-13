@@ -23,7 +23,6 @@ const NewConnectionDialog = new Lang.Class({
         });
         this.savedConfig = new SavedConfiguration();
         this._buildLayout();
-        // this.activtyManager = new ActivityManager();
     },
 
     _buildLayout: function () {
