@@ -245,15 +245,21 @@ const NewConnectionDialog = new Lang.Class({
         });
 
         nmap_refresh_button.connect('clicked', Lang.bind(this, function () {
-            global.log('refresh')
-        }));
-        nmap_close_button.connect('clicked', Lang.bind(this, function () {
-            this.contentLayout.remove_child(header_box);
-            this.contentLayout.remove_child(nmap_panel);
+            this.contentLayout.remove_child(this.nmap_panel);
+            this.build_and_add_nmap_panel();
         }));
 
-        let nmap_panel = new NmapPanel();
-        this.contentLayout.add(nmap_panel, {
+        nmap_close_button.connect('clicked', Lang.bind(this, function () {
+            this.contentLayout.remove_child(header_box);
+            this.contentLayout.remove_child(this.nmap_panel);
+        }));
+        
+        this.build_and_add_nmap_panel();
+    },
+
+    build_and_add_nmap_panel: function() {
+        this.nmap_panel = new NmapPanel();
+        this.contentLayout.add(this.nmap_panel, {
             expand: false
         });
     }
