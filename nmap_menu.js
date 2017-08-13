@@ -3,7 +3,10 @@ const Util = imports.misc.util;
 const St = imports.gi.St;
 const Clutter = imports.gi.Clutter; 
 const Gtk = imports.gi.Gtk;
+const Gio = imports.gi.Gio;
 const GLib = imports.gi.GLib; 
+const Animation = imports.ui.animation;
+const Tweener = imports.ui.tweener;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
@@ -29,7 +32,9 @@ const NmapPanel = new Lang.Class({
         this._scrollView.add_actor(this._itemBox);
         this.add_child(this._scrollView);
 
-        this.populate_nmap_list();        
+        let item = new LoadingItem();
+        this._itemBox.add_child(item.actor);
+        this.populate_nmap_list();
 	},
 
     populate_nmap_list: function() {
@@ -77,6 +82,9 @@ const NmapPanel = new Lang.Class({
                 }
             }
 
+            // remove the loading item before adding the results
+            this._itemBox.remove_all_children();
+            
             for (let h in hosts) {
                 let item = new NmapItem(hosts[h]);
                 this._itemBox.add_child(item.actor);
@@ -104,6 +112,38 @@ const NmapItem = new Lang.Class({
 
         let label = new St.Label({
             text: host
+        });
+
+        this.actor.add(label, {
+            x_align: St.Align.START
+        });
+    }
+});
+
+const LoadingItem = new Lang.Class({
+    Name: 'LoadingItem',
+
+    _init: function () {
+
+        this.actor = new St.BoxLayout({
+            style_class: 'nm-dialog-item'
+            ,can_focus: true
+            ,reactive: true
+        });
+
+        // TODO this spinner would probably work if the nmap command was truly asynchronous. 
+        // let spinnerIcon = Gio.File.new_for_uri('resource:///org/gnome/shell/theme/process-working.svg');
+        // let spinner = new Animation.AnimatedIcon(spinnerIcon, 16);
+        // spinner.actor.show();
+        // this.actor.add_child(spinner.actor);
+        // spinner.play();
+		// Tweener.addTween(spinner.actor, {
+		// 	opacity: 255,
+		// 	transition: 'linear'
+        // });
+
+        let label = new St.Label({
+            text: 'Loading...'
         });
 
         this.actor.add(label, {

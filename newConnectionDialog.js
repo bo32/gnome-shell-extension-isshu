@@ -125,31 +125,6 @@ const NewConnectionDialog = new Lang.Class({
             y_align: St.Align.START
         });
 
-        // let add_fav_button = new St.Button({
-        //     style_class: 'call-entry item',
-        //     reactive: true,
-        //     label: 'Add as a favourite'
-        // });
-        
-        // this.contentLayout.add(add_fav_button, {
-        //     y_align: St.Align.START
-        // });
-
-        // let password_label = new St.Label({
-        //     text: 'Password' 
-        // });
-        // this.contentLayout.add(password_label, {
-        //     y_align: St.Align.START
-        // });
-
-        // this.password_field = new St.Entry({
-        //     style_class: 'run-dialog-entry'
-        // });
-        // this.password_field.clutter_text.password_char = HTML_CODE_BULLET_CHARACTER;
-        // this.contentLayout.add(this.password_field, {
-        //     y_align: St.Align.START
-        // });
-
         let favBox_header = new St.Label({
             style_class: 'nm-dialog-header',
             text: 'Favourite connections'
@@ -226,8 +201,59 @@ const NewConnectionDialog = new Lang.Class({
     },
 
     showNmap: function() {
-        let nmapPanel = new NmapPanel();
-        this.contentLayout.add(nmapPanel, {
+        let header_box = new St.BoxLayout({
+            vertical: false
+        });
+
+        let nmap_title = new St.Label({
+            style_class: 'nm-dialog-header',
+            text: 'Nmap results'
+        });
+        
+        // close button
+        let close_icon = new St.Icon({
+            style_class: 'nm-dialog-icon'
+        });
+        close_icon.set_icon_name('window-close-symbolic');
+        
+        let nmap_close_button = new St.Button({
+            style_class: 'nm-dialog-icons'
+        });
+        nmap_close_button.set_child(close_icon);
+
+        // refresh button
+        let refresh_icon = new St.Icon({
+            style_class: 'nm-dialog-icon'
+        });
+        refresh_icon.set_icon_name('view-refresh-symbolic');
+        let nmap_refresh_button = new St.Button({
+            style_class: 'nm-dialog-icons'
+        });
+        nmap_refresh_button.set_child(refresh_icon);
+        
+        header_box.add(nmap_title, {
+            expand: true
+        })
+        header_box.add(nmap_refresh_button, {
+            x_align: St.Align.END
+        });
+        header_box.add(nmap_close_button, {
+            x_align: St.Align.END
+        });
+        this.contentLayout.add(header_box, {
+            x_expand: true
+        });
+
+        nmap_refresh_button.connect('clicked', Lang.bind(this, function () {
+            global.log('refresh')
+        }));
+        nmap_close_button.connect('clicked', Lang.bind(this, function () {
+            this.contentLayout.remove_child(header_box);
+            this.contentLayout.remove_child(nmap_panel);
+        }));
+
+        let nmap_panel = new NmapPanel();
+        this.contentLayout.add(nmap_panel, {
             expand: false
         });
     }
