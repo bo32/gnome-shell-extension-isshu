@@ -54,6 +54,25 @@ const SavedConfiguration = new Lang.Class({
         this.write_new_content(json_content);
     },
 
+    save_connection_as_a_favourite: function(connection) {
+        global.log('Save as a favourite connection.');
+        
+        let json_content = this.get_json_content();
+        let favs = json_content.favourite_connections;
+        let json_connection = this.get_connection_as_json(connection);
+        favs.push(json_connection);
+        json_content.favourite_connections = favs;
+        this.write_new_content(json_content);
+    },
+
+    remove_connection_from_favourites: function(index) {
+        let json_content = this.get_json_content();
+        let favs = json_content.favourite_connections;
+        favs.splice(index, 1);
+        json_content.favourite_connections = favs;
+        this.write_new_content(json_content);
+    },
+
     get_connection_as_json: function(connection) {
         let label = connection.label;
         if (label == undefined) {
@@ -73,17 +92,6 @@ const SavedConfiguration = new Lang.Class({
         connection.username = username;
         connection.port = port;
         return connection;
-    },
-
-    save_connection_as_a_favourite: function(connection) {
-        global.log('Save as a favourite connection.');
-
-        let json_content = this.get_json_content();
-        let json_connection = this.get_connection_as_json(connection);
-        latest.push(json_connection);
-        json_content.favourite_connections.push(json_connection);
-        
-        this.write_new_content(json_content);
     },
 
     write_new_content: function(jsonContent) {

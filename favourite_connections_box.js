@@ -34,7 +34,7 @@ const FavouriteConnectionsBox = new Lang.Class({
         let savedConfig = new SavedConfiguration();
         let fav_connections = savedConfig.get_favourite_connections();
         for (let fav in fav_connections) {
-            this._itemBox.add_child(new FavouriteItem(fav_connections[fav]).actor);
+            this._itemBox.add_child(new FavouriteItem(fav_connections[fav], fav).actor);
         }
     },
 
@@ -47,8 +47,11 @@ const FavouriteConnectionsBox = new Lang.Class({
 const FavouriteItem = new Lang.Class({
     Name: 'FavouriteItem',
 
-    _init: function (connection) {
+    _init: function (connection, index) {
         this.connection = connection;
+        this.index = index;
+
+        this.savedConfig = new SavedConfiguration();
 
         this.actor = new St.BoxLayout({
             style_class: 'nm-dialog-item'
@@ -59,9 +62,20 @@ const FavouriteItem = new Lang.Class({
         let label = new St.Label({
             text: connection.label
         });
-
         this.actor.add(label, {
+            expand: true,
             x_align: St.Align.START
+        });
+
+        let unfav_icon = new St.Icon({
+            style_class: 'nm-dialog-icon'
+        });
+        unfav_icon.set_icon_name('window-close-symbolic');
+        let unfav_button = new St.Button();
+        unfav_button.set_child(unfav_icon);
+        unfav_button.connect('clicked', Lang.bind(this, this.remove_favourite));
+        this.actor.add(unfav_button, {
+            x_align: St.Align.END
         });
 
         let action = new Clutter.ClickAction();
@@ -75,6 +89,12 @@ const FavouriteItem = new Lang.Class({
 
     get_connection_information: function() {
         return this.connection;
+    },
+
+    remove_favourite: function() {
+        // TODO maybe popup a confirmation window
+        this.savedConfig.remove_connection_from_favourites(this.index);
+        this.actor.destroy();
     }
 });
 
