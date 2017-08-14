@@ -1,6 +1,7 @@
 const Lang = imports.lang;
 const St = imports.gi.St;
 const Gio = imports.gi.Gio;
+const Util = imports.misc.util;
 const PopupMenu = imports.ui.popupMenu;
 
 const ConnectionsMenu = new Lang.Class({
@@ -15,10 +16,17 @@ const ConnectionsMenu = new Lang.Class({
 
 		for(var c in connections) {
 			let menu = new PopupMenu.PopupBaseMenuItem();
+			this.connection = connections[c];
 			menu.actor.add(
-				new St.Label({text: connections[c].label, x_expand: true})
+				new St.Label({text: this.connection.label, x_expand: true})
 			);
 			this.menu.addMenuItem(menu);
+			menu.connect('activate', Lang.bind(this, function() {
+				let ssh_command = 'ssh ' + this.connection.username + 
+					'@' + this.connection.address + 
+					' -p ' + this.connection.port;
+				Util.spawn(['gnome-terminal', '-e', ssh_command]);
+			}));
 		}
 
 		this.controlsBox = new St.BoxLayout({

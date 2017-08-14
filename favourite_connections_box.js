@@ -2,6 +2,7 @@ const Lang = imports.lang;
 const St = imports.gi.St;
 const Clutter = imports.gi.Clutter; 
 const Gtk = imports.gi.Gtk;
+const Signals = imports.signals;
 
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
@@ -34,7 +35,11 @@ const FavouriteConnectionsBox = new Lang.Class({
         let savedConfig = new SavedConfiguration();
         let fav_connections = savedConfig.get_favourite_connections();
         for (let fav in fav_connections) {
-            this._itemBox.add_child(new FavouriteItem(fav_connections[fav], fav).actor);
+            let fav_item = new FavouriteItem(fav_connections[fav], fav);
+            this._itemBox.add_child(fav_item.actor);
+            fav_item.connect('favourite_deleted', Lang.bind(this, function() {
+                this._itemBox.remove_child(fav_item.actor);
+            }));
         }
     },
 
@@ -94,7 +99,8 @@ const FavouriteItem = new Lang.Class({
     remove_favourite: function() {
         // TODO maybe popup a confirmation window
         this.savedConfig.remove_connection_from_favourites(this.index);
-        this.actor.destroy();
+        this.emit('favourite_deleted');
     }
 });
+Signals.addSignalMethods(FavouriteItem.prototype);
 

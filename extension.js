@@ -27,7 +27,7 @@ const ISSHUMenuButton = new Lang.Class({
         var newConnectionMenu = new PopupMenu.PopupBaseMenuItem();
         let icon = new St.Icon();
         icon.gicon = Gio.icon_new_for_string('list-add-symbolic');
-        icon.icon_size = 16;
+        icon.icon_size = icon_size;
         newConnectionMenu.actor.add(
             icon
         );
