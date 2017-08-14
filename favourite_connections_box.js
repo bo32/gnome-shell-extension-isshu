@@ -40,11 +40,14 @@ const FavouriteConnectionsBox = new Lang.Class({
             fav_item.connect('favourite_deleted', Lang.bind(this, function() {
                 this._itemBox.remove_child(fav_item.actor);
             }));
+            fav_item.connect('selected', Lang.bind(this, function(){
+                if (this.selected_item) {
+                    this.selected_item.actor.remove_style_pseudo_class('selected');
+                }
+                this.selected_item = fav_item;
+                this.selected_item.actor.add_style_pseudo_class('selected');
+            }));
         }
-    },
-
-    get_selected_item: function() {
-
     }
 
 });
@@ -86,10 +89,11 @@ const FavouriteItem = new Lang.Class({
         let action = new Clutter.ClickAction();
         action.connect('clicked', Lang.bind(this, function () {
             this.actor.grab_key_focus(); // needed for setting the correct focus
-            // _selectedChannel = channel;
-            global.log('here');
         }));
         this.actor.add_action(action);
+        this.actor.connect('key-focus-in', Lang.bind(this, function() {
+            this.emit('selected');
+        }));
     },
 
     get_connection_information: function() {
