@@ -7,6 +7,7 @@ const Gio = imports.gi.Gio;
 const GLib = imports.gi.GLib; 
 const Animation = imports.ui.animation;
 const Tweener = imports.ui.tweener;
+const Signals = imports.signals;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
@@ -75,7 +76,7 @@ const NmapPanel = new Lang.Class({
             let hosts = [];
             for (let h in raw) {
                 let tmp = raw[h];
-                if (tmp.indexOf('# Nmap') == -1) {
+                if (tmp.indexOf('# Nmap') != 0) {
                     let index = tmp.indexOf('()');
                     let host = tmp.slice(0, index).trim();
                     hosts.push(host);
@@ -88,6 +89,13 @@ const NmapPanel = new Lang.Class({
             for (let h in hosts) {
                 let item = new NmapItem(hosts[h]);
                 this._itemBox.add_child(item.actor);
+                item.connect('selected', Lang.bind(this, function(){
+                    if (this.selected_item) {
+                        this.selected_item.actor.remove_style_pseudo_class('selected');
+                    }
+                    this.selected_item = item;
+                    this.selected_item.actor.add_style_pseudo_class('selected');
+                }));
             }
         } else {
             let errMsg = "Error occurred when running `" + res['cmd'] + "`";
@@ -117,8 +125,18 @@ const NmapItem = new Lang.Class({
         this.actor.add(label, {
             x_align: St.Align.START
         });
+
+        let action = new Clutter.ClickAction();
+        action.connect('clicked', Lang.bind(this, function () {
+            this.actor.grab_key_focus(); // needed for setting the correct focus
+        }));
+        this.actor.add_action(action);
+        this.actor.connect('key-focus-in', Lang.bind(this, function() {
+            this.emit('selected');
+        }));
     }
 });
+Signals.addSignalMethods(NmapItem.prototype);
 
 const LoadingItem = new Lang.Class({
     Name: 'LoadingItem',
