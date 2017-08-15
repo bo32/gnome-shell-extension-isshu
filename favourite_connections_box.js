@@ -43,6 +43,7 @@ const FavouriteConnectionsBox = new Lang.Class({
             fav_item.connect('selected', Lang.bind(this, function(){
                 if (this.selected_item) {
                     this.selected_item.actor.remove_style_pseudo_class('selected');
+                    this.selected_item.hide_unfav_button();
                 }
                 this.selected_item = fav_item;
                 this.selected_item.actor.add_style_pseudo_class('selected');
@@ -79,10 +80,12 @@ const FavouriteItem = new Lang.Class({
             style_class: 'nm-dialog-icon'
         });
         unfav_icon.set_icon_name('window-close-symbolic');
-        let unfav_button = new St.Button();
-        unfav_button.set_child(unfav_icon);
-        unfav_button.connect('clicked', Lang.bind(this, this.remove_favourite));
-        this.actor.add(unfav_button, {
+        this.unfav_button = new St.Button({
+            visible: false
+        });
+        this.unfav_button.set_child(unfav_icon);
+        this.unfav_button.connect('clicked', Lang.bind(this, this.remove_favourite));
+        this.actor.add(this.unfav_button, {
             x_align: St.Align.END
         });
 
@@ -93,6 +96,7 @@ const FavouriteItem = new Lang.Class({
         this.actor.add_action(action);
         this.actor.connect('key-focus-in', Lang.bind(this, function() {
             this.emit('selected');
+            this.show_unfav_button();
         }));
     },
 
@@ -104,6 +108,14 @@ const FavouriteItem = new Lang.Class({
         // TODO maybe popup a confirmation window
         this.savedConfig.remove_connection_from_favourites(this.index);
         this.emit('favourite_deleted');
+    },
+
+    show_unfav_button: function() {
+        this.unfav_button.visible = true;
+    },
+
+    hide_unfav_button: function() {
+        this.unfav_button.visible = false;
     }
 });
 Signals.addSignalMethods(FavouriteItem.prototype);
