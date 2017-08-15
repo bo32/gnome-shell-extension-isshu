@@ -92,9 +92,14 @@ const NmapPanel = new Lang.Class({
                 item.connect('selected', Lang.bind(this, function(){
                     if (this.selected_item) {
                         this.selected_item.actor.remove_style_pseudo_class('selected');
+                        this.selected_item.hide_load_nmap_button();
                     }
                     this.selected_item = item;
                     this.selected_item.actor.add_style_pseudo_class('selected');
+                    this.selected_item.show_load_nmap_button();
+                }));
+                item.connect('load-nmap', Lang.bind(this, function(){
+                    this.emit('load-nmap');
                 }));
             }
         } else {
@@ -104,13 +109,19 @@ const NmapPanel = new Lang.Class({
             log(res['err']);
         }
     },
+
+    get_selected_item: function() {
+        return this.selected_item;
+    },
 });
+Signals.addSignalMethods(NmapPanel.prototype);
 
 
 const NmapItem = new Lang.Class({
     Name: 'NmapItem',
 
     _init: function (host) {
+        this.host = host;
 
         this.actor = new St.BoxLayout({
             style_class: 'nm-dialog-item'
@@ -123,6 +134,7 @@ const NmapItem = new Lang.Class({
         });
 
         this.actor.add(label, {
+            expand: true,
             x_align: St.Align.START
         });
 
@@ -134,6 +146,34 @@ const NmapItem = new Lang.Class({
         this.actor.connect('key-focus-in', Lang.bind(this, function() {
             this.emit('selected');
         }));
+
+         // LOAD NMAP BUTTON
+        let load_nmap_icon = new St.Icon({
+            style_class: 'nm-dialog-icon'
+        });
+        load_nmap_icon.set_icon_name('document-edit-symbolic');
+        this.load_nmap_button = new St.Button({
+            visible: false
+        });
+        this.load_nmap_button.set_child(load_nmap_icon);
+        this.load_nmap_button.connect('clicked', Lang.bind(this, function() {
+            this.emit('load-nmap');
+        }));
+        this.actor.add(this.load_nmap_button, {
+            x_align: St.Align.END
+        });
+    },
+
+    show_load_nmap_button: function() {
+        this.load_nmap_button.visible = true;
+    },
+
+    hide_load_nmap_button: function() {
+        this.load_nmap_button.visible = false;
+    },
+
+    get_host: function() {
+        return this.host;
     }
 });
 Signals.addSignalMethods(NmapItem.prototype);

@@ -44,14 +44,25 @@ const FavouriteConnectionsBox = new Lang.Class({
                 if (this.selected_item) {
                     this.selected_item.actor.remove_style_pseudo_class('selected');
                     this.selected_item.hide_unfav_button();
+                    this.selected_item.hide_load_fav_button();
                 }
                 this.selected_item = fav_item;
                 this.selected_item.actor.add_style_pseudo_class('selected');
+                this.selected_item.show_unfav_button();
+                this.selected_item.show_load_fav_button();
+            }));
+            fav_item.connect('load-favourite', Lang.bind(this, function() {
+                this.emit('load-favourite');
             }));
         }
+    },
+
+    get_selected_item: function() {
+        return this.selected_item;
     }
 
 });
+Signals.addSignalMethods(FavouriteConnectionsBox.prototype);
 
 const FavouriteItem = new Lang.Class({
     Name: 'FavouriteItem',
@@ -97,6 +108,21 @@ const FavouriteItem = new Lang.Class({
             x_align: St.Align.START
         });
 
+        // LOAD FAVOURITE BUTTON
+        let load_fav_icon = new St.Icon({
+            style_class: 'nm-dialog-icon'
+        });
+        load_fav_icon.set_icon_name('document-edit-symbolic');
+        this.load_fav_button = new St.Button({
+            visible: false
+        });
+        this.load_fav_button.set_child(load_fav_icon);
+        this.load_fav_button.connect('clicked', Lang.bind(this, this.load_favourite));
+        this.actor.add(this.load_fav_button, {
+            x_align: St.Align.END
+        });
+
+        // DELETE FAVOURITE BUTTON
         let unfav_icon = new St.Icon({
             style_class: 'nm-dialog-icon'
         });
@@ -117,16 +143,21 @@ const FavouriteItem = new Lang.Class({
         this.actor.add_action(action);
         this.actor.connect('key-focus-in', Lang.bind(this, function() {
             this.emit('selected');
-            this.show_unfav_button();
         }));
+        // TODO start ssh command enter pressing enter on the favourite connection
+        // this.actor.connect('key-press-event', Lang.bind(this, function(o, e) {
+        //     let symbol = e.get_key_symbol();
+        //     if (symbol == Clutter.Return || symbol == Clutter.KP_Enter) {
+        //         global.log('here');
+        //     }
+        // }));
     },
 
-    get_connection_information: function() {
+    get_connection: function() {
         return this.connection;
     },
 
     remove_favourite: function() {
-        // TODO maybe popup a confirmation window
         this.savedConfig.remove_connection_from_favourites(this.index);
         this.emit('favourite_deleted');
     },
@@ -137,6 +168,18 @@ const FavouriteItem = new Lang.Class({
 
     hide_unfav_button: function() {
         this.unfav_button.visible = false;
+    },
+
+    show_load_fav_button: function() {
+        this.load_fav_button.visible = true;
+    },
+
+    hide_load_fav_button: function() {
+        this.load_fav_button.visible = false;
+    },
+
+    load_favourite: function() {
+        this.emit('load-favourite');
     }
 });
 Signals.addSignalMethods(FavouriteItem.prototype);

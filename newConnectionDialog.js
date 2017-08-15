@@ -71,6 +71,7 @@ const NewConnectionDialog = new Lang.Class({
             style_class: 'run-dialog-entry'
         });
         address_box.add(this.address_field);
+        this.setInitialKeyFocus(this.address_field);
 
         // this.contentLayout.add(address_box, {
         //     // x_expand: true,
@@ -105,6 +106,18 @@ const NewConnectionDialog = new Lang.Class({
         host_box.add(address_box);
         host_box.add(port_box);
 
+        // SAVE CONNECTION AS FAVOURITE BUTTON
+        let fav_icon = new St.Icon({
+            style_class: 'nm-dialog-icon'
+        });
+        fav_icon.set_icon_name('star-new-symbolic');
+        this.fav_button = new St.Button();
+        this.fav_button.set_child(fav_icon);
+        // TODO add action on the button
+        host_box.add(this.fav_button, {
+
+        });
+
         this.contentLayout.add(host_box, {
             // x_expand: true,
             // x_fill: false,
@@ -121,6 +134,7 @@ const NewConnectionDialog = new Lang.Class({
         this.user_field = new St.Entry({
             style_class: 'run-dialog-entry'
         });
+        
         this.contentLayout.add(this.user_field, {
             y_align: St.Align.START
         });
@@ -143,11 +157,12 @@ const NewConnectionDialog = new Lang.Class({
             style_class: 'nm-dialog-header',
             text: 'Favourite connections'
         });
-        let favConnectionsBox = new FavouriteConnectionsBox();
+        this.favConnectionsBox = new FavouriteConnectionsBox();
+        this.favConnectionsBox.connect('load-favourite', Lang.bind(this, this.load_favourite_connection));
         this.contentLayout.add(favBox_header, {
             expand: false
         });
-        this.contentLayout.add(favConnectionsBox, {
+        this.contentLayout.add(this.favConnectionsBox, {
             expand: true
         });
 
@@ -279,11 +294,24 @@ const NewConnectionDialog = new Lang.Class({
         return this.nmap_displayed;
     },
 
+    load_favourite_connection: function() {
+        let connection = this.favConnectionsBox.get_selected_item().get_connection();
+        this.address_field.set_text(connection.address);
+        this.port_field.set_text(connection.port);
+        this.user_field.set_text(connection.username);
+    },
+
     build_and_add_nmap_panel: function() {
         this.nmap_panel = new NmapPanel();
         this.contentLayout.add(this.nmap_panel, {
             expand: false
         });
+        this.nmap_panel.connect('load-nmap', Lang.bind(this, function() {
+            let address = this.nmap_panel.get_selected_item().get_host();
+            this.address_field.set_text(address);
+            this.port_field.set_text('');
+            this.user_field.set_text('');
+        }));
         this.nmap_displayed = true;
     }
 
