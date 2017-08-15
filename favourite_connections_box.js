@@ -68,10 +68,31 @@ const FavouriteItem = new Lang.Class({
             ,reactive: true
         });
 
+        let labels_box = new St.BoxLayout({
+            style_class: 'nm-dialog-item, favourite-box'
+            ,can_focus: true
+            ,reactive: true
+            ,vertical: true
+        });
+
         let label = new St.Label({
             text: connection.label
         });
-        this.actor.add(label, {
+        labels_box.add(label, {
+            x_align: St.Align.START
+        });
+        let details_text = connection.username + '@' + connection.address;
+        if (connection.port != '') {
+            details_text += ':' + connection.port
+        }
+        let details = new St.Label({
+            text: details_text,
+            style_class: 'favourtie-connection-details-label'
+        });
+        labels_box.add(details, {
+            x_align: St.Align.START
+        });
+        this.actor.add(labels_box, {
             expand: true,
             x_align: St.Align.START
         });

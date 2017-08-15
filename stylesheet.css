@@ -7,3 +7,11 @@
     border-radius: 5px;
     padding: .5em;
 }
+
+.favourtie-connection-details-label {
+    font-size: 10px;
+}
+
+.favourite-box {
+    padding: 1px; /* doesn't make the favourite item boxes huge */
+}

@@ -1,4 +1,5 @@
 const ModalDialog = imports.ui.modalDialog;
+const CheckBox = imports.ui.checkBox.CheckBox;
 const Lang = imports.lang;
 const St = imports.gi.St;
 const Clutter = imports.gi.Clutter; 
@@ -124,6 +125,20 @@ const NewConnectionDialog = new Lang.Class({
             y_align: St.Align.START
         });
 
+        // let options_box = new St.BoxLayout({
+        //     vertical: false
+        // });
+        // this.ssh_key_checkbox = new CheckBox('use SSH key');
+        // options_box.add(this.ssh_key_checkbox.actor, {
+        //     expand: true,
+        //     y_align: St.Align.START
+        // });
+        // this.ssh_key_checkbox.actor.connect('clicked', Lang.bind(this, this.toggle_checkboxes));
+
+        // this.contentLayout.add(options_box, {
+		// 	y_align: St.Align.START
+        // });
+
         let favBox_header = new St.Label({
             style_class: 'nm-dialog-header',
             text: 'Favourite connections'
@@ -196,64 +211,72 @@ const NewConnectionDialog = new Lang.Class({
         // TODO need to be able to choose the terminal
         Util.spawn(['gnome-terminal', '-e', ssh_command]);
 
+        this.nmap_displayed = true;
         this.close();
     },
 
     showNmap: function() {
-        let header_box = new St.BoxLayout({
-            vertical: false
-        });
+        if (!this.is_nmap_displayed()) {
+            let header_box = new St.BoxLayout({
+                vertical: false
+            });
 
-        let nmap_title = new St.Label({
-            style_class: 'nm-dialog-header',
-            text: 'Nmap results'
-        });
-        
-        // close button
-        let close_icon = new St.Icon({
-            style_class: 'nm-dialog-icon'
-        });
-        close_icon.set_icon_name('window-close-symbolic');
-        
-        let nmap_close_button = new St.Button({
-            style_class: 'nm-dialog-icons'
-        });
-        nmap_close_button.set_child(close_icon);
+            let nmap_title = new St.Label({
+                style_class: 'nm-dialog-header',
+                text: 'Nmap results'
+            });
+            
+            // close button
+            let close_icon = new St.Icon({
+                style_class: 'nm-dialog-icon'
+            });
+            close_icon.set_icon_name('window-close-symbolic');
+            
+            let nmap_close_button = new St.Button({
+                style_class: 'nm-dialog-icons'
+            });
+            nmap_close_button.set_child(close_icon);
 
-        // refresh button
-        let refresh_icon = new St.Icon({
-            style_class: 'nm-dialog-icon'
-        });
-        refresh_icon.set_icon_name('view-refresh-symbolic');
-        let nmap_refresh_button = new St.Button({
-            style_class: 'nm-dialog-icons'
-        });
-        nmap_refresh_button.set_child(refresh_icon);
-        
-        header_box.add(nmap_title, {
-            expand: true
-        })
-        header_box.add(nmap_refresh_button, {
-            x_align: St.Align.END
-        });
-        header_box.add(nmap_close_button, {
-            x_align: St.Align.END
-        });
-        this.contentLayout.add(header_box, {
-            x_expand: true
-        });
+            // refresh button
+            let refresh_icon = new St.Icon({
+                style_class: 'nm-dialog-icon'
+            });
+            refresh_icon.set_icon_name('view-refresh-symbolic');
+            let nmap_refresh_button = new St.Button({
+                style_class: 'nm-dialog-icons'
+            });
+            nmap_refresh_button.set_child(refresh_icon);
+            
+            header_box.add(nmap_title, {
+                expand: true
+            })
+            header_box.add(nmap_refresh_button, {
+                x_align: St.Align.END
+            });
+            header_box.add(nmap_close_button, {
+                x_align: St.Align.END
+            });
+            this.contentLayout.add(header_box, {
+                x_expand: true
+            });
 
-        nmap_refresh_button.connect('clicked', Lang.bind(this, function () {
-            this.contentLayout.remove_child(this.nmap_panel);
+            nmap_refresh_button.connect('clicked', Lang.bind(this, function () {
+                this.contentLayout.remove_child(this.nmap_panel);
+                this.build_and_add_nmap_panel();
+            }));
+
+            nmap_close_button.connect('clicked', Lang.bind(this, function () {
+                this.contentLayout.remove_child(header_box);
+                this.contentLayout.remove_child(this.nmap_panel);
+                this.nmap_displayed = false;
+            }));
+            
             this.build_and_add_nmap_panel();
-        }));
+        }
+    },
 
-        nmap_close_button.connect('clicked', Lang.bind(this, function () {
-            this.contentLayout.remove_child(header_box);
-            this.contentLayout.remove_child(this.nmap_panel);
-        }));
-        
-        this.build_and_add_nmap_panel();
+    is_nmap_displayed: function() {
+        return this.nmap_displayed;
     },
 
     build_and_add_nmap_panel: function() {
@@ -261,6 +284,7 @@ const NewConnectionDialog = new Lang.Class({
         this.contentLayout.add(this.nmap_panel, {
             expand: false
         });
+        this.nmap_displayed = true;
     }
 
 });
