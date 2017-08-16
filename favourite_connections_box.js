@@ -18,6 +18,26 @@ const FavouriteConnectionsBox = new Lang.Class({
             layout_manager: new Clutter.BinLayout()
         });
 
+        let content_box = new St.BoxLayout({
+            vertical: true,
+            x_expand: true
+        });
+
+        let favourite_label_box = new St.BoxLayout({
+            vertical: false
+        });
+        let label = new St.Label({
+            text: 'Favourite\'s label' + '  ',
+            y_align: 2
+        });
+        this.label_field = new St.Entry({hint_text: 'hint text'});
+        favourite_label_box.add(label, {
+        });
+        favourite_label_box.add(this.label_field, {
+            expand: true
+        });
+        content_box.add(favourite_label_box);
+
         this._itemBox = new St.BoxLayout({
             vertical: true
         });
@@ -29,8 +49,9 @@ const FavouriteConnectionsBox = new Lang.Class({
         this._scrollView.set_policy(Gtk.PolicyType.NEVER,
             Gtk.PolicyType.AUTOMATIC);
         this._scrollView.add_actor(this._itemBox);
-
-        this.add_child(this._scrollView);
+        
+        content_box.add(this._scrollView);
+        this.add_child(content_box);
 
         let savedConfig = new SavedConfiguration();
         let fav_connections = savedConfig.get_favourite_connections();
