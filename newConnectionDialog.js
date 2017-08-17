@@ -106,18 +106,6 @@ const NewConnectionDialog = new Lang.Class({
         host_box.add(address_box);
         host_box.add(port_box);
 
-        // SAVE CONNECTION AS FAVOURITE BUTTON
-        let fav_icon = new St.Icon({
-            style_class: 'nm-dialog-icon'
-        });
-        fav_icon.set_icon_name('star-new-symbolic');
-        this.fav_button = new St.Button();
-        this.fav_button.set_child(fav_icon);
-        // TODO add action on the button
-        host_box.add(this.fav_button, {
-
-        });
-
         this.contentLayout.add(host_box, {
             // x_expand: true,
             // x_fill: false,
@@ -139,26 +127,16 @@ const NewConnectionDialog = new Lang.Class({
             y_align: St.Align.START
         });
 
-        // let options_box = new St.BoxLayout({
-        //     vertical: false
-        // });
-        // this.ssh_key_checkbox = new CheckBox('use SSH key');
-        // options_box.add(this.ssh_key_checkbox.actor, {
-        //     expand: true,
-        //     y_align: St.Align.START
-        // });
-        // this.ssh_key_checkbox.actor.connect('clicked', Lang.bind(this, this.toggle_checkboxes));
-
-        // this.contentLayout.add(options_box, {
-		// 	y_align: St.Align.START
-        // });
+        // FAVOURITE BOX
 
         let favBox_header = new St.Label({
             style_class: 'nm-dialog-header',
             text: 'Favourite connections'
+            // y_align: Clutter.ActorAlign.CENTER
         });
         this.favConnectionsBox = new FavouriteConnectionsBox();
         this.favConnectionsBox.connect('load-favourite', Lang.bind(this, this.load_favourite_connection));
+        this.favConnectionsBox.connect('save-favourite', Lang.bind(this, this.add_favourite));
         this.contentLayout.add(favBox_header, {
             expand: false
         });
@@ -202,10 +180,17 @@ const NewConnectionDialog = new Lang.Class({
 
     add_favourite: function() {
         let connection = new Array();
+        let label = this.favConnectionsBox.get_favourite_label_entry();
+        if (label === '') {
+            label = 'no-name';
+        }
+        connection.label = label;
         connection.address = this.address_field.get_text();
         connection.port = this.port_field.get_text();
         connection.username = this.user_field.get_text();
         this.savedConfig.save_connection_as_a_favourite(connection);
+
+        this.favConnectionsBox.refresh();
     },
 
     connect: function() {
@@ -238,6 +223,7 @@ const NewConnectionDialog = new Lang.Class({
 
             let nmap_title = new St.Label({
                 style_class: 'nm-dialog-header',
+                // y_align: Clutter.ActorAlign.CENTER,
                 text: 'Nmap results'
             });
             
@@ -248,7 +234,7 @@ const NewConnectionDialog = new Lang.Class({
             close_icon.set_icon_name('window-close-symbolic');
             
             let nmap_close_button = new St.Button({
-                style_class: 'nm-dialog-icons'
+                // style_class: 'button custom-button'
             });
             nmap_close_button.set_child(close_icon);
 
@@ -258,7 +244,7 @@ const NewConnectionDialog = new Lang.Class({
             });
             refresh_icon.set_icon_name('view-refresh-symbolic');
             let nmap_refresh_button = new St.Button({
-                style_class: 'nm-dialog-icons'
+                // style_class: 'button custom-button'
             });
             nmap_refresh_button.set_child(refresh_icon);
             

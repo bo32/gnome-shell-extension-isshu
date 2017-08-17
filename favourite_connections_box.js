@@ -27,14 +27,32 @@ const FavouriteConnectionsBox = new Lang.Class({
             vertical: false
         });
         let label = new St.Label({
-            text: 'Favourite\'s label' + '  ',
-            y_align: 2
+            text: 'Favourite\'s label' + ':  ',
+            y_align: Clutter.ActorAlign.CENTER
         });
-        this.label_field = new St.Entry({hint_text: 'hint text'});
+        this.label_field = new St.Entry({hint_text: 'enter a name for the favourite'});
         favourite_label_box.add(label, {
         });
         favourite_label_box.add(this.label_field, {
             expand: true
+        });
+            
+        // SAVE CONNECTION AS FAVOURITE BUTTON
+        let fav_icon = new St.Icon({
+            style_class: 'nm-dialog-icon'
+        });
+        fav_icon.set_icon_name('star-new-symbolic');
+        this.fav_button = new St.Button({
+            style_class: 'button custom-button'
+        });
+        this.fav_button.set_child(fav_icon);
+        // TODO add action on the button
+        this.fav_button.connect('clicked', Lang.bind(this, function() {
+            this.emit('save-favourite');
+        }));
+
+        favourite_label_box.add(this.fav_button, {
+
         });
         content_box.add(favourite_label_box);
 
@@ -53,6 +71,10 @@ const FavouriteConnectionsBox = new Lang.Class({
         content_box.add(this._scrollView);
         this.add_child(content_box);
 
+        this.add_favourite_items();
+    },
+
+    add_favourite_items: function() {
         let savedConfig = new SavedConfiguration();
         let fav_connections = savedConfig.get_favourite_connections();
         for (let fav in fav_connections) {
@@ -73,13 +95,23 @@ const FavouriteConnectionsBox = new Lang.Class({
                 this.selected_item.show_load_fav_button();
             }));
             fav_item.connect('load-favourite', Lang.bind(this, function() {
+                this.label_field.set_text(this.selected_item.connection.label);
                 this.emit('load-favourite');
             }));
         }
     },
 
+    refresh: function() {
+        this._itemBox.remove_all_children();
+        this.add_favourite_items();
+    },
+
     get_selected_item: function() {
         return this.selected_item;
+    },
+
+    get_favourite_label_entry: function() {
+        return this.label_field.get_text();
     }
 
 });
@@ -135,6 +167,7 @@ const FavouriteItem = new Lang.Class({
         });
         load_fav_icon.set_icon_name('document-edit-symbolic');
         this.load_fav_button = new St.Button({
+            style_class: 'button item-button',
             visible: false
         });
         this.load_fav_button.set_child(load_fav_icon);
@@ -149,6 +182,7 @@ const FavouriteItem = new Lang.Class({
         });
         unfav_icon.set_icon_name('window-close-symbolic');
         this.unfav_button = new St.Button({
+            style_class: 'button item-button',
             visible: false
         });
         this.unfav_button.set_child(unfav_icon);

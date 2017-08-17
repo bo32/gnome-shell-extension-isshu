@@ -15,3 +15,22 @@
 .favourite-box {
     padding: 1px; /* doesn't make the favourite item boxes huge */
 }
+  
+.custom-button {
+    /* border-radius: 2px;
+    padding: .1em 1.5em;
+}  */
+    border-radius: 2px;
+    padding-right: .8em;
+    padding-left: .8em;
+} 
+ 
+.item-button {
+    border-radius: 2px;
+    padding-right: .8em;
+    padding-left: .8em;
+} 
+
+.separator {
+    border-bottom: 1px solid red;
+} 

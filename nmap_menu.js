@@ -153,6 +153,7 @@ const NmapItem = new Lang.Class({
         });
         load_nmap_icon.set_icon_name('document-edit-symbolic');
         this.load_nmap_button = new St.Button({
+            style_class: 'button item-button',
             visible: false
         });
         this.load_nmap_button.set_child(load_nmap_icon);
