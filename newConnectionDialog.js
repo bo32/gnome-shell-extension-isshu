@@ -81,7 +81,8 @@ const NewConnectionDialog = new Lang.Class({
 
         // PORT BOX
         let port_box = new St.BoxLayout({
-            vertical: true
+            vertical: true,
+            width: '100'
         });
 
         let port_label = new St.Label({
@@ -95,6 +96,7 @@ const NewConnectionDialog = new Lang.Class({
         this.port_field = new St.Entry({
             // x_expand: true
             // y_align: St.Align.START,
+            hint_text: '22 (default)',
             style_class: 'run-dialog-entry'
         });
         port_box.add(this.port_field);
@@ -103,8 +105,12 @@ const NewConnectionDialog = new Lang.Class({
         let host_box = new St.BoxLayout({
             vertical: false
         });
-        host_box.add(address_box);
-        host_box.add(port_box);
+        host_box.add(address_box, {
+            expand: true
+        });
+        host_box.add(port_box, {
+            x_align: St.Align.END
+        });
 
         this.contentLayout.add(host_box, {
             // x_expand: true,
