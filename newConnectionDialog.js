@@ -12,8 +12,6 @@ const FavouriteConnectionsBox = Me.imports.favourite_connections_box.FavouriteCo
 const SavedConfiguration = Me.imports.saved_configuration.SavedConfiguration;
 const NmapPanel = Me.imports.nmap_menu.NmapPanel;
 
-const HTML_CODE_BULLET_CHARACTER = 8226;
-
 const NewConnectionDialog = new Lang.Class({
     Name: 'NewConnectionDialog',
     Extends: ModalDialog.ModalDialog,
@@ -47,7 +45,6 @@ const NewConnectionDialog = new Lang.Class({
         headline.add(icon);
         headline.add(titleBox);
 
-        // this.contentLayout.style_class = 'nm-dialog-content';
         this.contentLayout.add(headline);
 
         
@@ -58,26 +55,15 @@ const NewConnectionDialog = new Lang.Class({
         });
 
         let label = new St.Label({
-            // y_align: Clutter.ActorAlign.CENTER,
-            // x_align: Clutter.ActorAlign.START,
-            // style_class: 'run-dialog-label',
             text: 'Address'
 		});
         address_box.add(label);
 
         this.address_field = new St.Entry({
-            // x_expand: true
-            // y_align: St.Align.START,
             style_class: 'run-dialog-entry'
         });
         address_box.add(this.address_field);
         this.setInitialKeyFocus(this.address_field);
-
-        // this.contentLayout.add(address_box, {
-        //     // x_expand: true,
-        //     // x_fill: false,
-        //     y_align: St.Align.START
-        // });
 
         // PORT BOX
         let port_box = new St.BoxLayout({
@@ -86,16 +72,11 @@ const NewConnectionDialog = new Lang.Class({
         });
 
         let port_label = new St.Label({
-            // y_align: Clutter.ActorAlign.CENTER,
-            // x_align: Clutter.ActorAlign.START,
-            // style_class: 'run-dialog-label',
-            text: 'Port (optional)'
+            text: 'Port'
 		});
         port_box.add(port_label);
 
         this.port_field = new St.Entry({
-            // x_expand: true
-            // y_align: St.Align.START,
             hint_text: '22 (default)',
             style_class: 'run-dialog-entry'
         });
@@ -113,8 +94,6 @@ const NewConnectionDialog = new Lang.Class({
         });
 
         this.contentLayout.add(host_box, {
-            // x_expand: true,
-            // x_fill: false,
             y_align: St.Align.START
         });
 
@@ -138,7 +117,6 @@ const NewConnectionDialog = new Lang.Class({
         let favBox_header = new St.Label({
             style_class: 'nm-dialog-header',
             text: 'Favourite connections'
-            // y_align: Clutter.ActorAlign.CENTER
         });
         this.favConnectionsBox = new FavouriteConnectionsBox();
         this.favConnectionsBox.connect('load-favourite', Lang.bind(this, this.load_favourite_connection));
@@ -158,7 +136,6 @@ const NewConnectionDialog = new Lang.Class({
         this._nmapButton = this.addButton({
             action: Lang.bind(this, this.showNmap),
             label: "NMap"
-            // key: Clutter.Return
         });
         this._cancelButton = this.addButton({
             action: Lang.bind(this, this.close),
@@ -170,18 +147,6 @@ const NewConnectionDialog = new Lang.Class({
             x_align: St.Align.END
         });
 
-        // this._addFavouriteButton = this.addButton({
-        //     action: Lang.bind(this, this.close),
-        //     label: _("Add favourite"),
-        //     key: Clutter.Escape
-        // }, {
-        //     expand: true,
-        //     x_fill: false,
-        //     x_align: St.Align.END
-        // });
-
-        // add_fav_button.connect('clicked', Lang.bind(this, function () {
-        // }));
     },
 
     add_favourite: function() {
@@ -229,7 +194,6 @@ const NewConnectionDialog = new Lang.Class({
 
             let nmap_title = new St.Label({
                 style_class: 'nm-dialog-header',
-                // y_align: Clutter.ActorAlign.CENTER,
                 text: 'Nmap results'
             });
             
@@ -240,7 +204,6 @@ const NewConnectionDialog = new Lang.Class({
             close_icon.set_icon_name('window-close-symbolic');
             
             let nmap_close_button = new St.Button({
-                // style_class: 'button custom-button'
             });
             nmap_close_button.set_child(close_icon);
 
@@ -250,7 +213,6 @@ const NewConnectionDialog = new Lang.Class({
             });
             refresh_icon.set_icon_name('view-refresh-symbolic');
             let nmap_refresh_button = new St.Button({
-                // style_class: 'button custom-button'
             });
             nmap_refresh_button.set_child(refresh_icon);
             
