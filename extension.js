@@ -8,7 +8,7 @@ const PopupMenu = imports.ui.popupMenu;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const ConnectionsMenu = Me.imports.connections_menu.ConnectionsMenu;
-const NewConnectionDialog = Me.imports.newConnectionDialog;
+const NewConnectionDialog = Me.imports.new_connection_dialog.NewConnectionDialog;
 const SavedConfiguration = Me.imports.saved_configuration.SavedConfiguration;
 
 
@@ -35,7 +35,7 @@ const ISSHUMenuButton = new Lang.Class({
             new St.Label({text: 'New connection', x_expand: true})
         );
         newConnectionMenu.connect('activate', Lang.bind(this, function() {
-            this.newConnectionDialog = new NewConnectionDialog.NewConnectionDialog(this);
+            this.newConnectionDialog = new NewConnectionDialog(this);
             this.newConnectionDialog.open();
         }));
         this.menu.addMenuItem(newConnectionMenu);

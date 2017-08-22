@@ -7,7 +7,7 @@ The tool opens a SSH session in the terminal, based on a username and SSH destin
 The tool can manage favourite connections and save the latest connections.
 The tool also runs Nmap, to scan the local network, and see the available hosts on the network.
 
-Please bear with me as the tool is currently incomplete, but still funcional. Your remarks and your opinions are welcome.
+Please bear with me as the tool is currently incomplete (especially the Nmap feature), but still functional. Your remarks and your opinions are welcome.
 
 ### SCREENSHOT
 
