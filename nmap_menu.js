@@ -52,6 +52,7 @@ const NmapPanel = new Lang.Class({
 
     populate_nmap_list: function() {
         // TODO Cannot manage to parse the result XML, so use the option -oG instead of -oX
+        // TODO add the IP address in preferences.
         let cmd = 'nmap -sn -oG - 192.168.0.1/24';
 
         // thanks to https://github.com/gpouilloux/gnome-shell-extension-docker for the inspiraion.
