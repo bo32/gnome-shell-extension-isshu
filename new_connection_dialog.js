@@ -187,61 +187,63 @@ const NewConnectionDialog = new Lang.Class({
     },
 
     showNmap: function() {
-        if (!this.is_nmap_displayed()) {
-            let header_box = new St.BoxLayout({
-                vertical: false
-            });
-
-            let nmap_title = new St.Label({
-                style_class: 'nm-dialog-header',
-                text: 'Nmap results'
-            });
-            
-            // close button
-            let close_icon = new St.Icon({
-                style_class: 'nm-dialog-icon'
-            });
-            close_icon.set_icon_name('window-close-symbolic');
-            
-            let nmap_close_button = new St.Button({
-            });
-            nmap_close_button.set_child(close_icon);
-
-            // refresh button
-            let refresh_icon = new St.Icon({
-                style_class: 'nm-dialog-icon'
-            });
-            refresh_icon.set_icon_name('view-refresh-symbolic');
-            let nmap_refresh_button = new St.Button({
-            });
-            nmap_refresh_button.set_child(refresh_icon);
-            
-            header_box.add(nmap_title, {
-                expand: true
-            })
-            header_box.add(nmap_refresh_button, {
-                x_align: St.Align.END
-            });
-            header_box.add(nmap_close_button, {
-                x_align: St.Align.END
-            });
-            this.contentLayout.add(header_box, {
-                x_expand: true
-            });
-
-            nmap_refresh_button.connect('clicked', Lang.bind(this, function () {
-                this.contentLayout.remove_child(this.nmap_panel);
-                this.build_and_add_nmap_panel();
-            }));
-
-            nmap_close_button.connect('clicked', Lang.bind(this, function () {
-                this.contentLayout.remove_child(header_box);
-                this.contentLayout.remove_child(this.nmap_panel);
-                this.nmap_displayed = false;
-            }));
-            
-            this.build_and_add_nmap_panel();
+        if (this.is_nmap_displayed()) {
+            return;
         }
+
+        let header_box = new St.BoxLayout({
+            vertical: false
+        });
+
+        let nmap_title = new St.Label({
+            style_class: 'nm-dialog-header',
+            text: 'Nmap results'
+        });
+        
+        // close button
+        let close_icon = new St.Icon({
+            style_class: 'nm-dialog-icon'
+        });
+        close_icon.set_icon_name('window-close-symbolic');
+        
+        let nmap_close_button = new St.Button({
+        });
+        nmap_close_button.set_child(close_icon);
+
+        // refresh button
+        let refresh_icon = new St.Icon({
+            style_class: 'nm-dialog-icon'
+        });
+        refresh_icon.set_icon_name('view-refresh-symbolic');
+        let nmap_refresh_button = new St.Button({
+        });
+        nmap_refresh_button.set_child(refresh_icon);
+        
+        header_box.add(nmap_title, {
+            expand: true
+        })
+        header_box.add(nmap_refresh_button, {
+            x_align: St.Align.END
+        });
+        header_box.add(nmap_close_button, {
+            x_align: St.Align.END
+        });
+        this.contentLayout.add(header_box, {
+            x_expand: true
+        });
+
+        nmap_refresh_button.connect('clicked', Lang.bind(this, function () {
+            this.contentLayout.remove_child(this.nmap_panel);
+            this.build_and_add_nmap_panel();
+        }));
+
+        nmap_close_button.connect('clicked', Lang.bind(this, function () {
+            this.contentLayout.remove_child(header_box);
+            this.contentLayout.remove_child(this.nmap_panel);
+            this.nmap_displayed = false;
+        }));
+        
+        this.build_and_add_nmap_panel();
     },
 
     is_nmap_displayed: function() {

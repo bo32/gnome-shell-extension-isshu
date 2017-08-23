@@ -33,10 +33,22 @@ const NmapPanel = new Lang.Class({
         this._scrollView.add_actor(this._itemBox);
         this.add_child(this._scrollView);
 
-        let item = new LoadingItem();
-        this._itemBox.add_child(item.actor);
-        this.populate_nmap_list();
-	},
+        if (this.is_nmap_installed()) {
+            let item = new LoadingItem();
+            this._itemBox.add_child(item.actor);
+            this.populate_nmap_list();
+        } else {
+            let item = new NmapErrorItem();
+            this._itemBox.add_child(item.actor);
+        }
+
+    },
+
+    is_nmap_installed: function() {
+        [res, out, err, status] = GLib.spawn_command_line_sync('which --skip-alias nmap');
+        // it seems that if the command exists, the status value is 0, and 256 otherwise
+        return status == 0;
+    },
 
     populate_nmap_list: function() {
         // TODO Cannot manage to parse the result XML, so use the option -oG instead of -oX
@@ -179,16 +191,43 @@ const NmapItem = new Lang.Class({
 });
 Signals.addSignalMethods(NmapItem.prototype);
 
-const LoadingItem = new Lang.Class({
-    Name: 'LoadingItem',
+const ListItem = new Lang.Class({
+    Name: 'ListItem',
 
-    _init: function () {
+    _init: function (text) {
 
         this.actor = new St.BoxLayout({
             style_class: 'nm-dialog-item'
             ,can_focus: true
             ,reactive: true
         });
+
+        let label = new St.Label({
+            text: text
+        });
+
+        this.actor.add(label, {
+            x_align: St.Align.START
+        });
+    }
+});
+
+const NmapErrorItem = new Lang.Class({
+    Name: 'NmapErrorItem',
+    Extends: ListItem,
+
+    _init: function() {
+        this.parent('NMap is not installed on your computer. Install it to benefit of this feature.');
+    }
+});
+
+const LoadingItem = new Lang.Class({
+    Name: 'LoadingItem',
+    Extends: ListItem,
+
+    _init: function() {
+
+        this.parent('Loading...');
 
         // TODO this spinner would probably work if the nmap command was truly asynchronous. 
         // let spinnerIcon = Gio.File.new_for_uri('resource:///org/gnome/shell/theme/process-working.svg');
@@ -200,13 +239,5 @@ const LoadingItem = new Lang.Class({
 		// 	opacity: 255,
 		// 	transition: 'linear'
         // });
-
-        let label = new St.Label({
-            text: 'Loading...'
-        });
-
-        this.actor.add(label, {
-            x_align: St.Align.START
-        });
     }
 });
