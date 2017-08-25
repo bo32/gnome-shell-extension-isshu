@@ -197,6 +197,7 @@ const NewConnectionDialog = new Lang.Class({
 
         let nmap_title = new St.Label({
             style_class: 'nm-dialog-header',
+            y_align: St.Align.END,
             text: 'Nmap results'
         });
         
@@ -207,6 +208,7 @@ const NewConnectionDialog = new Lang.Class({
         close_icon.set_icon_name('window-close-symbolic');
         
         let nmap_close_button = new St.Button({
+            style_class: 'button header-button'
         });
         nmap_close_button.set_child(close_icon);
 
@@ -216,6 +218,7 @@ const NewConnectionDialog = new Lang.Class({
         });
         refresh_icon.set_icon_name('view-refresh-symbolic');
         let nmap_refresh_button = new St.Button({
+            style_class: 'button header-button'
         });
         nmap_refresh_button.set_child(refresh_icon);
         

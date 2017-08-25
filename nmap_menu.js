@@ -33,15 +33,15 @@ const NmapPanel = new Lang.Class({
         this._scrollView.add_actor(this._itemBox);
         this.add_child(this._scrollView);
 
+        // add items
+        let item;
         if (this.is_nmap_installed()) {
-            let item = new LoadingItem();
-            this._itemBox.add_child(item.actor);
+            item = new LoadingItem();
             this.populate_nmap_list();
         } else {
-            let item = new NmapErrorItem();
-            this._itemBox.add_child(item.actor);
+            item = new NmapErrorItem();
         }
-
+        this._itemBox.add_child(item.actor);
     },
 
     is_nmap_installed: function() {
@@ -80,8 +80,8 @@ const NmapPanel = new Lang.Class({
 
     add_nmap_items : function(res) {
         if(res['status'] == 0) {
-            let msg = "`" + res['cmd'] + "` terminated successfully";
-            global.log(msg);
+            // let msg = "`" + res['cmd'] + "` terminated successfully";
+            // global.log(msg);
             // global.log(res['out']);
 
             let nmaps =  res['out'].toString();
