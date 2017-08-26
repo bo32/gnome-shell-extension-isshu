@@ -31,9 +31,16 @@ const ConnectionsMenu = new Lang.Class({
 			);
 			this.menu.addMenuItem(menu);
 			menu.connect('activate', Lang.bind(this, function() {
-				let ssh_command = 'ssh ' + this.connection.username + 
+				let ssh_command;
+				if (this.connection.username === '') {
+					ssh_command = 'ssh ' + 
+					this.connection.address + 
+					' -p ' + this.connection.port;
+				} else {
+					ssh_command = 'ssh ' + this.connection.username + 
 					'@' + this.connection.address + 
 					' -p ' + this.connection.port;
+				}
 				Util.spawn(['gnome-terminal', '-e', ssh_command]);
 			}));
 		}

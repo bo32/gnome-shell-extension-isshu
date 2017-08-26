@@ -62,6 +62,12 @@ const NewConnectionDialog = new Lang.Class({
         this.address_field = new St.Entry({
             style_class: 'run-dialog-entry'
         });
+        this.address_field.connect('key_release_event', Lang.bind(this, function() {
+            let last_child = this.contentLayout.get_last_child();
+            if(last_child === this.error_message) {
+                this.contentLayout.remove_child(last_child);
+            }
+        }));
         address_box.add(this.address_field);
         this.setInitialKeyFocus(this.address_field);
 
@@ -110,6 +116,10 @@ const NewConnectionDialog = new Lang.Class({
         
         this.contentLayout.add(this.user_field, {
             y_align: St.Align.START
+        });
+
+        this.error_message = new St.Label({
+            style_class: 'error-message'
         });
 
         // FAVOURITE BOX
@@ -170,15 +180,32 @@ const NewConnectionDialog = new Lang.Class({
         this.favConnectionsBox.refresh();
     },
 
+    show_error_message: function(label) {
+        this.contentLayout.add(label, {
+            y_align: St.Align.START
+        });
+    },
+
     connect_ssh: function() {
-        var username = this.user_field.get_text();
         var address = this.address_field.get_text();
+        if (address === '') {
+            this.error_message.set_text('Enter a server name or IP address.');
+            this.show_error_message(this.error_message);
+            return;
+        }
+        
+        var username = this.user_field.get_text();
         var port = 22;
         if (this.port_field.get_text() != '') {
             port = this.port_field.get_text();
         }
 
-        var ssh_command = 'ssh ' + username + '@' + address + ' -p ' + port;
+        var ssh_command;
+        if (username === '') {
+            ssh_command = 'ssh ' + address + ' -p ' + port;
+        } else {
+            ssh_command = 'ssh ' + username + '@' + address + ' -p ' + port;
+        }
         global.log(ssh_command);
 
         var connection = this.savedConfig.get_connection_from_details(address, port, username);

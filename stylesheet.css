@@ -36,3 +36,7 @@
     padding: 1px .3em 1px .3em;
     margin-left: 1px;
 } 
+
+.error-message {
+    color: red
+}

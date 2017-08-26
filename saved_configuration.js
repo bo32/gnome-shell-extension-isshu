@@ -76,7 +76,11 @@ const SavedConfiguration = new Lang.Class({
     get_connection_as_json: function(connection) {
         let label = connection.label;
         if (label == undefined) {
-            label = connection.username + '@' + connection.address + ':' + connection.port;
+            if (connection.username === '') {
+                label = connection.address + ':' + connection.port;
+            } else {
+                label = connection.username + '@' + connection.address + ':' + connection.port;
+            }
         }
         return {
             "label": label, 
