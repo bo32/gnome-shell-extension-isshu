@@ -63,9 +63,10 @@ const NewConnectionDialog = new Lang.Class({
             style_class: 'run-dialog-entry'
         });
         this.address_field.connect('key_release_event', Lang.bind(this, function() {
-            let last_child = this.contentLayout.get_last_child();
-            if(last_child === this.error_message) {
-                this.contentLayout.remove_child(last_child);
+            // remove the error message if it is present
+            let name = this.error_message.get_name();
+            if(this.contentLayout.find_child_by_name(name) != undefined) {
+                this.contentLayout.remove_child(this.error_message);
             }
         }));
         address_box.add(this.address_field);
@@ -119,7 +120,8 @@ const NewConnectionDialog = new Lang.Class({
         });
 
         this.error_message = new St.Label({
-            style_class: 'error-message'
+            style_class: 'error-message',
+            name: 'error_message'
         });
 
         // FAVOURITE BOX
