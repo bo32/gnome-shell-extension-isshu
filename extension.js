@@ -35,8 +35,10 @@ const ISSHUMenuButton = new Lang.Class({
             new St.Label({text: 'New connection', x_expand: true})
         );
         newConnectionMenu.connect('activate', Lang.bind(this, function() {
-            this.newConnectionDialog = new NewConnectionDialog(this);
+            this.newConnectionDialog = new NewConnectionDialog();
             this.newConnectionDialog.open();
+            this.newConnectionDialog.connect('rebuild-favourite-menu', Lang.bind(this, this.rebuild_favourite_menu));
+            this.newConnectionDialog.connect('rebuild-latest-menu', Lang.bind(this, this.rebuild_latest_menu));
         }));
         this.menu.addMenuItem(newConnectionMenu);
 
@@ -44,13 +46,25 @@ const ISSHUMenuButton = new Lang.Class({
 
         /* Latest connections menu */
         var latests = savedConfig.get_latest_connections();
-        var latestConnectionsMenu = new ConnectionsMenu('Latest connections', latests, 'document-open-recent-symbolic');
-        this.menu.addMenuItem(latestConnectionsMenu);
+        this.latestConnectionsMenu = new ConnectionsMenu('Latest connections', latests, 'document-open-recent-symbolic');
+        this.menu.addMenuItem(this.latestConnectionsMenu);
         
         /* Favorite connections menu */
         var favourites = savedConfig.get_favourite_connections();
-        var favouritesConnectionsMenu = new ConnectionsMenu('Favourite connections', favourites, 'starred-symbolic');
-        this.menu.addMenuItem(favouritesConnectionsMenu);
+        this.favouritesConnectionsMenu = new ConnectionsMenu('Favourite connections', favourites, 'starred-symbolic');
+        this.menu.addMenuItem(this.favouritesConnectionsMenu);
+    },
+
+    rebuild_favourite_menu: function() {
+        let savedConfig = new SavedConfiguration();
+        let favourites = savedConfig.get_favourite_connections();
+        this.favouritesConnectionsMenu.rebuild(favourites);
+    },
+
+    rebuild_latest_menu: function() {
+        let savedConfig = new SavedConfiguration();
+        let latests = savedConfig.get_latest_connections();
+        this.latestConnectionsMenu.rebuild(latests);
     },
 
     get_icon_box: function() {

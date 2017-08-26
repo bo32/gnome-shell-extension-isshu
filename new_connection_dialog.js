@@ -121,6 +121,9 @@ const NewConnectionDialog = new Lang.Class({
         this.favConnectionsBox = new FavouriteConnectionsBox();
         this.favConnectionsBox.connect('load-favourite', Lang.bind(this, this.load_favourite_connection));
         this.favConnectionsBox.connect('save-favourite', Lang.bind(this, this.add_favourite));
+        this.favConnectionsBox.connect('favourite-deleted', Lang.bind(this, function() {
+            this.rebuild_favourite_menu = true;
+        }));
         this.contentLayout.add(favBox_header, {
             expand: false
         });
@@ -129,7 +132,7 @@ const NewConnectionDialog = new Lang.Class({
         });
 
         this._connectButton = this.addButton({
-            action: Lang.bind(this, this.connect),
+            action: Lang.bind(this, this.connect_ssh),
             label: "Connect",
             key: Clutter.Return
         });
@@ -138,7 +141,7 @@ const NewConnectionDialog = new Lang.Class({
             label: "NMap"
         });
         this._cancelButton = this.addButton({
-            action: Lang.bind(this, this.close),
+            action: Lang.bind(this, this.close_dialog),
             label: _("Cancel"),
             key: Clutter.Escape
         }, {
@@ -147,6 +150,8 @@ const NewConnectionDialog = new Lang.Class({
             x_align: St.Align.END
         });
 
+        this.rebuild_latest_menu = false;
+        this.rebuild_favourite_menu = false;
     },
 
     add_favourite: function() {
@@ -160,11 +165,12 @@ const NewConnectionDialog = new Lang.Class({
         connection.port = this.port_field.get_text();
         connection.username = this.user_field.get_text();
         this.savedConfig.save_connection_as_a_favourite(connection);
+        this.rebuild_favourite_menu = true;
 
         this.favConnectionsBox.refresh();
     },
 
-    connect: function() {
+    connect_ssh: function() {
         var username = this.user_field.get_text();
         var address = this.address_field.get_text();
         var port = 22;
@@ -182,8 +188,8 @@ const NewConnectionDialog = new Lang.Class({
         // TODO need to be able to choose the terminal
         Util.spawn(['gnome-terminal', '-e', ssh_command]);
 
-        this.nmap_displayed = true;
-        this.close();
+        this.rebuild_latest_menu = true;
+        this.close_dialog();
     },
 
     showNmap: function() {
@@ -272,6 +278,16 @@ const NewConnectionDialog = new Lang.Class({
             this.user_field.set_text('');
         }));
         this.nmap_displayed = true;
+    },
+
+    close_dialog: function() {
+        if(this.rebuild_favourite_menu) {
+            this.emit('rebuild-favourite-menu');
+        }
+        if(this.rebuild_latest_menu) {
+            this.emit('rebuild-latest-menu');
+        }
+        this.close();
     }
 
 });

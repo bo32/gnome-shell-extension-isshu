@@ -14,6 +14,15 @@ const ConnectionsMenu = new Lang.Class({
 		this.icon.gicon = Gio.icon_new_for_string(icon);
 		this.icon.icon_size = 16;
 
+		this.add_menus(connections);
+
+		this.controlsBox = new St.BoxLayout({
+            name: 'controlsBox',
+            style_class: 'control-box'
+        });
+	},
+
+	add_menus: function(connections) {
 		for(var c in connections) {
 			let menu = new PopupMenu.PopupBaseMenuItem();
 			this.connection = connections[c];
@@ -28,11 +37,11 @@ const ConnectionsMenu = new Lang.Class({
 				Util.spawn(['gnome-terminal', '-e', ssh_command]);
 			}));
 		}
-
-		this.controlsBox = new St.BoxLayout({
-            name: 'controlsBox',
-            style_class: 'control-box'
-        });
 	},
+
+	rebuild: function(connections) {
+		this.menu.removeAll();
+		this.add_menus(connections);
+	}
 
 });

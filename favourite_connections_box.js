@@ -80,8 +80,9 @@ const FavouriteConnectionsBox = new Lang.Class({
         for (let fav in fav_connections) {
             let fav_item = new FavouriteItem(fav_connections[fav], fav);
             this._itemBox.add_child(fav_item.actor);
-            fav_item.connect('favourite_deleted', Lang.bind(this, function() {
+            fav_item.connect('favourite-deleted', Lang.bind(this, function() {
                 this._itemBox.remove_child(fav_item.actor);
+                this.emit('favourite-deleted');
             }));
             fav_item.connect('selected', Lang.bind(this, function(){
                 if (this.selected_item) {
@@ -214,7 +215,7 @@ const FavouriteItem = new Lang.Class({
 
     remove_favourite: function() {
         this.savedConfig.remove_connection_from_favourites(this.index);
-        this.emit('favourite_deleted');
+        this.emit('favourite-deleted');
     },
 
     show_unfav_button: function() {
