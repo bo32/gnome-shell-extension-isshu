@@ -82,10 +82,6 @@ const SSHPrefsWidget = new GObject.Class({
 function init() {
 }
 
-// function SSHPrefsWidget() {
-//     this._init();
-// }
-
 function buildPrefsWidget() {
     let widget = new SSHPrefsWidget();
 	return widget._completePrefsWidget();

@@ -46,7 +46,6 @@ const FavouriteConnectionsBox = new Lang.Class({
             style_class: 'button custom-button'
         });
         this.fav_button.set_child(fav_icon);
-        // TODO add action on the button
         this.fav_button.connect('clicked', Lang.bind(this, function() {
             this.emit('save-favourite');
         }));
