@@ -7,6 +7,8 @@ const Util = imports.misc.util;
 
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
+const Convenience = Me.imports.convenience;
+const Settings = Convenience.getSettings();
 
 const FavouriteConnectionsBox = Me.imports.favourite_connections_box.FavouriteConnectionsBox;
 const SavedConfiguration = Me.imports.saved_configuration.SavedConfiguration;
@@ -218,8 +220,7 @@ const NewConnectionDialog = new Lang.Class({
         this.savedConfig.save_connection_as_a_latest(connection);
 
         // can also use 'xterm'
-        // TODO need to be able to choose the terminal
-        Util.spawn(['gnome-terminal', '-e', ssh_command]);
+        Util.spawn([Settings.get_string('terminal-client'), '-e', ssh_command]);
 
         this.rebuild_latest_menu = true;
         this.close_dialog();

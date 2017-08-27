@@ -4,6 +4,11 @@ const Gio = imports.gi.Gio;
 const Util = imports.misc.util;
 const PopupMenu = imports.ui.popupMenu;
 
+const ExtensionUtils = imports.misc.extensionUtils;
+const Me = ExtensionUtils.getCurrentExtension();
+const Convenience = Me.imports.convenience;
+const Settings = Convenience.getSettings();
+
 const ConnectionsMenu = new Lang.Class({
 
 	Name: 'ConnectionsMenu',
@@ -41,7 +46,7 @@ const ConnectionsMenu = new Lang.Class({
 					'@' + this.connection.address + 
 					' -p ' + this.connection.port;
 				}
-				Util.spawn(['gnome-terminal', '-e', ssh_command]);
+				Util.spawn([Settings.get_string('terminal-client'), '-e', ssh_command]);
 			}));
 		}
 	},
