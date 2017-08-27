@@ -1,5 +1,6 @@
 
 const Main = imports.ui.main;
+const Shell = imports.gi.Shell;
 const St = imports.gi.St;
 const Gio = imports.gi.Gio;
 const Lang = imports.lang;
@@ -39,6 +40,10 @@ const ISSHUMenuButton = new Lang.Class({
             this.newConnectionDialog.open();
             this.newConnectionDialog.connect('rebuild-favourite-menu', Lang.bind(this, this.rebuild_favourite_menu));
             this.newConnectionDialog.connect('rebuild-latest-menu', Lang.bind(this, this.rebuild_latest_menu));
+            this.newConnectionDialog.connect('open-preferences', Lang.bind(this, function() {
+                launch_extension_prefs(Me.uuid);
+                this.newConnectionDialog.close_dialog();
+            }));
         }));
         this.menu.addMenuItem(newConnectionMenu);
 
@@ -72,7 +77,8 @@ const ISSHUMenuButton = new Lang.Class({
         let gicon = Gio.icon_new_for_string(Me.path + '/icons/dessin-symbolic.svg');
         let icon = new St.Icon({
             gicon: gicon,
-            'icon_size': icon_size});
+            icon_size: icon_size
+        });
         hbox.add_child(icon);
         return hbox;
     },
@@ -90,8 +96,24 @@ function init() {
 function enable() {
     menu = new ISSHUMenuButton();
     Main.panel.addToStatusArea('iSSHu', menu);
+
+    menu.connect('open-preferences', function () {
+        let app = launch_extension_prefs(Me.uuid);
+    });
 }
 
 function disable() {
     menu.destroy();
+}
+
+function launch_extension_prefs(uuid) {
+    let appSys = Shell.AppSystem.get_default();
+    let app = appSys.lookup_app('gnome-shell-extension-prefs.desktop');
+    let info = app.get_app_info();
+    let timestamp = global.display.get_current_time_roundtrip();
+    info.launch_uris(
+        ['extension:///' + uuid],
+        global.create_app_launch_context(timestamp, -1)
+    );
+    return app;
 }

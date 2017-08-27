@@ -152,6 +152,10 @@ const NewConnectionDialog = new Lang.Class({
             action: Lang.bind(this, this.showNmap),
             label: "NMap"
         });
+        this._prefButton = this.addButton({
+            action: Lang.bind(this, this.showPreferences),
+            label: "Preferences"
+        });
         this._cancelButton = this.addButton({
             action: Lang.bind(this, this.close_dialog),
             label: _("Cancel"),
@@ -219,6 +223,10 @@ const NewConnectionDialog = new Lang.Class({
 
         this.rebuild_latest_menu = true;
         this.close_dialog();
+    },
+
+    showPreferences: function() {
+        this.emit('open-preferences');
     },
 
     showNmap: function() {

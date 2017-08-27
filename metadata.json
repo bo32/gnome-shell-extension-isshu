@@ -3,5 +3,6 @@
     "shell-version": ["3.22", "3.22.2", "3.23", "3.24"], 
     "description": "SSH utility. Allows the user saving a history of the few last connections, keep a list of favourites, but also use the results of Nmap. For the latter, it requires Nmap to be installed.", 
     "name": "IsshU",
-    "url": "https://github.com/bo32/gnome-shell-extension-isshu"
+    "url": "https://github.com/bo32/gnome-shell-extension-isshu",
+	"settings-schema": "org.gnome.shell.extensions.isshu"
 }

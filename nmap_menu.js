@@ -10,6 +10,8 @@ const Tweener = imports.ui.tweener;
 const Signals = imports.signals;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
+const Convenience = Me.imports.convenience;
+const Settings = Convenience.getSettings();
 
 const NmapPanel = new Lang.Class({
     Name: 'NmapPanel',
@@ -52,8 +54,7 @@ const NmapPanel = new Lang.Class({
 
     populate_nmap_list: function() {
         // TODO Cannot manage to parse the result XML, so use the option -oG instead of -oX
-        // TODO add the IP address in preferences.
-        let cmd = 'nmap -sn -oG - 192.168.0.1/24';
+        let cmd = 'nmap -sn -oG - ' + Settings.get_string('nmap-network');
 
         // thanks to https://github.com/gpouilloux/gnome-shell-extension-docker for the inspiraion.
         // TODO eventually use GLib.spawn_async, GLib.child_watch_add and GLib.io_add_watch for a real async.
