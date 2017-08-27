@@ -1,5 +1,11 @@
 const GObject = imports.gi.GObject;
 const Gtk = imports.gi.Gtk;
+const Lang = imports.lang;
+
+const ExtensionUtils = imports.misc.extensionUtils;
+const Me = ExtensionUtils.getCurrentExtension();
+const Convenience = Me.imports.convenience;
+const Settings = Convenience.getSettings();
 
 const SSHPrefsWidget = new GObject.Class({
     Name: 'SSHPrefsWidget',
@@ -27,10 +33,24 @@ const SSHPrefsWidget = new GObject.Class({
 		});
 		this.nmap_network_field = new Gtk.Entry({
 			hexpand: true,
-			halign: Gtk.Align.FILL
+            halign: Gtk.Align.FILL,
+            text: Settings.get_string('nmap-network')
         });
 		this._grid.attach(nmap_network_label, 0, 0, 1, 1);
         this._grid.attach(this.nmap_network_field, 1, 0, 3, 1);
+
+        /* Terminal client field */
+		let terminal_client_label = new Gtk.Label({
+			label: 'Terminal to use',
+			halign: Gtk.Align.START
+		});
+		this.terminal_client_field = new Gtk.Entry({
+			hexpand: true,
+            halign: Gtk.Align.FILL,
+            text: Settings.get_string('terminal-client')
+        });
+		this._grid.attach(terminal_client_label, 0, 1, 1, 1);
+        this._grid.attach(this.terminal_client_field, 1, 1, 3, 1);
         
         this.vbox.add(this._grid);
         
@@ -45,7 +65,16 @@ const SSHPrefsWidget = new GObject.Class({
         scrollingWindow.add_with_viewport(this.vbox);
         scrollingWindow.width_request = 400;
         scrollingWindow.show_all();
-		scrollingWindow.unparent();
+        scrollingWindow.unparent();
+        scrollingWindow.connect('destroy', Lang.bind(this, function() {
+            if (this.nmap_network_field.get_text() != Settings.get_string('nmap-network')) {
+                Settings.set_string('nmap-network', this.nmap_network_field.get_text());
+            }
+            if (this.terminal_client_field.get_text() != Settings.get_string('terminal-client')) {
+                Settings.set_string('terminal-client', this.terminal_client_field.get_text());
+            }
+        }));
+
         return scrollingWindow;
 },
 });
