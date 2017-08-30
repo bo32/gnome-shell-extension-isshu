@@ -249,19 +249,25 @@ const NewConnectionDialog = new Lang.Class({
             port = this.port_field.get_text();
         }
 
-        var ssh_command;
-        if (username === '') {
-            ssh_command = 'ssh ' + address + ' -p ' + port;
-        } else {
-            ssh_command = 'ssh ' + username + '@' + address + ' -p ' + port;
+        var ssh_command = ['ssh'];
+        if (this.use_private_key.actor.get_checked()) {
+            ssh_command.push('-i');
+            ssh_command.push(Settings.get_string('ssh-key-path'));
         }
+
+        if (username === '') {
+            ssh_command.push(address);
+        } else {
+            ssh_command.push(username + '@' + address);
+        }
+        ssh_command.push('-p');
+        ssh_command.push(port);
         global.log(ssh_command);
 
         var connection = this.savedConfig.get_connection_from_details(address, port, username);
         this.savedConfig.save_connection_as_a_latest(connection);
 
-        // can also use 'xterm'
-        Util.spawn([Settings.get_string('terminal-client'), '-e', ssh_command]);
+        Util.spawn([Settings.get_string('terminal-client'), '-e', ssh_command.join(' ')]);
 
         this.rebuild_latest_menu = true;
         this.close_dialog();
