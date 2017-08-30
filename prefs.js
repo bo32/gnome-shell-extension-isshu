@@ -7,6 +7,8 @@ const Me = ExtensionUtils.getCurrentExtension();
 const Convenience = Me.imports.convenience;
 const Settings = Convenience.getSettings();
 
+const SSHConfiguration = Me.imports.ssh_config.SSHConfiguration;
+
 const SSHPrefsWidget = new GObject.Class({
     Name: 'SSHPrefsWidget',
     GTypeName: 'SSHPrefsWidget',
@@ -52,6 +54,23 @@ const SSHPrefsWidget = new GObject.Class({
 		this._grid.attach(terminal_client_label, 0, 1, 1, 1);
         this._grid.attach(this.terminal_client_field, 1, 1, 3, 1);
         
+        /* SSH key location */
+		let ssh_key_location_label = new Gtk.Label({
+			label: 'SSH private key location',
+			halign: Gtk.Align.START
+		});
+		this.ssh_key_location_field = new Gtk.Entry({
+			hexpand: true,
+            halign: Gtk.Align.FILL,
+            text: Settings.get_string('ssh-key-path')
+        });
+        if (Settings.get_string('ssh-key-path') === '') {
+            let ssh_config = new SSHConfiguration();
+            this.ssh_key_location_field.set_text(ssh_config.get_default_location());
+        }
+		this._grid.attach(ssh_key_location_label, 0, 2, 1, 1);
+        this._grid.attach(this.ssh_key_location_field, 1, 2, 3, 1);
+        
         this.vbox.add(this._grid);
         
         return;
@@ -72,6 +91,9 @@ const SSHPrefsWidget = new GObject.Class({
             }
             if (this.terminal_client_field.get_text() != Settings.get_string('terminal-client')) {
                 Settings.set_string('terminal-client', this.terminal_client_field.get_text());
+            }
+            if (this.ssh_key_location_field.get_text() != Settings.get_string('ssh-key-path')) {
+                Settings.set_string('ssh-key-path', this.ssh_key_location_field.get_text());
             }
         }));
 

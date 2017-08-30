@@ -38,5 +38,9 @@
 } 
 
 .error-message {
-    color: red
+    color: red;
+}
+
+.deactivated-checkbox {
+    color: gray;
 }

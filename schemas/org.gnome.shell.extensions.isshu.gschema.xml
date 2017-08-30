@@ -2,13 +2,17 @@
 <schemalist gettext-domain="gnome-shell-extensions">
     <schema path="/org/gnome/shell/extensions/isshu/" id="org.gnome.shell.extensions.isshu">
 
-    <key type="s" name="nmap-network">
-        <default>'192.168.0.1/24'</default>
-    </key>
+        <key type="s" name="nmap-network">
+            <default>'192.168.0.1/24'</default>
+        </key>
 
-    <key type="s" name="terminal-client">
-        <default>'gnome-terminal'</default>
-    </key>
+        <key type="s" name="terminal-client">
+            <default>'gnome-terminal'</default>
+        </key>
+
+        <key type="s" name="ssh-key-path">
+            <default>''</default>
+        </key>
 
     </schema>
 </schemalist>

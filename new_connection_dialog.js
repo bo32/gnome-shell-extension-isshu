@@ -13,6 +13,7 @@ const Settings = Convenience.getSettings();
 const FavouriteConnectionsBox = Me.imports.favourite_connections_box.FavouriteConnectionsBox;
 const SavedConfiguration = Me.imports.saved_configuration.SavedConfiguration;
 const NmapPanel = Me.imports.nmap_menu.NmapPanel;
+const SSHConfiguration = Me.imports.ssh_config.SSHConfiguration;
 
 const NewConnectionDialog = new Lang.Class({
     Name: 'NewConnectionDialog',
@@ -106,10 +107,18 @@ const NewConnectionDialog = new Lang.Class({
             y_align: St.Align.START
         });
 
+        let auth_box = new St.BoxLayout({
+            vertical: false
+        });
+
+        let user_box = new St.BoxLayout({
+            vertical: true
+        });
+
         let user_label = new St.Label({
             text: 'User'
 		});
-        this.contentLayout.add(user_label, {
+        user_box.add(user_label, {
 			y_align: St.Align.START
         });
 
@@ -117,7 +126,39 @@ const NewConnectionDialog = new Lang.Class({
             style_class: 'run-dialog-entry'
         });
         
-        this.contentLayout.add(this.user_field, {
+        user_box.add(this.user_field, {
+            y_align: St.Align.START
+        });
+
+        let check_boxes = new St.BoxLayout({
+            vertical: true
+        });
+
+        this.use_private_key = new CheckBox('Use private key authentication', {
+        });
+        
+        check_boxes.add(this.use_private_key.actor, {
+            y_align: St.Align.START
+        });
+        
+        let ssh_config = new SSHConfiguration();
+        if (ssh_config.is_private_key_present()) {
+            this.use_private_key.actor.reactive = true;
+        } else {
+            let label = this.use_private_key.getLabelActor();
+            label.add_style_class_name('deactivated-checkbox');
+            this.use_private_key.actor.reactive = false;
+        }
+
+        auth_box.add(user_box, {
+            y_align: St.Align.START
+        });
+
+        auth_box.add(check_boxes, {
+            y_align: St.Align.MIDDLE
+        });
+
+        this.contentLayout.add(auth_box, {
             y_align: St.Align.START
         });
 
