@@ -223,6 +223,7 @@ const NewConnectionDialog = new Lang.Class({
         connection.address = this.address_field.get_text();
         connection.port = this.port_field.get_text();
         connection.username = this.user_field.get_text();
+        connection.use_private_key = this.use_private_key.actor.get_checked();
         this.savedConfig.save_connection_as_a_favourite(connection);
         this.rebuild_favourite_menu = true;
 
@@ -250,7 +251,8 @@ const NewConnectionDialog = new Lang.Class({
         }
 
         var ssh_command = ['ssh'];
-        if (this.use_private_key.actor.get_checked()) {
+        var use_private_key = this.use_private_key.actor.get_checked();
+        if (use_private_key) {
             ssh_command.push('-i');
             ssh_command.push(Settings.get_string('ssh-key-path'));
         }
@@ -264,7 +266,7 @@ const NewConnectionDialog = new Lang.Class({
         ssh_command.push(port);
         global.log(ssh_command);
 
-        var connection = this.savedConfig.get_connection_from_details(address, port, username);
+        var connection = this.savedConfig.get_connection_from_details(address, port, username, use_private_key);
         this.savedConfig.save_connection_as_a_latest(connection);
 
         Util.spawn([Settings.get_string('terminal-client'), '-e', ssh_command.join(' ')]);
@@ -349,6 +351,7 @@ const NewConnectionDialog = new Lang.Class({
         this.address_field.set_text(connection.address);
         this.port_field.set_text(connection.port);
         this.user_field.set_text(connection.username);
+        this.use_private_key.actor.set_checked(connection.use_private_key);
     },
 
     build_and_add_nmap_panel: function() {
@@ -361,6 +364,7 @@ const NewConnectionDialog = new Lang.Class({
             this.address_field.set_text(address);
             this.port_field.set_text('');
             this.user_field.set_text('');
+            this.use_private_key.actor.set_checked(false);
         }));
         this.nmap_displayed = true;
     },

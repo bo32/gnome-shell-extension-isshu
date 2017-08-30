@@ -86,15 +86,17 @@ const SavedConfiguration = new Lang.Class({
             "label": label, 
 			"address": connection.address,
 			"port": connection.port,
-			"username": connection.username
+			"username": connection.username,
+			"use_private_key": connection.use_private_key
         };
     },
 
-    get_connection_from_details: function(address, port, username) {
+    get_connection_from_details: function(address, port, username, use_private_key) {
         let connection = new Array();
         connection.address = address;
         connection.username = username;
         connection.port = port;
+        connection.use_private_key = use_private_key;
         return connection;
     },
 
