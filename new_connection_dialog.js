@@ -2,8 +2,7 @@ const ModalDialog = imports.ui.modalDialog;
 const CheckBox = imports.ui.checkBox.CheckBox;
 const Lang = imports.lang;
 const St = imports.gi.St;
-const Clutter = imports.gi.Clutter; 
-const Util = imports.misc.util;
+const Clutter = imports.gi.Clutter;
 
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
@@ -14,6 +13,7 @@ const FavouriteConnectionsBox = Me.imports.favourite_connections_box.FavouriteCo
 const SavedConfiguration = Me.imports.saved_configuration.SavedConfiguration;
 const NmapPanel = Me.imports.nmap_menu.NmapPanel;
 const SSHConfiguration = Me.imports.ssh_config.SSHConfiguration;
+const SSHConnection = Me.imports.ssh_connection.SSHConnection;
 
 const NewConnectionDialog = new Lang.Class({
     Name: 'NewConnectionDialog',
@@ -243,33 +243,15 @@ const NewConnectionDialog = new Lang.Class({
             this.show_error_message(this.error_message);
             return;
         }
-        
         var username = this.user_field.get_text();
-        var port = 22;
-        if (this.port_field.get_text() != '') {
-            port = this.port_field.get_text();
-        }
-
-        var ssh_command = ['ssh'];
+        var port = this.port_field.get_text();
         var use_private_key = this.use_private_key.actor.get_checked();
-        if (use_private_key) {
-            ssh_command.push('-i');
-            ssh_command.push(Settings.get_string('ssh-key-path'));
-        }
-
-        if (username === '') {
-            ssh_command.push(address);
-        } else {
-            ssh_command.push(username + '@' + address);
-        }
-        ssh_command.push('-p');
-        ssh_command.push(port);
-        global.log(ssh_command);
 
         var connection = this.savedConfig.get_connection_from_details(address, port, username, use_private_key);
         this.savedConfig.save_connection_as_a_latest(connection);
 
-        Util.spawn([Settings.get_string('terminal-client'), '-e', ssh_command.join(' ')]);
+        let ssh_connection = new SSHConnection(connection);
+        ssh_connection.start();
 
         this.rebuild_latest_menu = true;
         this.close_dialog();

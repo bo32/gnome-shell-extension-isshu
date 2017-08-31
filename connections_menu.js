@@ -8,6 +8,7 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const Convenience = Me.imports.convenience;
 const Settings = Convenience.getSettings();
+const SSHConnection = Me.imports.ssh_connection.SSHConnection;
 
 const ConnectionsMenu = new Lang.Class({
 
@@ -36,17 +37,8 @@ const ConnectionsMenu = new Lang.Class({
 			);
 			this.menu.addMenuItem(menu);
 			menu.connect('activate', Lang.bind(this, function() {
-				let ssh_command;
-				if (this.connection.username === '') {
-					ssh_command = 'ssh ' + 
-					this.connection.address + 
-					' -p ' + this.connection.port;
-				} else {
-					ssh_command = 'ssh ' + this.connection.username + 
-					'@' + this.connection.address + 
-					' -p ' + this.connection.port;
-				}
-				Util.spawn([Settings.get_string('terminal-client'), '-e', ssh_command]);
+				let ssh_connection = new SSHConnection(this.connection);
+				ssh_connection.start();
 			}));
 		}
 	},
