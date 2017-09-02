@@ -174,9 +174,9 @@ const NewConnectionDialog = new Lang.Class({
             text: 'Favourite connections'
         });
         this.favConnectionsBox = new FavouriteConnectionsBox();
-        this.favConnectionsBox.connect('load-favourite', Lang.bind(this, this.load_favourite_connection));
-        this.favConnectionsBox.connect('save-favourite', Lang.bind(this, this.add_favourite));
-        this.favConnectionsBox.connect('favourite-deleted', Lang.bind(this, function() {
+        this.favConnectionsBox.custom_signals.connect('load-favourite', Lang.bind(this, this.load_favourite_connection));
+        this.favConnectionsBox.custom_signals.connect('save-favourite', Lang.bind(this, this.add_favourite));
+        this.favConnectionsBox.custom_signals.connect('favourite-deleted', Lang.bind(this, function() {
             this.rebuild_favourite_menu = true;
         }));
         this.contentLayout.add(favBox_header, {
@@ -185,6 +185,7 @@ const NewConnectionDialog = new Lang.Class({
         this.contentLayout.add(this.favConnectionsBox, {
             expand: true
         });
+        this.nmap_displayed = false;
 
         this._connectButton = this.addButton({
             action: Lang.bind(this, this.connect_ssh),
@@ -341,7 +342,7 @@ const NewConnectionDialog = new Lang.Class({
         this.contentLayout.add(this.nmap_panel, {
             expand: false
         });
-        this.nmap_panel.connect('load-nmap', Lang.bind(this, function() {
+        this.nmap_panel.custom_signals.connect('load-nmap', Lang.bind(this, function() {
             let address = this.nmap_panel.get_selected_item().get_host();
             this.address_field.set_text(address);
             this.port_field.set_text('');

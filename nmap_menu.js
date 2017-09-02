@@ -12,6 +12,7 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const Convenience = Me.imports.convenience;
 const Settings = Convenience.getSettings();
+const CustomSignals = Me.imports.custom_signals.CustomSignals;
 
 const NmapPanel = new Lang.Class({
     Name: 'NmapPanel',
@@ -21,6 +22,8 @@ const NmapPanel = new Lang.Class({
         this.parent({
             layout_manager: new Clutter.BinLayout()
         });
+
+        this.custom_signals = new CustomSignals();
 
         this._itemBox = new St.BoxLayout({
             vertical: true
@@ -47,7 +50,7 @@ const NmapPanel = new Lang.Class({
     },
 
     is_nmap_installed: function() {
-        [res, out, err, status] = GLib.spawn_command_line_sync('which --skip-alias nmap');
+        let [res, out, err, status] = GLib.spawn_command_line_sync('which --skip-alias nmap');
         // it seems that if the command exists, the status value is 0, and 256 otherwise
         return status == 0;
     },
@@ -58,9 +61,9 @@ const NmapPanel = new Lang.Class({
 
         // thanks to https://github.com/gpouilloux/gnome-shell-extension-docker for the inspiraion.
         // TODO eventually use GLib.spawn_async, GLib.child_watch_add and GLib.io_add_watch for a real async.
-        let res, out, err, status;
+        // let res, out, err, status;
         return this.async(function() {
-                [res, out, err, status] = GLib.spawn_command_line_sync(cmd);
+                let [res, out, err, status] = GLib.spawn_command_line_sync(cmd);
                 return {
                 cmd: cmd,
                 res: res,
@@ -103,7 +106,7 @@ const NmapPanel = new Lang.Class({
             for (let h in hosts) {
                 let item = new NmapItem(hosts[h]);
                 this._itemBox.add_child(item.actor);
-                item.connect('selected', Lang.bind(this, function(){
+                item.connect('item-selected', Lang.bind(this, function(){
                     if (this.selected_item) {
                         this.selected_item.actor.remove_style_pseudo_class('selected');
                         this.selected_item.hide_load_nmap_button();
@@ -113,7 +116,7 @@ const NmapPanel = new Lang.Class({
                     this.selected_item.show_load_nmap_button();
                 }));
                 item.connect('load-nmap', Lang.bind(this, function(){
-                    this.emit('load-nmap');
+                    this.custom_signals.emit('load-nmap');
                 }));
             }
         } else {
@@ -128,14 +131,11 @@ const NmapPanel = new Lang.Class({
         return this.selected_item;
     },
 });
-Signals.addSignalMethods(NmapPanel.prototype);
 
+const ListItem = new Lang.Class({
+    Name: 'ListItem',
 
-const NmapItem = new Lang.Class({
-    Name: 'NmapItem',
-
-    _init: function (host) {
-        this.host = host;
+    _init: function (text) {
 
         this.actor = new St.BoxLayout({
             style_class: 'nm-dialog-item'
@@ -144,13 +144,24 @@ const NmapItem = new Lang.Class({
         });
 
         let label = new St.Label({
-            text: host
+            text: text
         });
 
         this.actor.add(label, {
             expand: true,
             x_align: St.Align.START
         });
+    }
+});
+
+const NmapItem = new Lang.Class({
+    Name: 'NmapItem',
+    Extends: ListItem,
+
+    _init: function (host) {
+        this.parent(host);
+
+        this.host = host;
 
         let action = new Clutter.ClickAction();
         action.connect('clicked', Lang.bind(this, function () {
@@ -158,7 +169,7 @@ const NmapItem = new Lang.Class({
         }));
         this.actor.add_action(action);
         this.actor.connect('key-focus-in', Lang.bind(this, function() {
-            this.emit('selected');
+            this.emit('item-selected');
         }));
 
          // LOAD NMAP BUTTON
@@ -192,27 +203,6 @@ const NmapItem = new Lang.Class({
     }
 });
 Signals.addSignalMethods(NmapItem.prototype);
-
-const ListItem = new Lang.Class({
-    Name: 'ListItem',
-
-    _init: function (text) {
-
-        this.actor = new St.BoxLayout({
-            style_class: 'nm-dialog-item'
-            ,can_focus: true
-            ,reactive: true
-        });
-
-        let label = new St.Label({
-            text: text
-        });
-
-        this.actor.add(label, {
-            x_align: St.Align.START
-        });
-    }
-});
 
 const NmapErrorItem = new Lang.Class({
     Name: 'NmapErrorItem',

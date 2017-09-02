@@ -8,6 +8,7 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
 const SavedConfiguration = Me.imports.saved_configuration.SavedConfiguration;
+const CustomSignals = Me.imports.custom_signals.CustomSignals;
 
 const FavouriteConnectionsBox = new Lang.Class({
     Name: 'FavouriteConnectionsBox',
@@ -17,6 +18,8 @@ const FavouriteConnectionsBox = new Lang.Class({
         this.parent({
             layout_manager: new Clutter.BinLayout()
         });
+
+        this.custom_signals = new CustomSignals();
 
         let content_box = new St.BoxLayout({
             vertical: true,
@@ -47,7 +50,7 @@ const FavouriteConnectionsBox = new Lang.Class({
         });
         this.fav_button.set_child(fav_icon);
         this.fav_button.connect('clicked', Lang.bind(this, function() {
-            this.emit('save-favourite');
+            this.custom_signals.emit('save-favourite');
         }));
 
         favourite_label_box.add(this.fav_button, {
@@ -81,9 +84,9 @@ const FavouriteConnectionsBox = new Lang.Class({
             this._itemBox.add_child(fav_item.actor);
             fav_item.connect('favourite-deleted', Lang.bind(this, function() {
                 this._itemBox.remove_child(fav_item.actor);
-                this.emit('favourite-deleted');
+                this.custom_signals.emit('favourite-deleted');
             }));
-            fav_item.connect('selected', Lang.bind(this, function(){
+            fav_item.connect('item-selected', Lang.bind(this, function(){
                 if (this.selected_item) {
                     this.selected_item.actor.remove_style_pseudo_class('selected');
                     this.selected_item.hide_unfav_button();
@@ -96,7 +99,7 @@ const FavouriteConnectionsBox = new Lang.Class({
             }));
             fav_item.connect('load-favourite', Lang.bind(this, function() {
                 this.label_field.set_text(this.selected_item.connection.label);
-                this.emit('load-favourite');
+                this.custom_signals.emit('load-favourite');
             }));
         }
     },
@@ -115,7 +118,6 @@ const FavouriteConnectionsBox = new Lang.Class({
     }
 
 });
-Signals.addSignalMethods(FavouriteConnectionsBox.prototype);
 
 const FavouriteItem = new Lang.Class({
     Name: 'FavouriteItem',
@@ -197,7 +199,7 @@ const FavouriteItem = new Lang.Class({
         }));
         this.actor.add_action(action);
         this.actor.connect('key-focus-in', Lang.bind(this, function() {
-            this.emit('selected');
+            this.emit('item-selected');
         }));
         // TODO start ssh command enter pressing enter on the favourite connection
         // this.actor.connect('key-press-event', Lang.bind(this, function(o, e) {
