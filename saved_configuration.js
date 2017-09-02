@@ -77,9 +77,12 @@ const SavedConfiguration = new Lang.Class({
         let label = connection.label;
         if (label == undefined) {
             if (connection.username === '') {
-                label = connection.address + ':' + connection.port;
+                label = connection.address;
             } else {
-                label = connection.username + '@' + connection.address + ':' + connection.port;
+                label = connection.username + '@' + connection.address;
+            }
+            if (connection.port != '') {
+                label = label + ':' + connection.port;
             }
         }
         return {

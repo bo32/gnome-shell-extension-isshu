@@ -251,8 +251,8 @@ const NewConnectionDialog = new Lang.Class({
         var connection = this.savedConfig.get_connection_from_details(address, port, username, use_private_key);
         this.savedConfig.save_connection_as_a_latest(connection);
 
-        let ssh_connection = new SSHConnection(connection);
-        ssh_connection.start();
+        let ssh_connection = new SSHConnection();
+        ssh_connection.start(connection);
 
         this.rebuild_latest_menu = true;
         this.close_dialog();

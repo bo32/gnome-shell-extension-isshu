@@ -8,7 +8,7 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const Convenience = Me.imports.convenience;
 const Settings = Convenience.getSettings();
-const SSHConnection = Me.imports.ssh_connection.SSHConnection;
+const SSHMenuItem = Me.imports.ssh_menu_item.SSHMenuItem;
 
 const ConnectionsMenu = new Lang.Class({
 
@@ -30,16 +30,8 @@ const ConnectionsMenu = new Lang.Class({
 
 	add_menus: function(connections) {
 		for(var c in connections) {
-			let menu = new PopupMenu.PopupBaseMenuItem();
-			this.connection = connections[c];
-			menu.actor.add(
-				new St.Label({text: this.connection.label, x_expand: true})
-			);
-			this.menu.addMenuItem(menu);
-			menu.connect('activate', Lang.bind(this, function() {
-				let ssh_connection = new SSHConnection(this.connection);
-				ssh_connection.start();
-			}));
+			let menuItem = new SSHMenuItem(connections[c]);
+			this.menu.addMenuItem(menuItem);
 		}
 	},
 
