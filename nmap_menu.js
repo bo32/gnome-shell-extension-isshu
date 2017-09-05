@@ -40,7 +40,9 @@ const NmapPanel = new Lang.Class({
 
         // add items
         let item;
-        if (this.is_nmap_installed()) {
+        if (Settings.get_string('nmap-network') === '') {
+            item = new ListItem('Enter a netword to scan in the Preferences menu.');
+        } else if (this.is_nmap_installed()) {
             item = new LoadingItem();
             this.populate_nmap_list();
         } else {
