@@ -91,11 +91,15 @@ const FavouriteConnectionsBox = new Lang.Class({
                     this.selected_item.actor.remove_style_pseudo_class('selected');
                     this.selected_item.hide_unfav_button();
                     this.selected_item.hide_load_fav_button();
+                    this.selected_item.hide_moveup_button();
+                    this.selected_item.hide_movedown_button();
                 }
                 this.selected_item = fav_item;
                 this.selected_item.actor.add_style_pseudo_class('selected');
                 this.selected_item.show_unfav_button();
                 this.selected_item.show_load_fav_button();
+                this.selected_item.show_moveup_button();
+                this.selected_item.show_movedown_button();
             }));
             fav_item.connect('load-favourite', Lang.bind(this, function() {
                 this.label_field.set_text(this.selected_item.connection.label);
@@ -161,6 +165,36 @@ const FavouriteItem = new Lang.Class({
         this.actor.add(labels_box, {
             expand: true,
             x_align: St.Align.START
+        });
+        
+        // MOVE UP BUTTON
+        let up_icon = new St.Icon({
+            style_class: 'nm-dialog-icon'
+        });
+        up_icon.set_icon_name('go-up-symbolic');
+        this.moveup_button = new St.Button({
+            style_class: 'button item-button',
+            visible: false
+        });
+        this.moveup_button.set_child(up_icon);
+        this.moveup_button.connect('clicked', Lang.bind(this, function() {}));
+        this.actor.add(this.moveup_button, {
+            x_align: St.Align.END
+        });
+
+        // MOVE DOWN BUTTON
+        let down_icon = new St.Icon({
+            style_class: 'nm-dialog-icon'
+        });
+        down_icon.set_icon_name('go-down-symbolic');
+        this.movedown_button = new St.Button({
+            style_class: 'button item-button',
+            visible: false
+        });
+        this.movedown_button.set_child(down_icon);
+        this.movedown_button.connect('clicked', Lang.bind(this, function() {}));
+        this.actor.add(this.movedown_button, {
+            x_align: St.Align.END
         });
 
         // LOAD FAVOURITE BUTTON
@@ -233,6 +267,22 @@ const FavouriteItem = new Lang.Class({
 
     hide_load_fav_button: function() {
         this.load_fav_button.visible = false;
+    },
+
+    show_moveup_button: function() {
+        this.moveup_button.visible = true;
+    },
+
+    hide_moveup_button: function() {
+        this.moveup_button.visible = false;
+    },
+
+    show_movedown_button: function() {
+        this.movedown_button.visible = true;
+    },
+
+    hide_movedown_button: function() {
+        this.movedown_button.visible = false;
     },
 
     load_favourite: function() {
