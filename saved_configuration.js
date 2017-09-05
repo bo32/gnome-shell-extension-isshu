@@ -25,6 +25,13 @@ const SavedConfiguration = new Lang.Class({
         if (!savedDataFile.query_exists(null)) {
             savedDataFile.create(0, null);
         }
+        if(Shell.get_file_contents_utf8_sync(ExtensionSavedDataFilePath) === '') {
+            let json_init = {
+                "latest_connections": [],
+                "favourite_connections": []
+            }
+            this.write_new_content(json_init);
+        }
     },
 
     get_json_content: function() {
