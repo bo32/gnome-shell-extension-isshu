@@ -67,7 +67,19 @@ const SavedConfiguration = new Lang.Class({
         let json_content = this.get_json_content();
         let favs = json_content.favourite_connections;
         let json_connection = this.get_connection_as_json(connection);
-        favs.push(json_connection);
+
+        // check if the connection name already exists.
+        // if yes, we replace by the new connection.
+        let found = false;
+        for (let f in favs) {
+            if (favs[f].label == connection.label) {
+                favs[f] = json_connection;
+                found = true;
+            }
+        }
+        if (!found) {
+            favs.push(json_connection);
+        }
         json_content.favourite_connections = favs;
         this.write_new_content(json_content);
     },
