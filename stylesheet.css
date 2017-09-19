@@ -1,13 +1,4 @@
 
-.helloworld-label {
-    font-size: 36px;
-    font-weight: bold;
-    color: #ffffff;
-    background-color: rgba(10,10,10,0.7);
-    border-radius: 5px;
-    padding: .5em;
-}
-
 .favourtie-connection-details-label {
     font-size: 10px;
 }
@@ -43,4 +34,13 @@
 
 .deactivated-checkbox {
     color: gray;
+}
+
+.warning-label {
+    border: 1px rgb(36, 36, 36);
+    border-radius: 5px;
+    font: bold;
+    padding: .8em;
+    margin: 12px 4px 10px 4px;
+    background-color: #215d9c;
 }

@@ -9,6 +9,7 @@ const Me = ExtensionUtils.getCurrentExtension();
 
 const SavedConfiguration = Me.imports.saved_configuration.SavedConfiguration;
 const CustomSignals = Me.imports.custom_signals.CustomSignals;
+const ConfirmUnfavDialog = Me.imports.confirm_dialog.ConfirmUnfavDialog;
 
 const FavouriteConnectionsBox = new Lang.Class({
     Name: 'FavouriteConnectionsBox',
@@ -215,8 +216,12 @@ const FavouriteItem = new Lang.Class({
     },
 
     remove_favourite: function() {
-        this.savedConfig.remove_connection_from_favourites(this.index);
-        this.emit('favourite-deleted');
+        let cd = new ConfirmUnfavDialog(this.connection);
+        cd.open();
+        cd.connect('confirm-delete-fav', Lang.bind(this, function() {
+            this.savedConfig.remove_connection_from_favourites(this.index);
+            this.emit('favourite-deleted');
+        }));
     },
 
     show_unfav_button: function() {
