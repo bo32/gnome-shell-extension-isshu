@@ -222,7 +222,12 @@ const NewConnectionDialog = new Lang.Class({
         }
         connection.label = label;
         connection.address = this.address_field.get_text();
-        connection.port = this.port_field.get_text();
+        let port = this.port_field.get_text();
+        if (port.length == 0) {
+            connection.port = 22;
+        } else {
+            connection.port = port;
+        }
         connection.username = this.user_field.get_text();
         connection.use_private_key = this.use_private_key.actor.get_checked();
         this.savedConfig.save_connection_as_a_favourite(connection);
