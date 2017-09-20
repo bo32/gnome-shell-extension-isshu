@@ -10,6 +10,7 @@ const Me = ExtensionUtils.getCurrentExtension();
 const SavedConfiguration = Me.imports.saved_configuration.SavedConfiguration;
 const CustomSignals = Me.imports.custom_signals.CustomSignals;
 const ConfirmUnfavDialog = Me.imports.confirm_dialog.ConfirmUnfavDialog;
+const ConfirmUpdateFavDialog = Me.imports.confirm_dialog.ConfirmUpdateFavDialog;
 
 const FavouriteConnectionsBox = new Lang.Class({
     Name: 'FavouriteConnectionsBox',
@@ -20,6 +21,7 @@ const FavouriteConnectionsBox = new Lang.Class({
             layout_manager: new Clutter.BinLayout()
         });
 
+        this.savedConfig = new SavedConfiguration();
         this.custom_signals = new CustomSignals();
 
         let content_box = new St.BoxLayout({
@@ -51,7 +53,20 @@ const FavouriteConnectionsBox = new Lang.Class({
         });
         this.fav_button.set_child(fav_icon);
         this.fav_button.connect('clicked', Lang.bind(this, function() {
-            this.custom_signals.emit('save-favourite');
+            // we first check if the label is already used or not.
+            // if not, we save it directly.
+            // if yes, we show the confirm dialog.
+            let new_label = this.get_favourite_label_entry();
+            let existing_fav = this.savedConfig.get_favourite_by_label(new_label);
+            if (existing_fav != null) {
+                let confirm = new ConfirmUpdateFavDialog(existing_fav);
+                confirm.open();
+                confirm.connect('confirm-update-fav', Lang.bind(this, function() {
+                    this.custom_signals.emit('save-favourite');
+                }));
+            } else {
+                this.custom_signals.emit('save-favourite');
+            }
         }));
 
         favourite_label_box.add(this.fav_button, {
@@ -78,8 +93,7 @@ const FavouriteConnectionsBox = new Lang.Class({
     },
 
     add_favourite_items: function() {
-        let savedConfig = new SavedConfiguration();
-        let fav_connections = savedConfig.get_favourite_connections();
+        let fav_connections = this.savedConfig.get_favourite_connections();
         for (let fav in fav_connections) {
             let fav_item = new FavouriteItem(fav_connections[fav], fav);
             this._itemBox.add_child(fav_item.actor);
@@ -216,9 +230,9 @@ const FavouriteItem = new Lang.Class({
     },
 
     remove_favourite: function() {
-        let cd = new ConfirmUnfavDialog(this.connection);
-        cd.open();
-        cd.connect('confirm-delete-fav', Lang.bind(this, function() {
+        let confirm = new ConfirmUnfavDialog(this.connection);
+        confirm.open();
+        confirm.connect('confirm-delete-fav', Lang.bind(this, function() {
             this.savedConfig.remove_connection_from_favourites(this.index);
             this.emit('favourite-deleted');
         }));

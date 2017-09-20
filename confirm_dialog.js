@@ -8,8 +8,9 @@ const ConfirmDialog = new Lang.Class({
     Name: 'ConfirmDialog',
     Extends: ModalDialog.ModalDialog,
 
-    _init: function () {
+    _init: function (connection) {
         this.parent();
+        this.connection = connection;
         this._buildLayout();
     },
 
@@ -36,46 +37,8 @@ const ConfirmDialog = new Lang.Class({
 
         this.contentLayout.add(headline);
 
-        this._confirmButton = this.addButton({
-            action: Lang.bind(this, this.confirm),
-            label: "Confirm",
-            key: Clutter.Return
-        });
-        this._cancelButton = this.addButton({
-            action: Lang.bind(this, this.close_dialog),
-            label: _("Cancel"),
-            key: Clutter.Escape
-        }, {
-            expand: true,
-            x_fill: false,
-            x_align: St.Align.END
-        });
-    },
-
-    confirm: function() {
-        this.emit('confirm-delete-fav');
-        this.close();
-    },
-
-    close_dialog: function() {
-        this.close();
-    }
-
-});
-
-const ConfirmUnfavDialog = new Lang.Class({
-    Name: 'ConfirmUnfavDialog',
-    Extends: ConfirmDialog,
-
-    _init: function (connection) {
-        this.parent();
-        this.connection = connection;
-        this._addLayout();
-    },
-
-    _addLayout: function () {
         let label = new St.Label({
-            text: 'Are you sure you want to remove the following connection?'
+            text: this.label
         });
         
         let connection_label = new St.Label({
@@ -97,6 +60,54 @@ const ConfirmUnfavDialog = new Lang.Class({
             y_align: St.Align.START,
             y_expand: false
         });
+
+        this._confirmButton = this.addButton({
+            action: Lang.bind(this, this.confirm),
+            label: "Confirm",
+            key: Clutter.Return
+        });
+        this._cancelButton = this.addButton({
+            action: Lang.bind(this, this.close_dialog),
+            label: _("Cancel"),
+            key: Clutter.Escape
+        }, {
+            expand: true,
+            x_fill: false,
+            x_align: St.Align.END
+        });
+    },
+
+    confirm: function() {
+        this.emit(this.signal);
+        this.close();
+    },
+
+    close_dialog: function() {
+        this.close();
+    }
+
+});
+
+const ConfirmUnfavDialog = new Lang.Class({
+    Name: 'ConfirmUnfavDialog',
+    Extends: ConfirmDialog,
+
+    _init: function (connection) {
+        this.signal = 'confirm-delete-fav';
+        this.label = 'Are you sure you want to remove the following connection?';
+        this.parent(connection);
+    }
+
+});
+
+const ConfirmUpdateFavDialog = new Lang.Class({
+    Name: 'ConfirmUpdateFavDialog',
+    Extends: ConfirmDialog,
+
+    _init: function (connection) {
+        this.signal = 'confirm-update-fav';
+        this.label = 'Are you sure you want to update the following connection?';
+        this.parent(connection);
     }
 
 });

@@ -122,6 +122,16 @@ const SavedConfiguration = new Lang.Class({
         return connection;
     },
 
+    get_favourite_by_label: function(label) {
+        let favs = this.get_favourite_connections();
+        for (let f in favs) {
+            if (favs[f].label == label) {
+                return favs[f];
+            }
+        }
+        return null;
+    },
+
     write_new_content: function(jsonContent) {
         let file = Gio.file_new_for_path(ExtensionSavedDataFilePath);
         let raw = file.replace(null, false, Gio.FileCreateFlags.NONE, null);
