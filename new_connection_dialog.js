@@ -136,8 +136,22 @@ const NewConnectionDialog = new Lang.Class({
 
         this.use_private_key = new CheckBox('Use private key authentication', {
         });
+        this.use_telnet = new CheckBox('Use Telnet', {
+        });
+        this.use_telnet.actor.connect('clicked', Lang.bind(this, function() {
+            if(this.use_telnet.actor.get_checked()) {
+                this.use_private_key.actor.reactive = false;
+                this.use_private_key.getLabelActor().add_style_class_name('deactivated-checkbox');
+            } else {
+                this.use_private_key.actor.reactive = true;
+                this.use_private_key.getLabelActor().remove_style_class_name('deactivated-checkbox');
+            }
+        })),
         
         check_boxes.add(this.use_private_key.actor, {
+            y_align: St.Align.START
+        });
+        check_boxes.add(this.use_telnet.actor, {
             y_align: St.Align.START
         });
         
@@ -230,6 +244,7 @@ const NewConnectionDialog = new Lang.Class({
         }
         connection.username = this.user_field.get_text();
         connection.use_private_key = this.use_private_key.actor.get_checked();
+        connection.use_telnet = this.use_telnet.actor.get_checked();
         this.savedConfig.save_connection_as_a_favourite(connection);
         this.rebuild_favourite_menu = true;
 
@@ -252,8 +267,9 @@ const NewConnectionDialog = new Lang.Class({
         var username = this.user_field.get_text();
         var port = this.port_field.get_text();
         var use_private_key = this.use_private_key.actor.get_checked();
+        var use_telnet = this.use_telnet.actor.get_checked();
 
-        var connection = this.savedConfig.get_connection_from_details(address, port, username, use_private_key);
+        var connection = this.savedConfig.get_connection_from_details(address, port, username, use_private_key, use_telnet);
         this.savedConfig.save_connection_as_a_latest(connection);
 
         let ssh_connection = new SSHConnection();
@@ -340,6 +356,7 @@ const NewConnectionDialog = new Lang.Class({
         this.port_field.set_text(connection.port);
         this.user_field.set_text(connection.username);
         this.use_private_key.actor.set_checked(connection.use_private_key);
+        this.use_telnet.actor.set_checked(connection.use_telnet);
     },
 
     build_and_add_nmap_panel: function() {
@@ -353,6 +370,7 @@ const NewConnectionDialog = new Lang.Class({
             this.port_field.set_text('');
             this.user_field.set_text('');
             this.use_private_key.actor.set_checked(false);
+            this.use_telnet.actor.set_checked(false);
         }));
         this.nmap_displayed = true;
     },

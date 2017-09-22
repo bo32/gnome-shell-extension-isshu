@@ -13,27 +13,34 @@ const SSHConnection = new Lang.Class({
     },
 
     start: function(connection) {
-        var ssh_command = ['ssh'];
+        var command = [];
 
-        if (connection.use_private_key) {
-            ssh_command.push('-i');
-            ssh_command.push(Settings.get_string('ssh-key-path'));
-        }
+        if (!connection.use_telnet) {
+            command.push('ssh');
+            if (connection.use_private_key) {
+                command.push('-i');
+                command.push(Settings.get_string('ssh-key-path'));
+            }
 
-        if (connection.username === '') {
-            ssh_command.push(connection.address);
+            if (connection.username === '') {
+                command.push(connection.address);
+            } else {
+                command.push(connection.username + '@' + connection.address);
+            }
+
+            if (connection.port === '') {
+                connection.port = '22';
+            }
+            command.push('-p');
+            command.push(connection.port);
         } else {
-            ssh_command.push(connection.username + '@' + connection.address);
+            command.push('telnet');
+            command.push(connection.address);
+            command.push(connection.port);
         }
+        global.log(command);
 
-        if (connection.port === '') {
-            connection.port = '22';
-        }
-        ssh_command.push('-p');
-        ssh_command.push(connection.port);
-        global.log(ssh_command);
-
-        Util.spawn([Settings.get_string('terminal-client'), '-e', ssh_command.join(' ')]);
+        Util.spawn([Settings.get_string('terminal-client'), '-e', command.join(' ')]);
     }
 
 });

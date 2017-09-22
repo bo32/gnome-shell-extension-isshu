@@ -109,16 +109,18 @@ const SavedConfiguration = new Lang.Class({
 			"address": connection.address,
 			"port": connection.port,
 			"username": connection.username,
-			"use_private_key": connection.use_private_key
+			"use_private_key": connection.use_private_key,
+			"use_telnet": connection.use_telnet
         };
     },
 
-    get_connection_from_details: function(address, port, username, use_private_key) {
+    get_connection_from_details: function(address, port, username, use_private_key, use_telnet) {
         let connection = new Array();
         connection.address = address;
         connection.username = username;
         connection.port = port;
         connection.use_private_key = use_private_key;
+        connection.use_telnet = use_telnet;
         return connection;
     },
 
