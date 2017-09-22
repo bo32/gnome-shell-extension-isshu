@@ -229,18 +229,15 @@ const LoadingItem = new Lang.Class({
     Extends: ListItem,
 
     _init: function() {
-
         this.parent('Loading...');
-
-        // TODO this spinner would probably work if the nmap command was truly asynchronous. 
-        // let spinnerIcon = Gio.File.new_for_uri('resource:///org/gnome/shell/theme/process-working.svg');
-        // let spinner = new Animation.AnimatedIcon(spinnerIcon, 16);
-        // spinner.actor.show();
-        // this.actor.add_child(spinner.actor);
-        // spinner.play();
-		// Tweener.addTween(spinner.actor, {
-		// 	opacity: 255,
-		// 	transition: 'linear'
-        // });
+        let spinnerIcon = Gio.File.new_for_uri('resource:///org/gnome/shell/theme/process-working.svg');
+        let spinner = new Animation.AnimatedIcon(spinnerIcon, 16);
+        spinner.actor.show();
+        this.actor.add_child(spinner.actor);
+        spinner.play();
+		Tweener.addTween(spinner.actor, {
+			opacity: 255,
+			transition: 'linear'
+        });
     }
 });
