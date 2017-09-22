@@ -4,6 +4,7 @@ const St = imports.gi.St;
 const Clutter = imports.gi.Clutter; 
 const Gtk = imports.gi.Gtk;
 const Gio = imports.gi.Gio;
+const Main = imports.ui.main;
 const GLib = imports.gi.GLib; 
 const Animation = imports.ui.animation;
 const Tweener = imports.ui.tweener;
@@ -58,39 +59,48 @@ const NmapPanel = new Lang.Class({
     },
 
     populate_nmap_list: function() {
+
+        let cmd = ['nmap', '-sn',
+              '-oG', '-',
+              Settings.get_string('nmap-network')];
         // TODO Cannot manage to parse the result XML, so use the option -oG instead of -oX
-        let cmd = 'nmap -sn -oG - ' + Settings.get_string('nmap-network');
+    
+        let subprocess = new Gio.Subprocess({
+            argv: cmd,
+            flags: Gio.SubprocessFlags.STDOUT_PIPE,
+        });
+        subprocess.init(null);
+        subprocess.communicate_async(null, null, Lang.bind(this, function(obj, res) {
+            let [, out] = obj.communicate_utf8_finish(res);
+            this.add_nmap_items(out);
+            // Mainloop.quit('main');
+        }));
+        // Mainloop.run('main');
 
-        // thanks to https://github.com/gpouilloux/gnome-shell-extension-docker for the inspiraion.
-        // TODO eventually use GLib.spawn_async, GLib.child_watch_add and GLib.io_add_watch for a real async.
-        // let res, out, err, status;
-        return this.async(function() {
-                let [res, out, err, status] = GLib.spawn_command_line_sync(cmd);
-                return {
-                cmd: cmd,
-                res: res,
-                out: out,
-                err: err,
-                status: status
-                };
-        }, Lang.bind(this, this.add_nmap_items));
+        // let cmd = 'nmap -sn -oG - ' + Settings.get_string('nmap-network');
+        // return this.async(function() {
+        //         let [res, out, err, status] = GLib.spawn_command_line_sync(cmd);
+        //         return {
+        //         cmd: cmd,
+        //         res: res,
+        //         out: out,
+        //         err: err,
+        //         status: status
+        //         };
+        // }, Lang.bind(this, this.add_nmap_items));
 
     },
 
-    async: function(fn, callback) {
-        GLib.timeout_add(GLib.PRIORITY_DEFAULT, 0, function() {
-            let result = fn();
-            callback(result);
-        }, null);
-    },
+    // async: function(fn, callback) {
+    //     GLib.timeout_add(GLib.PRIORITY_DEFAULT, 0, function() {
+    //         let result = fn();
+    //         callback(result);
+    //     }, null);
+    // },
 
     add_nmap_items : function(res) {
-        if(res['status'] == 0) {
-            // let msg = "`" + res['cmd'] + "` terminated successfully";
-            // global.log(msg);
-            // global.log(res['out']);
-
-            let nmaps =  res['out'].toString();
+        if (res !== null && res !== undefined) {
+            let nmaps =  res;
             let raw = nmaps.split('Host:');
             let hosts = [];
             for (let h in raw) {
@@ -122,10 +132,9 @@ const NmapPanel = new Lang.Class({
                 }));
             }
         } else {
-            let errMsg = "Error occurred when running `" + res['cmd'] + "`";
+            let errMsg = "Error occurred when running 'nmap'";
             Main.notify(errMsg);
             log(errMsg);
-            log(res['err']);
         }
     },
 
