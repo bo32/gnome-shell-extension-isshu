@@ -162,7 +162,11 @@ const FavouriteItem = new Lang.Class({
         labels_box.add(label, {
             x_align: St.Align.START
         });
-        let details_text = connection.username + '@' + connection.address;
+        let details_text = '';
+        if (connection.username != '') {
+            details_text += connection.username + '@';
+        }
+        details_text += connection.address;
         if (connection.port != '') {
             details_text += ':' + connection.port
         }
