@@ -126,6 +126,7 @@ const NmapPanel = new Lang.Class({
                     this.selected_item = item;
                     this.selected_item.actor.add_style_pseudo_class('selected');
                     this.selected_item.show_load_nmap_button();
+                    Util.ensureActorVisibleInScrollView(this._scrollView, this.selected_item.actor);
                 }));
                 item.connect('load-nmap', Lang.bind(this, function(){
                     this.custom_signals.emit('load-nmap');

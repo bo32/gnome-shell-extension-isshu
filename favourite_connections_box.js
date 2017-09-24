@@ -3,6 +3,7 @@ const St = imports.gi.St;
 const Clutter = imports.gi.Clutter; 
 const Gtk = imports.gi.Gtk;
 const Signals = imports.signals;
+const Util = imports.misc.util;
 
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
@@ -111,6 +112,7 @@ const FavouriteConnectionsBox = new Lang.Class({
                 this.selected_item.actor.add_style_pseudo_class('selected');
                 this.selected_item.show_unfav_button();
                 this.selected_item.show_load_fav_button();
+                Util.ensureActorVisibleInScrollView(this._scrollView, this.selected_item.actor);
             }));
             fav_item.connect('load-favourite', Lang.bind(this, function() {
                 this.label_field.set_text(this.selected_item.connection.label);
