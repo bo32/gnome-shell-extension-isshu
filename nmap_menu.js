@@ -26,6 +26,70 @@ const NmapPanel = new Lang.Class({
 
         this.custom_signals = new CustomSignals();
 
+        let header_box = new St.BoxLayout({
+            vertical: false
+        });
+
+        let nmap_title = new St.Label({
+            style_class: 'nm-dialog-header',
+            y_align: St.Align.END,
+            text: 'Nmap results'
+        });
+        
+        // close button
+        let close_icon = new St.Icon({
+            style_class: 'nm-dialog-icon'
+        });
+        close_icon.set_icon_name('window-close-symbolic');
+        
+        let nmap_close_button = new St.Button({
+            style_class: 'button header-button'
+        });
+        nmap_close_button.set_child(close_icon);
+
+        // refresh button
+        let refresh_icon = new St.Icon({
+            style_class: 'nm-dialog-icon'
+        });
+        refresh_icon.set_icon_name('view-refresh-symbolic');
+        let nmap_refresh_button = new St.Button({
+            style_class: 'button header-button'
+        });
+        nmap_refresh_button.set_child(refresh_icon);
+
+        let nmap_ports_button = new St.Button({
+            style_class: 'button header-button',
+            label: 'Scan ports'
+        });
+
+        nmap_ports_button.connect('clicked', Lang.bind(this, function() {
+            
+        }));
+
+        nmap_refresh_button.connect('clicked', Lang.bind(this, function () {
+            this.custom_signals.emit('refresh-nmap');
+        }));
+
+        nmap_close_button.connect('clicked', Lang.bind(this, function () {
+            this.custom_signals.emit('close-nmap');
+        }));
+        
+        header_box.add(nmap_title, {
+            expand: true
+        });
+        header_box.add(nmap_ports_button, {
+            x_align: St.Align.END
+        });
+        header_box.add(nmap_refresh_button, {
+            x_align: St.Align.END
+        });
+        header_box.add(nmap_close_button, {
+            x_align: St.Align.END
+        });
+        // this.contentLayout.add(header_box, {
+        //     x_expand: true
+        // });
+
         this._itemBox = new St.BoxLayout({
             vertical: true
         });
@@ -37,7 +101,17 @@ const NmapPanel = new Lang.Class({
         this._scrollView.set_policy(Gtk.PolicyType.NEVER,
             Gtk.PolicyType.AUTOMATIC);
         this._scrollView.add_actor(this._itemBox);
-        this.add_child(this._scrollView);
+
+        let container = new St.BoxLayout({
+            vertical: true,
+            x_expand: true
+        });
+        container.add(header_box, {
+            x_expand: true
+        });
+        container.add(this._scrollView);
+
+        this.add_child(container);
 
         // add items
         let item;
