@@ -14,6 +14,7 @@ const Me = ExtensionUtils.getCurrentExtension();
 const Convenience = Me.imports.convenience;
 const Settings = Convenience.getSettings();
 const CustomSignals = Me.imports.custom_signals.CustomSignals;
+const NMapParser = Me.imports.nmap_parser.NMapParser;
 
 const NmapPanel = new Lang.Class({
     Name: 'NmapPanel',
@@ -21,10 +22,12 @@ const NmapPanel = new Lang.Class({
 
 	_init: function() {
         this.parent({
-            layout_manager: new Clutter.BinLayout()
+            layout_manager: new Clutter.BinLayout(),
+            style_class: 'nmap-panel'
         });
 
         this.custom_signals = new CustomSignals();
+        this.all_items = [];
 
         let header_box = new St.BoxLayout({
             vertical: false
@@ -63,7 +66,22 @@ const NmapPanel = new Lang.Class({
         });
 
         nmap_ports_button.connect('clicked', Lang.bind(this, function() {
-            
+            for(let i in this.all_items) {
+                let item = this.all_items[i];
+                global.log('scanning ports of ' + item.get_host());
+                let cmd = ['nmap', '-sT', '-oG', '-', item.get_host()];
+                let subprocess = new Gio.Subprocess({
+                    argv: cmd,
+                    flags: Gio.SubprocessFlags.STDOUT_PIPE,
+                });
+                subprocess.init(null);
+                subprocess.communicate_async(null, null, Lang.bind(this, function(obj, res) {
+                    let [, out] = obj.communicate_utf8_finish(res);
+                    let parser = new NMapParser();
+                    let ports = parser.find_ports(out);
+                    item.display_ports(ports);
+                }));
+            }
         }));
 
         nmap_refresh_button.connect('clicked', Lang.bind(this, function () {
@@ -86,9 +104,6 @@ const NmapPanel = new Lang.Class({
         header_box.add(nmap_close_button, {
             x_align: St.Align.END
         });
-        // this.contentLayout.add(header_box, {
-        //     x_expand: true
-        // });
 
         this._itemBox = new St.BoxLayout({
             vertical: true
@@ -191,6 +206,7 @@ const NmapPanel = new Lang.Class({
             
             for (let h in hosts) {
                 let item = new NmapItem(hosts[h]);
+                this.all_items.push(item);
                 this._itemBox.add_child(item.actor);
                 item.connect('item-selected', Lang.bind(this, function(){
                     if (this.selected_item) {
@@ -211,6 +227,10 @@ const NmapPanel = new Lang.Class({
             Main.notify(errMsg);
             log(errMsg);
         }
+    },
+
+    get_all_items: function() {
+        return this.all_items;
     },
 
     get_selected_item: function() {
@@ -258,6 +278,17 @@ const NmapItem = new Lang.Class({
             this.emit('item-selected');
         }));
 
+        let ports_box = new St.BoxLayout({
+            vertical: true
+        });
+        this.ssh_port = new St.Label({});
+        this.telnet_port = new St.Label({});
+        ports_box.add(this.ssh_port);
+        ports_box.add(this.telnet_port);
+        this.actor.add(ports_box, {
+            x_align: St.Align.END
+        });
+
          // LOAD NMAP BUTTON
         let load_nmap_icon = new St.Icon({
             style_class: 'nm-dialog-icon'
@@ -286,7 +317,29 @@ const NmapItem = new Lang.Class({
 
     get_host: function() {
         return this.host;
+    },
+
+    display_ports: function(ports) {
+        for (let p in ports) {
+            let port = ports[p];
+            if (port.protocol === 'ssh') {
+                // this.set_ssh_item();
+                // this.ssh_port = port.port;
+                this.ssh_port.set_text('SSH port ' + port.value);
+                global.log(this.host + ' has SSH port ' + port.value);
+            }
+            if (port.protocol === 'telnet') {
+                // this.set_telnet_item();
+                // this.telnet_port = port.port;
+                this.telnet_port.set_text('Telnet port ' + port.value);
+                global.log(this.host + ' has TELNET port ' + port.value);
+            }
+        }
+        // TODO display the port. 
+        // TODO Find a way to show 2 choices if there is both SSH and telnet
+        // this.set_label_text(this.get_label_text() + ':' + ports[0].port);
     }
+
 });
 Signals.addSignalMethods(NmapItem.prototype);
 

@@ -38,9 +38,9 @@ const SSHConnection = new Lang.Class({
             command.push(connection.address);
             command.push(connection.port);
         }
-        global.log(command);
+        global.log(command.join(' '));
 
-        Util.spawn([Settings.get_string('terminal-client'), '-e', command.join(' ')]);
+        Util.spawn([Settings.get_string('terminal-client'), '--command', command.join(' ')]);
     }
 
 });

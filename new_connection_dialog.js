@@ -29,7 +29,8 @@ const NewConnectionDialog = new Lang.Class({
 
     _buildLayout: function () {
         let headline = new St.BoxLayout({
-            style_class: 'nm-dialog-header-hbox'
+            style_class: 'nm-dialog-header-hbox',
+            min_width: 550
         });
 
         let icon = new St.Icon({
@@ -49,7 +50,6 @@ const NewConnectionDialog = new Lang.Class({
         headline.add(titleBox);
 
         this.contentLayout.add(headline);
-
         
 
         // ADDRESS BOX
