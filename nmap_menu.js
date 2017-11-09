@@ -68,19 +68,7 @@ const NmapPanel = new Lang.Class({
         nmap_ports_button.connect('clicked', Lang.bind(this, function() {
             for(let i in this.all_items) {
                 let item = this.all_items[i];
-                global.log('scanning ports of ' + item.get_host());
-                let cmd = ['nmap', '-sT', '-oG', '-', item.get_host()];
-                let subprocess = new Gio.Subprocess({
-                    argv: cmd,
-                    flags: Gio.SubprocessFlags.STDOUT_PIPE,
-                });
-                subprocess.init(null);
-                subprocess.communicate_async(null, null, Lang.bind(this, function(obj, res) {
-                    let [, out] = obj.communicate_utf8_finish(res);
-                    let parser = new NMapParser();
-                    let ports = parser.find_ports(out);
-                    item.display_ports(ports);
-                }));
+                item.scan_ports();
             }
         }));
 
@@ -212,10 +200,12 @@ const NmapPanel = new Lang.Class({
                     if (this.selected_item) {
                         this.selected_item.actor.remove_style_pseudo_class('selected');
                         this.selected_item.hide_load_nmap_button();
+                        this.selected_item.hide_scan_ports_button();
                     }
                     this.selected_item = item;
                     this.selected_item.actor.add_style_pseudo_class('selected');
                     this.selected_item.show_load_nmap_button();
+                    this.selected_item.show_scan_ports_button();
                     Util.ensureActorVisibleInScrollView(this._scrollView, this.selected_item.actor);
                 }));
                 item.connect('load-nmap', Lang.bind(this, function(){
@@ -289,6 +279,24 @@ const NmapItem = new Lang.Class({
             x_align: St.Align.END
         });
 
+        // SEARCH FOR PORTS BUTTON
+        let scan_ports_icon = new St.Icon({
+            style_class: 'nm-dialog-icon'
+        });
+        scan_ports_icon.set_icon_name('preferences-system-search-symbolic');
+        this.scan_ports_button = new St.Button({
+            style_class: 'button item-button',
+            visible: false
+        });
+        this.scan_ports_button.set_child(scan_ports_icon);
+        this.scan_ports_button.connect('clicked', Lang.bind(this, function() {
+            // this.emit('load-nmap');
+            this.scan_ports();
+        }));
+        this.actor.add(this.scan_ports_button, {
+            x_align: St.Align.END
+        });
+
          // LOAD NMAP BUTTON
         let load_nmap_icon = new St.Icon({
             style_class: 'nm-dialog-icon'
@@ -314,25 +322,46 @@ const NmapItem = new Lang.Class({
     hide_load_nmap_button: function() {
         this.load_nmap_button.visible = false;
     },
+    
+    show_scan_ports_button: function() {
+        this.scan_ports_button.visible = true;
+    },
+
+    hide_scan_ports_button: function() {
+        this.scan_ports_button.visible = false;
+    },
 
     get_host: function() {
         return this.host;
     },
 
+    scan_ports: function() {
+        global.log('scanning ports of ' + this.get_host());
+        let cmd = ['nmap', '-sT', '-oG', '-', this.get_host()];
+        let subprocess = new Gio.Subprocess({
+            argv: cmd,
+            flags: Gio.SubprocessFlags.STDOUT_PIPE,
+        });
+        subprocess.init(null);
+        subprocess.communicate_async(null, null, Lang.bind(this, function(obj, res) {
+            let [, out] = obj.communicate_utf8_finish(res);
+            let parser = new NMapParser();
+            let ports = parser.find_ports(out);
+            this.display_ports(ports);
+        }));
+    },
+
     display_ports: function(ports) {
+        this.ssh_port.set_text('SSH port: NONE');
+        this.telnet_port.set_text('Telnet port: NONE');
         for (let p in ports) {
             let port = ports[p];
             if (port.protocol === 'ssh') {
-                // this.set_ssh_item();
-                // this.ssh_port = port.port;
-                this.ssh_port.set_text('SSH port ' + port.value);
-                global.log(this.host + ' has SSH port ' + port.value);
+                this.ssh_port.set_text('SSH port: ' + port.value);
             }
+
             if (port.protocol === 'telnet') {
-                // this.set_telnet_item();
-                // this.telnet_port = port.port;
-                this.telnet_port.set_text('Telnet port ' + port.value);
-                global.log(this.host + ' has TELNET port ' + port.value);
+                this.telnet_port.set_text('Telnet port: ' + port.value);
             }
         }
         // TODO display the port. 
