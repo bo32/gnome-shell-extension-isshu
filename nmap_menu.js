@@ -247,6 +247,31 @@ const ListItem = new Lang.Class({
             expand: true,
             x_align: St.Align.START
         });
+
+        this.spinner = null;
+        this.add_spinner();
+    },
+
+    show_spinner: function(show) {
+        if (show) {
+            this.spinner.actor.show();
+            this.spinner.play();
+        } else {
+            this.spinner.actor.hide();
+            this.spinner.stop();
+        }
+    },
+
+    add_spinner: function() {
+        let spinnerIcon = Gio.File.new_for_uri('resource:///org/gnome/shell/theme/process-working.svg');
+        this.spinner = new Animation.AnimatedIcon(spinnerIcon, 16);
+        // spinner.actor.show();
+        this.actor.add_child(this.spinner.actor);
+        // this.spinner.play();
+		Tweener.addTween(this.spinner.actor, {
+			opacity: 255,
+			transition: 'linear'
+        });
     }
 });
 
@@ -271,8 +296,12 @@ const NmapItem = new Lang.Class({
         let ports_box = new St.BoxLayout({
             vertical: true
         });
-        this.ssh_port = new St.Label({});
-        this.telnet_port = new St.Label({});
+        this.ssh_port = new St.Label({
+            x_align: St.Align.END
+        });
+        this.telnet_port = new St.Label({
+            x_align: St.Align.END
+        });
         ports_box.add(this.ssh_port);
         ports_box.add(this.telnet_port);
         this.actor.add(ports_box, {
@@ -285,12 +314,11 @@ const NmapItem = new Lang.Class({
         });
         scan_ports_icon.set_icon_name('preferences-system-search-symbolic');
         this.scan_ports_button = new St.Button({
-            style_class: 'button item-button',
+            style_class: 'button item-button margin-left',
             visible: false
         });
         this.scan_ports_button.set_child(scan_ports_icon);
         this.scan_ports_button.connect('clicked', Lang.bind(this, function() {
-            // this.emit('load-nmap');
             this.scan_ports();
         }));
         this.actor.add(this.scan_ports_button, {
@@ -336,6 +364,8 @@ const NmapItem = new Lang.Class({
     },
 
     scan_ports: function() {
+        this.clear_ports_results();
+        this.show_spinner(true);
         global.log('scanning ports of ' + this.get_host());
         let cmd = ['nmap', '-sT', '-oG', '-', this.get_host()];
         let subprocess = new Gio.Subprocess({
@@ -348,12 +378,15 @@ const NmapItem = new Lang.Class({
             let parser = new NMapParser();
             let ports = parser.find_ports(out);
             this.display_ports(ports);
+            this.show_spinner(false);
         }));
     },
 
     display_ports: function(ports) {
-        this.ssh_port.set_text('SSH port: NONE');
-        this.telnet_port.set_text('Telnet port: NONE');
+        let default_label = 'NONE';
+
+        this.ssh_port.set_text('SSH port: ' + default_label);
+        this.telnet_port.set_text('Telnet port: ' + default_label);
         for (let p in ports) {
             let port = ports[p];
             if (port.protocol === 'ssh') {
@@ -367,6 +400,11 @@ const NmapItem = new Lang.Class({
         // TODO display the port. 
         // TODO Find a way to show 2 choices if there is both SSH and telnet
         // this.set_label_text(this.get_label_text() + ':' + ports[0].port);
+    },
+
+    clear_ports_results: function() {
+        this.ssh_port.set_text('');
+        this.telnet_port.set_text('');
     }
 
 });
@@ -387,14 +425,6 @@ const LoadingItem = new Lang.Class({
 
     _init: function() {
         this.parent('Loading...');
-        let spinnerIcon = Gio.File.new_for_uri('resource:///org/gnome/shell/theme/process-working.svg');
-        let spinner = new Animation.AnimatedIcon(spinnerIcon, 16);
-        spinner.actor.show();
-        this.actor.add_child(spinner.actor);
-        spinner.play();
-		Tweener.addTween(spinner.actor, {
-			opacity: 255,
-			transition: 'linear'
-        });
+        this.show_spinner(true);
     }
 });
