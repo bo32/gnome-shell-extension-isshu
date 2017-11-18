@@ -142,9 +142,14 @@ const NewConnectionDialog = new Lang.Class({
             if(this.use_telnet.actor.get_checked()) {
                 this.use_private_key.actor.reactive = false;
                 this.use_private_key.getLabelActor().add_style_class_name('deactivated-checkbox');
+                this.port_field.set_hint_text('23 (default)');
             } else {
                 this.use_private_key.actor.reactive = true;
                 this.use_private_key.getLabelActor().remove_style_class_name('deactivated-checkbox');
+                this.port_field.set_hint_text('22 (default)');
+            }
+            if (this.port_field.get_text() === '') { // updates the hint text
+                this.port_field.set_text('');
             }
         })),
         
