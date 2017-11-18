@@ -137,10 +137,7 @@ const NmapPanel = new Lang.Class({
 
     populate_nmap_list: function() {
 
-        let cmd = ['nmap', '-sn',
-              '-oG', '-',
-              Settings.get_string('nmap-network')];
-        // TODO Cannot manage to parse the result XML, so use the option -oG instead of -oX
+        let cmd = ['nmap', '-sn', '-oX', '-', Settings.get_string('nmap-network')];
     
         let subprocess = new Gio.Subprocess({
             argv: cmd,
@@ -153,41 +150,12 @@ const NmapPanel = new Lang.Class({
             // Mainloop.quit('main');
         }));
         // Mainloop.run('main');
-
-        // let cmd = 'nmap -sn -oG - ' + Settings.get_string('nmap-network');
-        // return this.async(function() {
-        //         let [res, out, err, status] = GLib.spawn_command_line_sync(cmd);
-        //         return {
-        //         cmd: cmd,
-        //         res: res,
-        //         out: out,
-        //         err: err,
-        //         status: status
-        //         };
-        // }, Lang.bind(this, this.add_nmap_items));
-
     },
-
-    // async: function(fn, callback) {
-    //     GLib.timeout_add(GLib.PRIORITY_DEFAULT, 0, function() {
-    //         let result = fn();
-    //         callback(result);
-    //     }, null);
-    // },
 
     add_nmap_items : function(res) {
         if (res !== null && res !== undefined) {
-            let nmaps =  res;
-            let raw = nmaps.split('Host:');
-            let hosts = [];
-            for (let h in raw) {
-                let tmp = raw[h];
-                if (tmp.indexOf('# Nmap') != 0) {
-                    let index = tmp.indexOf('()');
-                    let host = tmp.slice(0, index).trim();
-                    hosts.push(host);
-                }
-            }
+            let parser = new NMapParser();
+            let hosts = parser.find_hosts(res);
 
             // remove the loading item before adding the results
             this._itemBox.remove_all_children();
@@ -367,7 +335,7 @@ const NmapItem = new Lang.Class({
         this.clear_ports_results();
         this.show_spinner(true);
         global.log('scanning ports of ' + this.get_host());
-        let cmd = ['nmap', '-sT', '-oG', '-', this.get_host()];
+        let cmd = ['nmap', '-sT', '-oX', '-', this.get_host()];
         let subprocess = new Gio.Subprocess({
             argv: cmd,
             flags: Gio.SubprocessFlags.STDOUT_PIPE,
@@ -397,9 +365,6 @@ const NmapItem = new Lang.Class({
                 this.telnet_port.set_text('Telnet port: ' + port.value);
             }
         }
-        // TODO display the port. 
-        // TODO Find a way to show 2 choices if there is both SSH and telnet
-        // this.set_label_text(this.get_label_text() + ':' + ports[0].port);
     },
 
     clear_ports_results: function() {

@@ -311,6 +311,7 @@ const NewConnectionDialog = new Lang.Class({
         this.nmap_panel.custom_signals.connect('load-nmap', Lang.bind(this, function() {
             let address = this.nmap_panel.get_selected_item().get_host();
             this.address_field.set_text(address);
+            this.address_field.grab_key_focus();
             this.port_field.set_text('');
             this.user_field.set_text('');
             this.use_private_key.actor.set_checked(false);

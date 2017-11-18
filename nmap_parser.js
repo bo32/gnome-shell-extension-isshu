@@ -5,6 +5,7 @@ const GLib = imports.gi.GLib;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const Convenience = Me.imports.convenience;
+const XML = Me.imports.rexml;
 const Settings = Convenience.getSettings();
 
 const NMapParser = new Lang.Class({
@@ -13,39 +14,61 @@ const NMapParser = new Lang.Class({
 	_init: function() {
     },
 
+    find_hosts: function(output) {
+        var results = [];
+
+        let clean_xml = this.cleanup_xml(output);
+        let xdoc = new XML.REXML(clean_xml);
+        
+        var hosts = xdoc.rootElement.childElements;
+        for(var host of hosts) {
+            var properties = host.childElements;
+            for(var property of properties) {
+                if (property.name === 'address') {
+                    results.push(property.attribute('addr'));
+                }
+            }
+        }
+        return results;
+    },
+
+    cleanup_xml: function(raw_xml) {
+        let clean_xml = raw_xml.split(/\<\?\s*xml(.*?).*\?\>/).join('');
+        clean_xml = clean_xml.split(/<!--[\s\S]*?-->/g).join('');
+        clean_xml = clean_xml.split(/<!DOCTYPE nmaprun>/g).join('');
+        return clean_xml;
+    },
+
     find_ports: function(output) {
-        let raws = output.split('Host:');
-        let hosts = [];
-        for (let h in raws) {
-            let tmp = raws[h];
-            global.log(tmp);
-            let index = tmp.indexOf('Ports');
-            if (index != -1) {
-                let splits = tmp.split('///');
-                let host = [];
-                for (let s in splits) {
-                    let row = splits[s].replace(', ', '');
-                    let delimiter = 'Ports: ';
-                    if (row.indexOf(delimiter) != -1) {
-                        row = row.split(delimiter)[1].replace(delimiter, '');
-                    }
-                    global.log(row);
-                    if(row.indexOf('ssh') != -1) {
-                        let limit = row.indexOf('/');
-                        let port = row.substring(0, limit);
-                        // hosts.push({value: '2222', protocol: 'ssh'});
-                        // hosts.push({value: '2333', protocol: 'telnet'});
-                        hosts.push({value: port, protocol: 'ssh'});
-                    }
-                    if(row.indexOf('telnet') != -1) {
-                        hosts.push({value: port, protocol: 'telnet'});
-                        // host.port = 23;
-                        // host.protocol = 'telnet';
-                        // hosts.push(host);
+        let clean_xml = this.cleanup_xml(output);
+        let xdoc = new XML.REXML(clean_xml);
+        
+        let results = [];
+        var nodes = xdoc.rootElement.childElements;
+
+        for (var node of nodes) {
+            if (node.name === 'host') {
+                var children = node.childElements;
+                for (var child of children) {
+                    if (child.name === 'ports') {
+                        var ports = child.childElements;
+                        for (var port of ports) {
+                            if (port.name === 'port') {
+                                let tmp = port.attribute('portid');
+                                var port_children = port.childElements;
+                                for (var port_child of port_children) {
+                                    if (port_child.name === 'service') {
+                                        if (port_child.attribute('name') == 'ssh' || port_child.attribute('name') == 'telnet') {
+                                            results.push({value: tmp, protocol: port_child.attribute('name')});
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
         }
-        return hosts;
+        return results;
     }
 });
