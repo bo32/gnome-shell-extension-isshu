@@ -30,9 +30,29 @@ var SavedConfiguration = new Lang.Class({
         if(Shell.get_file_contents_utf8_sync(ExtensionSavedDataFilePath) === '') {
             let json_init = {
                 "latest_connections": [],
-                "favourite_connections": []
+                "favourite_connections": [],
+                "favourite_proxies": []
             }
             this.write_new_content(json_init);
+        } else {
+            // check if there is some existing content, so we just update the file
+            let content = this.get_json_content();
+            let changed = false;
+            if(!content.hasOwnProperty('favourite_connections')) {
+                content['favourite_connections'] = [];
+                changed = true;
+            }
+            if(!content.hasOwnProperty('latest_connections')) {
+                content['latest_connections'] = [];
+                changed = true;
+            }
+            if(!content.hasOwnProperty('favourite_proxies')) {
+                content['favourite_proxies'] = [];
+                changed = true;
+            }
+            if (changed) {
+                this.write_new_content(content);
+            }
         }
     },
 
@@ -162,5 +182,42 @@ var SavedConfiguration = new Lang.Class({
         let out = Gio.BufferedOutputStream.new_sized(raw, 4096);
         Shell.write_string_to_stream(out, JSON.stringify(jsonContent));
         out.close(null);
+    },
+
+    get_favourite_proxies: function() {
+        return this.get_json_content().favourite_proxies;
+    },
+
+    add_new_proxy: function(proxy) {
+        global.log('Save a new proxy.');
+        global.log(proxy.address);
+        let json_content = this.get_json_content();
+        let proxies = json_content.favourite_proxies;
+        let json_proxy = this.get_proxy_as_json(proxy);
+        proxies.push(json_proxy);
+        json_content.favourite_proxies = proxies;
+        this.write_new_content(json_content);
+    },
+
+    get_proxy_as_json: function(proxy) {
+        return {
+			"address": proxy.address,
+			"port": proxy.port,
+			"protocol": proxy.protocol,
+			"is_bastion": proxy.is_bastion
+        };
+    },
+
+    delete_proxy: function(proxy) {
+        let json_content = this.get_json_content();
+        let proxies = json_content.favourite_proxies;
+        for (var i = 0; i < proxies.length; i++) {
+            if (JSON.stringify(proxies[i]) === JSON.stringify(proxy)) {
+                proxies.splice(i, 1);
+                json_content.favourite_proxies = proxies;
+                this.write_new_content(json_content);
+                return;
+            }
+        }
     }
 });
