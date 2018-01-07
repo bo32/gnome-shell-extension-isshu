@@ -4,6 +4,7 @@ const St = imports.gi.St;
 const Gtk = imports.gi.Gtk;
 const Signals = imports.signals;
 const Util = imports.misc.util;
+const CheckBox = imports.ui.checkBox.CheckBox;
 
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
@@ -26,6 +27,8 @@ const ProxyPanel = new Lang.Class({
         let header_box = new St.BoxLayout({
             vertical: false
         });
+
+        this._proxy_to_be_used = null;
 
         let title = new St.Label({
             style_class: 'nm-dialog-header',
@@ -124,6 +127,10 @@ const ProxyPanel = new Lang.Class({
         this.build_item_box();  
     },
 
+    get_proxy_to_be_used: function() {
+        return this._proxy_to_be_used;
+    },
+
     re_build_item_box: function() {
         this._itemBox.remove_all_children();
         this.build_item_box();
@@ -133,18 +140,26 @@ const ProxyPanel = new Lang.Class({
 
         this.savedConfig = new SavedConfiguration();
         let proxies = this.savedConfig.get_favourite_proxies();
-
         for (var proxy of proxies) {
-            var proxyItem = new ProxyItem(proxy);
-            // this.all_items.push(item);
+            let proxyItem = new ProxyItem(proxy);
             this._itemBox.add_child(proxyItem.actor);
             proxyItem.connect('item-selected', Lang.bind(this, function(){
                 if (this.selected_item) {
                     this.selected_item.actor.remove_style_pseudo_class('selected');
+                    if (!this.selected_item.is_to_be_used()) {
+                        this.selected_item.hide_use_checkbox();
+                    }
                 }
                 this.selected_item = proxyItem;
+                this.selected_item.show_use_checkbox();
                 this.selected_item.actor.add_style_pseudo_class('selected');
                 Util.ensureActorVisibleInScrollView(this._scrollView, this.selected_item.actor);
+            }));
+            proxyItem.connect('use-proxy', Lang.bind(this, function() {
+                if (this._proxy_to_be_used) {
+                    this._proxy_to_be_used.set_to_be_used(false);
+                }
+                this._proxy_to_be_used = proxyItem;
             }));
         }
     }
@@ -176,7 +191,6 @@ const ProxyItem = new Lang.Class({
             x_align: St.Align.START
         });
 
-        // global.log('is bastion: ' + proxy.)
         if (proxy.is_bastion) {
             let bastion_label = new St.Label({
                 text: 'bastion',
@@ -191,6 +205,16 @@ const ProxyItem = new Lang.Class({
             x_align: St.Align.START
         });
 
+        this._is_to_be_used = new CheckBox('Use', {
+        });
+        this._is_to_be_used.actor.connect('clicked', Lang.bind(this, function() {
+            // this._proxy_to_be_used = this.proxy
+            this.emit('use-proxy');
+        }));
+        this.actor.add(this._is_to_be_used.actor, {
+        });
+        this.hide_use_checkbox();
+
         
         let action = new Clutter.ClickAction();
         action.connect('clicked', Lang.bind(this, function () {
@@ -203,8 +227,24 @@ const ProxyItem = new Lang.Class({
         
     },
 
+    is_to_be_used: function() {
+        return this._is_to_be_used.actor.get_checked();
+    },
+
+    hide_use_checkbox: function() {
+        this._is_to_be_used.actor.visible = false;
+    },
+
+    show_use_checkbox: function() {
+        this._is_to_be_used.actor.visible = true;
+    },
+
     get_proxy: function() {
         return this.proxy;
+    },
+
+    set_to_be_used: function(used) {
+        this._is_to_be_used.actor.set_checked(used);
     }
 
 });

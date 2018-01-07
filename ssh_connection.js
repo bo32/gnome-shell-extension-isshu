@@ -22,6 +22,13 @@ var SSHConnection = new Lang.Class({
                 command.push(Settings.get_string('ssh-key-path'));
             }
 
+            if (connection.proxy) {
+                if (connection.proxy.is_bastion) {
+                    command.push('-J');
+                    command.push(connection.username + '@' + connection.proxy.address);
+                }
+            }
+
             if (connection.username === '') {
                 command.push(connection.address);
             } else {

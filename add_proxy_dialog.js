@@ -81,6 +81,7 @@ const AddProxyDialog = new Lang.Class({
         });
         protocol_box.add(this.protocol_field);
 
+        // BASTION CHECKBOX
         this.is_bastion = new CheckBox('Is Bastion', {
         });
 

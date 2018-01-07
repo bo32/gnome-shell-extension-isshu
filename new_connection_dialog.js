@@ -301,6 +301,12 @@ var NewConnectionDialog = new Lang.Class({
         var use_telnet = this.use_telnet.actor.get_checked();
 
         var connection = this.savedConfig.get_connection_from_details(address, port, username, use_private_key, use_telnet);
+        
+        if (this.proxies_displayed) {
+            if (this.proxyPanel.get_proxy_to_be_used()) {
+                connection.proxy = this.proxyPanel.get_proxy_to_be_used().get_proxy();
+            }
+        }
         this.savedConfig.save_connection_as_a_latest(connection);
 
         let ssh_connection = new SSHConnection();
@@ -323,11 +329,11 @@ var NewConnectionDialog = new Lang.Class({
 
     showProxyPanel: function() {
         if (!this.proxies_displayed) {
-            let proxyPanel = new ProxyPanel();
-            this.main_container.add(proxyPanel);
+            this.proxyPanel = new ProxyPanel();
+            this.main_container.add(this.proxyPanel);
             this.proxies_displayed = true;
-            proxyPanel.custom_signals.connect('close-proxy', Lang.bind(this, function() {
-                this.main_container.remove_child(proxyPanel);
+            this.proxyPanel.custom_signals.connect('close-proxy', Lang.bind(this, function() {
+                this.main_container.remove_child(this.proxyPanel);
                 this.proxies_displayed = false;
             }));
         }

@@ -39,7 +39,7 @@
 .warning-label {
     border: 1px rgb(36, 36, 36);
     border-radius: 5px;
-    font: bold;
+    font-weight: bold;
     padding: .8em;
     margin: 12px 4px 10px 4px;
     background-color: #215d9c;
@@ -67,6 +67,6 @@
 }
 
 .bastion-label {
-    font: italic;
+    font-style: italic;
     font-size: .7em;
 }
