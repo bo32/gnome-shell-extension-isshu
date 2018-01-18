@@ -106,7 +106,7 @@ const ProxyPanel = new Lang.Class({
             vertical: true
         });
         this._scrollView = new St.ScrollView({
-            style_class: 'nm-dialog-scroll-view'
+            style_class: 'nm-dialog-scroll-view listbox-top-margin'
         });
         this._scrollView.set_x_expand(true);
         this._scrollView.set_y_expand(true);
@@ -116,7 +116,8 @@ const ProxyPanel = new Lang.Class({
 
         let container = new St.BoxLayout({
             vertical: true,
-            x_expand: true
+            x_expand: true,
+            style_class: 'margin-left'
         });
         container.add(header_box, {
             x_expand: true

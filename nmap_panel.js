@@ -97,7 +97,7 @@ var NmapPanel = new Lang.Class({
             vertical: true
         });
         this._scrollView = new St.ScrollView({
-            style_class: 'nm-dialog-scroll-view'
+            style_class: 'nm-dialog-scroll-view listbox-top-margin'
         });
         this._scrollView.set_x_expand(true);
         this._scrollView.set_y_expand(true);
