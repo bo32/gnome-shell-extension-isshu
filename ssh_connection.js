@@ -26,6 +26,9 @@ var SSHConnection = new Lang.Class({
                 if (connection.proxy.is_bastion) {
                     command.push('-J');
                     command.push(connection.username + '@' + connection.proxy.address);
+                } else {
+                    command.push('-D');
+                    command.push(connection.proxy.address + ':' + connection.proxy.port);
                 }
             }
 
