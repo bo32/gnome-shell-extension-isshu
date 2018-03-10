@@ -104,14 +104,17 @@ const SavedConfiguration = new Lang.Class({
                 label = label + ':' + connection.port;
             }
         }
-        return {
+        var result = {
             "label": label, 
 			"address": connection.address,
 			"port": connection.port,
 			"username": connection.username,
 			"use_private_key": connection.use_private_key,
-			"use_telnet": connection.use_telnet
+            "use_telnet": connection.use_telnet,
+            "folder": connection.folder
         };
+
+        return result;
     },
 
     get_connection_from_details: function(address, port, username, use_private_key, use_telnet) {

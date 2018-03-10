@@ -239,6 +239,8 @@ const NewConnectionDialog = new Lang.Class({
         if (label === '') {
             label = 'no-name';
         }
+        let folder = this.favConnectionsBox.get_folder_name();
+        connection.folder = folder;
         connection.label = label;
         connection.address = this.address_field.get_text();
         let port = this.port_field.get_text();
