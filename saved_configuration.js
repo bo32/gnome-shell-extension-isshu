@@ -6,6 +6,8 @@ const Shell = imports.gi.Shell;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
+const MapOfArrays = Me.imports.utils.map.MapOfArrays;
+
 const ExtensionFolderName = '.isshu';
 const ExtensionSavedDataFileName = 'saved_data.json';
 const ExtensionSavedDataFilePath = GLib.get_home_dir() + "/" + ExtensionFolderName + "/" + ExtensionSavedDataFileName;
@@ -125,6 +127,25 @@ const SavedConfiguration = new Lang.Class({
         connection.use_private_key = use_private_key;
         connection.use_telnet = use_telnet;
         return connection;
+    },
+
+    get_folders: function() {
+        let json_content = this.get_json_content();
+        let favs = json_content.favourite_connections;
+
+        var folders = new MapOfArrays();
+        for (let f of favs) {
+            if (f.folder !== undefined && f.folder !== '') {
+                global.log('treating ' + f.folder + '...')
+                if (folders.exists(f.folder)) {
+                    folders.appendValue(f.folder, f);
+                } else {
+                    folders.add(f.folder, f);
+                }
+            }            
+        }
+        folders.list();
+        return folders;
     },
 
     get_favourite_by_label: function(label) {

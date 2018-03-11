@@ -9,6 +9,7 @@ const PopupMenu = imports.ui.popupMenu;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const ConnectionsMenu = Me.imports.connections_menu.ConnectionsMenu;
+const FavouriteConnectionsMenu = Me.imports.favourite_connections_menu.FavouriteConnectionsMenu;
 const NewConnectionDialog = Me.imports.new_connection_dialog.NewConnectionDialog;
 const SavedConfiguration = Me.imports.saved_configuration.SavedConfiguration;
 
@@ -56,8 +57,15 @@ const ISSHUMenuButton = new Lang.Class({
         
         /* Favorite connections menu */
         var favourites = savedConfig.get_favourite_connections();
-        this.favouritesConnectionsMenu = new ConnectionsMenu('Favourite connections', favourites, 'starred-symbolic');
+        this.favouritesConnectionsMenu = new FavouriteConnectionsMenu('Favourite connections', favourites, 'starred-symbolic');
         this.menu.addMenuItem(this.favouritesConnectionsMenu);
+
+        var folders = savedConfig.get_folders();
+        global.log('Folders count: ' + folders.get_keys().length);
+        for (var folder_key of folders.get_keys()) {
+            var folderMenu = new ConnectionsMenu(folder_key, folders.get(folder_key), 'folder-symbolic');
+            this.menu.addMenuItem(folderMenu);
+        }
     },
 
     rebuild_favourite_menu: function() {
