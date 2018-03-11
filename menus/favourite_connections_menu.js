@@ -2,7 +2,7 @@ const Lang = imports.lang;
 
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
-const ConnectionsMenu = Me.imports.connections_menu.ConnectionsMenu;
+const ConnectionsMenu = Me.imports.menus.connections_menu.ConnectionsMenu;
 const SSHMenuItem = Me.imports.ssh_menu_item.SSHMenuItem;
 
 var FavouriteConnectionsMenu = new Lang.Class({
