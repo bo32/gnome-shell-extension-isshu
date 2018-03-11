@@ -4,7 +4,7 @@ const St = imports.gi.St;
 const Clutter = imports.gi.Clutter;
 
 
-const ConfirmDialog = new Lang.Class({
+var ConfirmDialog = new Lang.Class({
     Name: 'ConfirmDialog',
     Extends: ModalDialog.ModalDialog,
 
@@ -88,7 +88,7 @@ const ConfirmDialog = new Lang.Class({
 
 });
 
-const ConfirmUnfavDialog = new Lang.Class({
+var ConfirmUnfavDialog = new Lang.Class({
     Name: 'ConfirmUnfavDialog',
     Extends: ConfirmDialog,
 
@@ -100,7 +100,7 @@ const ConfirmUnfavDialog = new Lang.Class({
 
 });
 
-const ConfirmUpdateFavDialog = new Lang.Class({
+var ConfirmUpdateFavDialog = new Lang.Class({
     Name: 'ConfirmUpdateFavDialog',
     Extends: ConfirmDialog,
 

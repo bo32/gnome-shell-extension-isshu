@@ -1,6 +1,6 @@
 const Lang = imports.lang;
 
-const MapOfArrays = new Lang.Class({
+var MapOfArrays = new Lang.Class({
     Name: 'MapOfArrays',
 
 	_init: function() {

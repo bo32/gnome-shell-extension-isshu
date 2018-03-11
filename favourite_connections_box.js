@@ -13,7 +13,7 @@ const CustomSignals = Me.imports.custom_signals.CustomSignals;
 const ConfirmUnfavDialog = Me.imports.confirm_dialog.ConfirmUnfavDialog;
 const ConfirmUpdateFavDialog = Me.imports.confirm_dialog.ConfirmUpdateFavDialog;
 
-const FavouriteConnectionsBox = new Lang.Class({
+var FavouriteConnectionsBox = new Lang.Class({
     Name: 'FavouriteConnectionsBox',
     Extends: St.Widget,
 
@@ -160,7 +160,7 @@ const FavouriteConnectionsBox = new Lang.Class({
 
 });
 
-const FavouriteItem = new Lang.Class({
+var FavouriteItem = new Lang.Class({
     Name: 'FavouriteItem',
 
     _init: function (connection, index) {

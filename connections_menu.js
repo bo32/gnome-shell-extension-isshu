@@ -10,7 +10,7 @@ const Convenience = Me.imports.convenience;
 const Settings = Convenience.getSettings();
 const SSHMenuItem = Me.imports.ssh_menu_item.SSHMenuItem;
 
-const ConnectionsMenu = new Lang.Class({
+var ConnectionsMenu = new Lang.Class({
 
 	Name: 'ConnectionsMenu',
 	Extends: PopupMenu.PopupSubMenuMenuItem,
@@ -30,7 +30,7 @@ const ConnectionsMenu = new Lang.Class({
 
 	add_menus: function(connections) {
 		for(var c in connections) {
-			let menuItem = new SSHMenuItem(connections[c]);
+			var menuItem = new SSHMenuItem(connections[c]);
 			this.menu.addMenuItem(menuItem);
 		}
 	},

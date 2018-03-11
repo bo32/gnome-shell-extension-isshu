@@ -12,7 +12,7 @@ const ExtensionFolderName = '.isshu';
 const ExtensionSavedDataFileName = 'saved_data.json';
 const ExtensionSavedDataFilePath = GLib.get_home_dir() + "/" + ExtensionFolderName + "/" + ExtensionSavedDataFileName;
 
-const SavedConfiguration = new Lang.Class({
+var SavedConfiguration = new Lang.Class({
 	Name: 'SavedConfiguration',
 
 	_init: function() {

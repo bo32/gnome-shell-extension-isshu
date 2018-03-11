@@ -8,7 +8,7 @@ const Convenience = Me.imports.convenience;
 const XML = Me.imports.rexml;
 const Settings = Convenience.getSettings();
 
-const NMapParser = new Lang.Class({
+var NMapParser = new Lang.Class({
 	Name: 'NMapParser',
 
 	_init: function() {

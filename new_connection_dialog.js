@@ -15,7 +15,7 @@ const NmapPanel = Me.imports.nmap_menu.NmapPanel;
 const SSHConfiguration = Me.imports.ssh_config.SSHConfiguration;
 const SSHConnection = Me.imports.ssh_connection.SSHConnection;
 
-const NewConnectionDialog = new Lang.Class({
+var NewConnectionDialog = new Lang.Class({
     Name: 'NewConnectionDialog',
     Extends: ModalDialog.ModalDialog,
 

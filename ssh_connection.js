@@ -6,7 +6,7 @@ const Me = ExtensionUtils.getCurrentExtension();
 const Convenience = Me.imports.convenience;
 const Settings = Convenience.getSettings();
 
-const SSHConnection = new Lang.Class({
+var SSHConnection = new Lang.Class({
 	Name: 'SSHConnection',
 
 	_init: function() {
