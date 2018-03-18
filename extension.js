@@ -61,7 +61,6 @@ const ISSHUMenuButton = new Lang.Class({
         this.menu.addMenuItem(this.favouritesConnectionsMenu);
 
         var folders = savedConfig.get_folders();
-        global.log('Folders count: ' + folders.get_keys().length);
         for (var folder_key of folders.get_keys()) {
             var folderMenu = new ConnectionsMenu(folder_key, folders.get(folder_key), 'folder-symbolic');
             this.menu.addMenuItem(folderMenu);

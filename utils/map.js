@@ -7,15 +7,19 @@ var MapOfArrays = new Lang.Class({
         this.keys = [];
     },
 
-    add: function(key, value) {
+    add: function(key, element) {
+        // global.log(this.size());
+        this.print();
         this.keys.push(key);
-        this.keys[key] = [value];
+        let tmp = [element];
+        // tmp.push(element);
+        this.keys[key] = tmp;
+        this.print();
+        // global.log(this.size());
     },
 
-    appendValue: function(key, value) {
-        var tmp = this.keys[key];
-        tmp.push(value);
-        this.keys[key] = tmp;
+    appendValue: function(key, element) {
+        this.keys[key].push(element);
     },
 
     exists: function(key) {
@@ -23,7 +27,9 @@ var MapOfArrays = new Lang.Class({
     },
 
     get: function(key) {
-        return this.keys[key];
+        if (key !== undefined && key !== '') {
+            return this.keys['' + key];
+        }
     },
 
     get_keys: function() {
@@ -38,12 +44,28 @@ var MapOfArrays = new Lang.Class({
         return results;
     },
 
+    size: function() {
+        return this.get_keys().length;
+    },
+
     list: function() {
         for (var key of this.get_keys()) {
             global.log("Key " + key + ":");
+            // for (var v of this.get(key)) {
+            //     global.log(" - " + v.label);
+            // }
+        }
+    },
+
+    print: function() {
+        for (var key of this.get_keys()) {
+            var str = "[" + key + "] - [";
             for (var v of this.get(key)) {
-                global.log(" - " + v.label);
+                str += v.label;
+                str += ", ";
             }
+            str += "]";
+            global.log(str);
         }
     }
 

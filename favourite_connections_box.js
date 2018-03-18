@@ -182,6 +182,19 @@ var FavouriteItem = new Lang.Class({
             ,vertical: true
         });
 
+        let icon = new St.Icon({
+            style_class: 'nm-dialog-icon'
+        });
+        if (connection.folder !== undefined && connection.folder !== '') {
+            icon.set_icon_name('folder-symbolic');
+        } else {
+            icon.set_icon_name('starred-symbolic');
+        }
+        this.actor.add(icon, {
+            expand: false,
+            x_align: St.Align.START
+        });
+
         let label = new St.Label({
             text: connection.label
         });

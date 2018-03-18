@@ -240,7 +240,7 @@ var NewConnectionDialog = new Lang.Class({
             label = 'no-name';
         }
         let folder = this.favConnectionsBox.get_folder_name();
-        connection.folder = folder;
+        connection.folder = folder.toString();
         connection.label = label;
         connection.address = this.address_field.get_text();
         let port = this.port_field.get_text();

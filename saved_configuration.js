@@ -134,13 +134,15 @@ var SavedConfiguration = new Lang.Class({
         let favs = json_content.favourite_connections;
 
         var folders = new MapOfArrays();
-        for (let f of favs) {
-            if (f.folder !== undefined && f.folder !== '') {
-                global.log('treating ' + f.folder + '...')
-                if (folders.exists(f.folder)) {
-                    folders.appendValue(f.folder, f);
+        for (let fav of favs) {
+            if (fav.folder !== undefined && fav.folder !== '') {
+                global.log('treating ' + fav.folder + '...')
+                if (folders.exists(fav.folder)) {
+                    global.log(fav.folder + ' already exists. Needs to be appended.');
+                    folders.appendValue(fav.folder, fav);
                 } else {
-                    folders.add(f.folder, f);
+                    global.log(fav.folder + ' doesn\'t exist. Needs to be added.');
+                    folders.add(fav.folder, fav);
                 }
             }            
         }
