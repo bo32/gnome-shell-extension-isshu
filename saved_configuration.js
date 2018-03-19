@@ -146,7 +146,7 @@ var SavedConfiguration = new Lang.Class({
                 }
             }            
         }
-        folders.list();
+        // folders.list();
         return folders;
     },
 

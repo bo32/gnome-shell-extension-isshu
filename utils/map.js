@@ -8,14 +8,9 @@ var MapOfArrays = new Lang.Class({
     },
 
     add: function(key, element) {
-        // global.log(this.size());
-        this.print();
         this.keys.push(key);
         let tmp = [element];
-        // tmp.push(element);
         this.keys[key] = tmp;
-        this.print();
-        // global.log(this.size());
     },
 
     appendValue: function(key, element) {

@@ -195,10 +195,29 @@ var FavouriteItem = new Lang.Class({
             x_align: St.Align.START
         });
 
+        let label_and_folder_box = new St.BoxLayout({
+            vertical: false
+        });
+
         let label = new St.Label({
             text: connection.label
         });
-        labels_box.add(label, {
+        let folder_label_value = '';
+        if (connection.folder !== undefined && connection.folder !== '') {
+            folder_label_value = connection.folder;
+        }
+        let folder_label = new St.Label({
+            text: folder_label_value,
+            style_class: 'folder-name margin-right'
+        });
+
+        label_and_folder_box.add(folder_label, {
+            x_align: St.Align.START
+        });
+        label_and_folder_box.add(label, {
+            x_align: St.Align.START
+        });
+        labels_box.add(label_and_folder_box, {
             x_align: St.Align.START
         });
         let details_text = '';
