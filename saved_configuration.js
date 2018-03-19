@@ -109,11 +109,11 @@ var SavedConfiguration = new Lang.Class({
         var result = {
             "label": label, 
 			"address": connection.address,
-			"port": connection.port,
+			"port": connection.port + '',
 			"username": connection.username,
 			"use_private_key": connection.use_private_key,
             "use_telnet": connection.use_telnet,
-            "folder": connection.folder
+            "folder": connection.folder + ''
         };
 
         return result;
