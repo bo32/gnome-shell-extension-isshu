@@ -48,7 +48,7 @@ var FavouriteConnectionsBox = new Lang.Class({
         let fav_icon = new St.Icon({
             style_class: 'nm-dialog-icon'
         });
-        fav_icon.set_icon_name('star-new-symbolic');
+        fav_icon.set_icon_name('media-floppy-symbolic');
         this.fav_button = new St.Button({
             style_class: 'button custom-button'
         });
