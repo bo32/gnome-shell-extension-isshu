@@ -259,7 +259,7 @@ var FavouriteItem = new Lang.Class({
         let unfav_icon = new St.Icon({
             style_class: 'nm-dialog-icon'
         });
-        unfav_icon.set_icon_name('window-close-symbolic');
+        unfav_icon.set_icon_name('user-trash-symbolic');
         this.unfav_button = new St.Button({
             style_class: 'button item-button',
             visible: false
