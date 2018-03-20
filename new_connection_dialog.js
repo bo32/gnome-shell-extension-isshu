@@ -197,6 +197,7 @@ var NewConnectionDialog = new Lang.Class({
         this.favConnectionsBox.custom_signals.connect('save-favourite', Lang.bind(this, this.add_favourite));
         this.favConnectionsBox.custom_signals.connect('favourite-deleted', Lang.bind(this, function() {
             this.rebuild_favourite_menu = true;
+            this.rebuild_favourite_folders_menu = true;
         }));
         this.contentLayout.add(favBox_header, {
             expand: false
@@ -231,6 +232,7 @@ var NewConnectionDialog = new Lang.Class({
 
         this.rebuild_latest_menu = false;
         this.rebuild_favourite_menu = false;
+        this.rebuild_favourite_folders_menu = false;
     },
 
     add_favourite: function() {
@@ -254,6 +256,7 @@ var NewConnectionDialog = new Lang.Class({
         connection.use_telnet = this.use_telnet.actor.get_checked();
         this.savedConfig.save_connection_as_a_favourite(connection);
         this.rebuild_favourite_menu = true;
+        this.rebuild_favourite_folders_menu = true;
 
         this.favConnectionsBox.refresh();
     },
@@ -342,6 +345,9 @@ var NewConnectionDialog = new Lang.Class({
         }
         if(this.rebuild_latest_menu) {
             this.emit('rebuild-latest-menu');
+        }
+        if(this.rebuild_favourite_folders_menu) {
+            this.emit('rebuild-favourite-folder-menus');
         }
         this.close();
     }
