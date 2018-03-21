@@ -11,5 +11,3 @@ The user can choose which terminal to use.
 ### SCREENSHOT
 
 ![screenshot](./icons/screenshot.png)
-
-# IF SOMEONE HAS A GOOD IDEA FOR A LOGO, PLEASE SEND ME A PROPOSITION

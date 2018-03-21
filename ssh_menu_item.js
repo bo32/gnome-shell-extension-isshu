@@ -6,7 +6,7 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const SSHConnection = Me.imports.ssh_connection.SSHConnection;
 
-const SSHMenuItem = new Lang.Class({
+var SSHMenuItem = new Lang.Class({
     Name: 'SSHMenuItem',
     Extends: PopupMenu.PopupBaseMenuItem,
 

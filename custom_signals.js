@@ -7,7 +7,7 @@ const Signals = imports.signals;
  * that inherits from St.Widget.
  * Therefore, this CustomSignals class is in order to bypass this issue. 
  */
-const CustomSignals = new Lang.Class({
+var CustomSignals = new Lang.Class({
     Name: 'CustomSignals',
 
     _init: function() {}

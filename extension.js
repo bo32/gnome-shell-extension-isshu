@@ -8,7 +8,10 @@ const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
-const ConnectionsMenu = Me.imports.connections_menu.ConnectionsMenu;
+const ConnectionsMenu = Me.imports.menus.connections_menu.ConnectionsMenu;
+const FavouriteConnectionsMenu = Me.imports.menus.favourite_connections_menu.FavouriteConnectionsMenu;
+const LatestConnectionsMenu = Me.imports.menus.latest_connections_menu.LatestConnectionsMenu;
+const FolderConnectionsMenu = Me.imports.menus.folder_connections_menu.FolderConnectionsMenu;
 const NewConnectionDialog = Me.imports.new_connection_dialog.NewConnectionDialog;
 const SavedConfiguration = Me.imports.saved_configuration.SavedConfiguration;
 
@@ -40,6 +43,7 @@ const ISSHUMenuButton = new Lang.Class({
             this.newConnectionDialog.open();
             this.newConnectionDialog.connect('rebuild-favourite-menu', Lang.bind(this, this.rebuild_favourite_menu));
             this.newConnectionDialog.connect('rebuild-latest-menu', Lang.bind(this, this.rebuild_latest_menu));
+            this.newConnectionDialog.connect('rebuild-favourite-folder-menus', Lang.bind(this, this.rebuild_favourite_folder_menus));
             this.newConnectionDialog.connect('open-preferences', Lang.bind(this, function() {
                 launch_extension_prefs(Me.uuid);
                 this.newConnectionDialog.close_dialog();
@@ -50,14 +54,20 @@ const ISSHUMenuButton = new Lang.Class({
         let savedConfig = new SavedConfiguration();
 
         /* Latest connections menu */
-        var latests = savedConfig.get_latest_connections();
-        this.latestConnectionsMenu = new ConnectionsMenu('Latest connections', latests, 'document-open-recent-symbolic');
+        this.latestConnectionsMenu = new LatestConnectionsMenu();
         this.menu.addMenuItem(this.latestConnectionsMenu);
         
         /* Favorite connections menu */
-        var favourites = savedConfig.get_favourite_connections();
-        this.favouritesConnectionsMenu = new ConnectionsMenu('Favourite connections', favourites, 'starred-symbolic');
+        this.favouritesConnectionsMenu = new FavouriteConnectionsMenu();
         this.menu.addMenuItem(this.favouritesConnectionsMenu);
+
+        var folders = savedConfig.get_folders();
+        this.favourite_folder_menus = [];
+        for (var folder_key of folders.get_keys()) {
+            var folderMenu = new FolderConnectionsMenu(folder_key, folders.get(folder_key));
+            this.favourite_folder_menus.push(folderMenu);
+            this.menu.addMenuItem(folderMenu);
+        }
     },
 
     rebuild_favourite_menu: function() {
@@ -70,6 +80,21 @@ const ISSHUMenuButton = new Lang.Class({
         let savedConfig = new SavedConfiguration();
         let latests = savedConfig.get_latest_connections();
         this.latestConnectionsMenu.rebuild(latests);
+    },
+
+    rebuild_favourite_folder_menus: function() {
+        for (var folder_menu of this.favourite_folder_menus) {
+            folder_menu.destroy();
+        }
+        
+        this.favourite_folder_menus = [];
+        let savedConfig = new SavedConfiguration();
+        var folders = savedConfig.get_folders();
+        for (var folder_key of folders.get_keys()) {
+            var folderMenu = new FolderConnectionsMenu(folder_key, folders.get(folder_key));
+            this.favourite_folder_menus.push(folderMenu);
+            this.menu.addMenuItem(folderMenu);
+        }
     },
 
     get_icon_box: function() {

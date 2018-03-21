@@ -9,18 +9,21 @@ const Me = ExtensionUtils.getCurrentExtension();
 const Convenience = Me.imports.convenience;
 const Settings = Convenience.getSettings();
 const SSHMenuItem = Me.imports.ssh_menu_item.SSHMenuItem;
+const SavedConfiguration = Me.imports.saved_configuration.SavedConfiguration;
 
-const ConnectionsMenu = new Lang.Class({
+var ConnectionsMenu = new Lang.Class({
 
 	Name: 'ConnectionsMenu',
 	Extends: PopupMenu.PopupSubMenuMenuItem,
 
-    _init: function(label, connections, icon) {
+    _init: function(label, icon) {
 		this.parent(label, true);
 		this.icon.gicon = Gio.icon_new_for_string(icon);
 		this.icon.icon_size = 16;
 
-		this.add_menus(connections);
+		this.savedConfig = new SavedConfiguration();
+
+		// this.add_menus(connections);
 
 		this.controlsBox = new St.BoxLayout({
             name: 'controlsBox',
@@ -30,7 +33,7 @@ const ConnectionsMenu = new Lang.Class({
 
 	add_menus: function(connections) {
 		for(var c in connections) {
-			let menuItem = new SSHMenuItem(connections[c]);
+			var menuItem = new SSHMenuItem(connections[c]);
 			this.menu.addMenuItem(menuItem);
 		}
 	},

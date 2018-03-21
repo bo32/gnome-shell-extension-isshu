@@ -13,7 +13,7 @@ const CustomSignals = Me.imports.custom_signals.CustomSignals;
 const ConfirmUnfavDialog = Me.imports.confirm_dialog.ConfirmUnfavDialog;
 const ConfirmUpdateFavDialog = Me.imports.confirm_dialog.ConfirmUpdateFavDialog;
 
-const FavouriteConnectionsBox = new Lang.Class({
+var FavouriteConnectionsBox = new Lang.Class({
     Name: 'FavouriteConnectionsBox',
     Extends: St.Widget,
 
@@ -48,7 +48,7 @@ const FavouriteConnectionsBox = new Lang.Class({
         let fav_icon = new St.Icon({
             style_class: 'nm-dialog-icon'
         });
-        fav_icon.set_icon_name('star-new-symbolic');
+        fav_icon.set_icon_name('media-floppy-symbolic');
         this.fav_button = new St.Button({
             style_class: 'button custom-button'
         });
@@ -74,6 +74,21 @@ const FavouriteConnectionsBox = new Lang.Class({
 
         });
         content_box.add(favourite_label_box);
+
+        let folder_box = new St.BoxLayout({
+            // vertical: false
+        });
+        let folder_label = new St.Label({
+            text: 'Folder (optional)' + ':  ',
+            y_align: Clutter.ActorAlign.CENTER
+        });
+        this.folder_field = new St.Entry({hint_text: 'enter a folder name'});
+        folder_box.add(folder_label, {
+        });
+        folder_box.add(this.folder_field, {
+            expand: true
+        });
+        content_box.add(folder_box);
 
         this._itemBox = new St.BoxLayout({
             vertical: true
@@ -116,6 +131,11 @@ const FavouriteConnectionsBox = new Lang.Class({
             }));
             fav_item.connect('load-favourite', Lang.bind(this, function() {
                 this.label_field.set_text(this.selected_item.connection.label);
+                let folder = '';
+                if (this.selected_item.connection.folder !== undefined) {
+                    folder = this.selected_item.connection.folder;
+                }
+                this.folder_field.set_text(folder);
                 this.custom_signals.emit('load-favourite');
             }));
         }
@@ -132,11 +152,15 @@ const FavouriteConnectionsBox = new Lang.Class({
 
     get_favourite_label_entry: function() {
         return this.label_field.get_text();
+    },
+
+    get_folder_name: function() {
+        return this.folder_field.get_text();
     }
 
 });
 
-const FavouriteItem = new Lang.Class({
+var FavouriteItem = new Lang.Class({
     Name: 'FavouriteItem',
 
     _init: function (connection, index) {
@@ -158,10 +182,42 @@ const FavouriteItem = new Lang.Class({
             ,vertical: true
         });
 
+        let icon = new St.Icon({
+            style_class: 'nm-dialog-icon'
+        });
+        if (connection.folder !== undefined && connection.folder !== '') {
+            icon.set_icon_name('folder-symbolic');
+        } else {
+            icon.set_icon_name('starred-symbolic');
+        }
+        this.actor.add(icon, {
+            expand: false,
+            x_align: St.Align.START
+        });
+
+        let label_and_folder_box = new St.BoxLayout({
+            vertical: false
+        });
+
         let label = new St.Label({
             text: connection.label
         });
-        labels_box.add(label, {
+        let folder_label_value = '';
+        if (connection.folder !== undefined && connection.folder !== '') {
+            folder_label_value = connection.folder;
+        }
+        let folder_label = new St.Label({
+            text: folder_label_value,
+            style_class: 'folder-name margin-right'
+        });
+
+        label_and_folder_box.add(folder_label, {
+            x_align: St.Align.START
+        });
+        label_and_folder_box.add(label, {
+            x_align: St.Align.START
+        });
+        labels_box.add(label_and_folder_box, {
             x_align: St.Align.START
         });
         let details_text = '';
@@ -203,7 +259,7 @@ const FavouriteItem = new Lang.Class({
         let unfav_icon = new St.Icon({
             style_class: 'nm-dialog-icon'
         });
-        unfav_icon.set_icon_name('window-close-symbolic');
+        unfav_icon.set_icon_name('user-trash-symbolic');
         this.unfav_button = new St.Button({
             style_class: 'button item-button',
             visible: false

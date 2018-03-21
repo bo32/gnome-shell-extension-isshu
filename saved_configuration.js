@@ -6,11 +6,13 @@ const Shell = imports.gi.Shell;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
+const MapOfArrays = Me.imports.utils.map.MapOfArrays;
+
 const ExtensionFolderName = '.isshu';
 const ExtensionSavedDataFileName = 'saved_data.json';
 const ExtensionSavedDataFilePath = GLib.get_home_dir() + "/" + ExtensionFolderName + "/" + ExtensionSavedDataFileName;
 
-const SavedConfiguration = new Lang.Class({
+var SavedConfiguration = new Lang.Class({
 	Name: 'SavedConfiguration',
 
 	_init: function() {
@@ -104,14 +106,17 @@ const SavedConfiguration = new Lang.Class({
                 label = label + ':' + connection.port;
             }
         }
-        return {
+        var result = {
             "label": label, 
 			"address": connection.address,
-			"port": connection.port,
+			"port": connection.port + '',
 			"username": connection.username,
 			"use_private_key": connection.use_private_key,
-			"use_telnet": connection.use_telnet
+            "use_telnet": connection.use_telnet,
+            "folder": connection.folder + ''
         };
+
+        return result;
     },
 
     get_connection_from_details: function(address, port, username, use_private_key, use_telnet) {
@@ -122,6 +127,23 @@ const SavedConfiguration = new Lang.Class({
         connection.use_private_key = use_private_key;
         connection.use_telnet = use_telnet;
         return connection;
+    },
+
+    get_folders: function() {
+        let json_content = this.get_json_content();
+        let favs = json_content.favourite_connections;
+
+        var folders = new MapOfArrays();
+        for (let fav of favs) {
+            if (fav.folder !== undefined && fav.folder !== '') {
+                if (folders.exists(fav.folder)) {
+                    folders.appendValue(fav.folder, fav);
+                } else {
+                    folders.add(fav.folder, fav);
+                }
+            }            
+        }
+        return folders;
     },
 
     get_favourite_by_label: function(label) {

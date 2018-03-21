@@ -16,7 +16,7 @@ const Settings = Convenience.getSettings();
 const CustomSignals = Me.imports.custom_signals.CustomSignals;
 const NMapParser = Me.imports.nmap_parser.NMapParser;
 
-const NmapPanel = new Lang.Class({
+var NmapPanel = new Lang.Class({
     Name: 'NmapPanel',
     Extends: St.Widget,
 

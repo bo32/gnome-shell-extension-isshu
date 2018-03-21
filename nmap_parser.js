@@ -5,10 +5,10 @@ const GLib = imports.gi.GLib;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const Convenience = Me.imports.convenience;
-const XML = Me.imports.rexml;
+const XML = Me.imports.utils.rexml;
 const Settings = Convenience.getSettings();
 
-const NMapParser = new Lang.Class({
+var NMapParser = new Lang.Class({
 	Name: 'NMapParser',
 
 	_init: function() {

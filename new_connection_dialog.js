@@ -11,11 +11,11 @@ const Settings = Convenience.getSettings();
 
 const FavouriteConnectionsBox = Me.imports.favourite_connections_box.FavouriteConnectionsBox;
 const SavedConfiguration = Me.imports.saved_configuration.SavedConfiguration;
-const NmapPanel = Me.imports.nmap_menu.NmapPanel;
+const NmapPanel = Me.imports.nmap_panel.NmapPanel;
 const SSHConfiguration = Me.imports.ssh_config.SSHConfiguration;
 const SSHConnection = Me.imports.ssh_connection.SSHConnection;
 
-const NewConnectionDialog = new Lang.Class({
+var NewConnectionDialog = new Lang.Class({
     Name: 'NewConnectionDialog',
     Extends: ModalDialog.ModalDialog,
 
@@ -197,6 +197,7 @@ const NewConnectionDialog = new Lang.Class({
         this.favConnectionsBox.custom_signals.connect('save-favourite', Lang.bind(this, this.add_favourite));
         this.favConnectionsBox.custom_signals.connect('favourite-deleted', Lang.bind(this, function() {
             this.rebuild_favourite_menu = true;
+            this.rebuild_favourite_folders_menu = true;
         }));
         this.contentLayout.add(favBox_header, {
             expand: false
@@ -231,6 +232,7 @@ const NewConnectionDialog = new Lang.Class({
 
         this.rebuild_latest_menu = false;
         this.rebuild_favourite_menu = false;
+        this.rebuild_favourite_folders_menu = false;
     },
 
     add_favourite: function() {
@@ -239,6 +241,8 @@ const NewConnectionDialog = new Lang.Class({
         if (label === '') {
             label = 'no-name';
         }
+        let folder = this.favConnectionsBox.get_folder_name();
+        connection.folder = folder.toString();
         connection.label = label;
         connection.address = this.address_field.get_text();
         let port = this.port_field.get_text();
@@ -252,6 +256,7 @@ const NewConnectionDialog = new Lang.Class({
         connection.use_telnet = this.use_telnet.actor.get_checked();
         this.savedConfig.save_connection_as_a_favourite(connection);
         this.rebuild_favourite_menu = true;
+        this.rebuild_favourite_folders_menu = true;
 
         this.favConnectionsBox.refresh();
     },
@@ -340,6 +345,9 @@ const NewConnectionDialog = new Lang.Class({
         }
         if(this.rebuild_latest_menu) {
             this.emit('rebuild-latest-menu');
+        }
+        if(this.rebuild_favourite_folders_menu) {
+            this.emit('rebuild-favourite-folder-menus');
         }
         this.close();
     }
