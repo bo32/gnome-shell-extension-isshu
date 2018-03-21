@@ -94,7 +94,7 @@ var FavouriteConnectionsBox = new Lang.Class({
             vertical: true
         });
         this._scrollView = new St.ScrollView({
-            style_class: 'nm-dialog-scroll-view'
+            style_class: 'nm-dialog-scroll-view margin-top'
         });
         this._scrollView.set_x_expand(true);
         this._scrollView.set_y_expand(true);
@@ -176,7 +176,7 @@ var FavouriteItem = new Lang.Class({
         });
 
         let labels_box = new St.BoxLayout({
-            style_class: 'nm-dialog-item, favourite-box'
+            style_class: 'favourite-box'
             ,can_focus: true
             ,reactive: true
             ,vertical: true
@@ -203,19 +203,21 @@ var FavouriteItem = new Lang.Class({
             text: connection.label
         });
         let folder_label_value = '';
+        let style_class = '';
         if (connection.folder !== undefined && connection.folder !== '') {
             folder_label_value = connection.folder;
+            style_class = 'folder-name margin-right';
         }
         let folder_label = new St.Label({
             text: folder_label_value,
-            style_class: 'folder-name margin-right'
+            style_class: style_class
         });
 
         label_and_folder_box.add(folder_label, {
             x_align: St.Align.START
         });
         label_and_folder_box.add(label, {
-            x_align: St.Align.START
+            x_align: St.Align.END
         });
         labels_box.add(label_and_folder_box, {
             x_align: St.Align.START

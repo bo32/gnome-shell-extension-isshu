@@ -57,6 +57,10 @@
     margin-right: 10px;
 }
 
+.margin-top {
+    margin-top: 10px;
+}
+
 .folder-name {
     font-style: italic;
     color: #68b1ff;

@@ -78,7 +78,8 @@ var NewConnectionDialog = new Lang.Class({
         // PORT BOX
         let port_box = new St.BoxLayout({
             vertical: true,
-            width: '100'
+            width: '100',
+            style_class: 'margin-left'
         });
 
         let port_label = new St.Label({
@@ -131,7 +132,8 @@ var NewConnectionDialog = new Lang.Class({
         });
 
         let check_boxes = new St.BoxLayout({
-            vertical: true
+            vertical: true,
+            style_class: 'margin-left'
         });
 
         this.use_private_key = new CheckBox('Use private key authentication', {
