@@ -231,7 +231,7 @@ var NewConnectionDialog = new Lang.Class({
         });
         this._proxyButton = this.addButton({
             action: Lang.bind(this, this.showProxyPanel),
-            label: "Proxy"
+            label: "Socks Proxy"
         });
         this._nmapButton = this.addButton({
             action: Lang.bind(this, this.showNmap),

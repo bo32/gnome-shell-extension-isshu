@@ -3,10 +3,12 @@ const CheckBox = imports.ui.checkBox.CheckBox;
 const Lang = imports.lang;
 const St = imports.gi.St;
 const Clutter = imports.gi.Clutter;
+const Gtk = imports.gi.Gtk;
 
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const SavedConfiguration = Me.imports.saved_configuration.SavedConfiguration;
+const ItemList = Me.imports.item_list.ItemList;
 
 const AddProxyDialog = new Lang.Class({
     Name: 'AddProxyDialog',
@@ -28,7 +30,7 @@ const AddProxyDialog = new Lang.Class({
         });
         let title = new St.Label({
             style_class: 'nm-dialog-header',
-            text: 'Add a new proxy'
+            text: 'Add a new Socks proxy'
         });
         titleBox.add(title);
 
@@ -76,19 +78,18 @@ const AddProxyDialog = new Lang.Class({
         });
         protocol_box.add(protocol_label);
 
-        this.protocol_field = new St.Entry({
-            style_class: 'run-dialog-entry'
-        });
-        protocol_box.add(this.protocol_field);
-
-        // BASTION CHECKBOX
-        this.is_bastion = new CheckBox('Is Bastion', {
-        });
+        this._itemBox = new ItemList();
+        let protocols = ['HTTP', 'Socks4', 'Socks5'];
+        for (var protocol of protocols) {
+            var box = new St.BoxLayout({});
+            box.add(new St.Label({text: protocol}));
+            this._itemBox.add_item(box);
+        }
+        protocol_box.add(this._itemBox.get_scroll_view());
 
         this.contentLayout.add(address_box);
         this.contentLayout.add(port_box);
         this.contentLayout.add(protocol_box);
-        this.contentLayout.add(this.is_bastion.actor);
 
         this._confirmButton = this.addButton({
             action: Lang.bind(this, this.confirm),
@@ -110,8 +111,10 @@ const AddProxyDialog = new Lang.Class({
         var proxy = [];
         proxy.address = this.address_field.get_text();
         proxy.port = this.port_field.get_text();
-        proxy.protocol = this.protocol_field.get_text();
-        proxy.is_bastion = this.is_bastion.actor.get_checked();
+
+        var protocol_box = this._itemBox.get_selected_item();
+        var protocol = protocol_box.get_first_child().get_text();
+        proxy.protocol = protocol;;
         this.saved_configuration.add_new_proxy(proxy);
         this.emit('proxy-added');
         this.close();

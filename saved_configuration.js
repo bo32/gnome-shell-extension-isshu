@@ -189,8 +189,6 @@ var SavedConfiguration = new Lang.Class({
     },
 
     add_new_proxy: function(proxy) {
-        global.log('Save a new proxy.');
-        global.log(proxy.address);
         let json_content = this.get_json_content();
         let proxies = json_content.favourite_proxies;
         let json_proxy = this.get_proxy_as_json(proxy);
@@ -203,8 +201,7 @@ var SavedConfiguration = new Lang.Class({
         return {
 			"address": proxy.address,
 			"port": proxy.port,
-			"protocol": proxy.protocol,
-			"is_bastion": proxy.is_bastion
+			"protocol": proxy.protocol
         };
     },
 

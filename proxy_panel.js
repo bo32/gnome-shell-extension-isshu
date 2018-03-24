@@ -33,7 +33,7 @@ const ProxyPanel = new Lang.Class({
         let title = new St.Label({
             style_class: 'nm-dialog-header',
             y_align: St.Align.END,
-            text: 'Proxy'
+            text: 'Socks Proxy'
         });
 
         // Add button
