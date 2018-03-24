@@ -2,8 +2,9 @@ const Lang = imports.lang;
 const St = imports.gi.St;
 const Gtk = imports.gi.Gtk;
 const Clutter = imports.gi.Clutter;
+const Util = imports.misc.util;
 
-const ItemList = new Lang.Class({
+var ItemList = new Lang.Class({
     Name: 'ItemList',
     Extends: St.BoxLayout,
 
@@ -36,10 +37,12 @@ const ItemList = new Lang.Class({
             item.grab_key_focus(); // needed for setting the correct focus
             this.selected_item = item;
             item.add_style_pseudo_class('selected');
+            Util.ensureActorVisibleInScrollView(this._scrollView, this.selected_item);
         }));
         item.add_action(action);
-        item.connect('key-focus-in', Lang.bind(this, function() {
-        }));
+        // item.connect('key-focus-in', Lang.bind(item, function() {
+        //     item.emit('item-selected');
+        // }));
 
         this.add_child(item);
     },

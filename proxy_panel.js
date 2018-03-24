@@ -12,6 +12,7 @@ const CustomSignals = Me.imports.custom_signals.CustomSignals;
 const SavedConfiguration = Me.imports.saved_configuration.SavedConfiguration;
 const AddProxyDialog = Me.imports.add_proxy_dialog.AddProxyDialog;
 const DeleteProxyDialog = Me.imports.add_proxy_dialog.DeleteProxyDialog;
+const ItemList = Me.imports.item_list.ItemList;
 
 const ProxyPanel = new Lang.Class({
     Name: 'ProxyPanel',
@@ -67,7 +68,7 @@ const ProxyPanel = new Lang.Class({
         del_button.set_child(del_icon);
 
         del_button.connect('clicked', Lang.bind(this, function() {
-            let del_dialog = new DeleteProxyDialog(this.selected_item.get_proxy());
+            let del_dialog = new DeleteProxyDialog(this.get_selected_proxy_value());
             del_dialog.open();
             del_dialog.connect('proxy-deleted', Lang.bind(this, function() {
                 this.re_build_item_box();
@@ -102,17 +103,7 @@ const ProxyPanel = new Lang.Class({
             x_align: St.Align.END
         });
 
-        this._itemBox = new St.BoxLayout({
-            vertical: true
-        });
-        this._scrollView = new St.ScrollView({
-            style_class: 'nm-dialog-scroll-view listbox-top-margin'
-        });
-        this._scrollView.set_x_expand(true);
-        this._scrollView.set_y_expand(true);
-        this._scrollView.set_policy(Gtk.PolicyType.NEVER,
-            Gtk.PolicyType.AUTOMATIC);
-        this._scrollView.add_actor(this._itemBox);
+        this._itemBox = new ItemList();
 
         let container = new St.BoxLayout({
             vertical: true,
@@ -122,14 +113,18 @@ const ProxyPanel = new Lang.Class({
         container.add(header_box, {
             x_expand: true
         });
-        container.add(this._scrollView);
+        container.add(this._itemBox.get_scroll_view());
 
         this.add_child(container);
-        this.build_item_box();  
+        this.build_item_box();
     },
 
-    get_proxy_to_be_used: function() {
-        return this._proxy_to_be_used;
+    get_selected_proxy: function() {
+        return this._itemBox.get_selected_item();
+    },
+
+    get_selected_proxy_value: function() {
+        return this.get_selected_proxy().get_proxy();
     },
 
     re_build_item_box: function() {
@@ -143,46 +138,46 @@ const ProxyPanel = new Lang.Class({
         let proxies = this.savedConfig.get_favourite_proxies();
         for (var proxy of proxies) {
             let proxyItem = new ProxyItem(proxy);
-            this._itemBox.add_child(proxyItem.actor);
-            proxyItem.connect('item-selected', Lang.bind(this, function(){
-                if (this.selected_item) {
-                    this.selected_item.actor.remove_style_pseudo_class('selected');
-                    if (!this.selected_item.is_to_be_used()) {
-                        this.selected_item.hide_use_checkbox();
-                    }
-                }
-                this.selected_item = proxyItem;
-                this.selected_item.show_use_checkbox();
-                this.selected_item.actor.add_style_pseudo_class('selected');
-                Util.ensureActorVisibleInScrollView(this._scrollView, this.selected_item.actor);
-            }));
-            proxyItem.connect('use-proxy', Lang.bind(this, function() {
-                if (this._proxy_to_be_used) {
-                    this._proxy_to_be_used.set_to_be_used(false);
-                }
-                this._proxy_to_be_used = proxyItem;
-            }));
+            this._itemBox.add_item(proxyItem);
+            // proxyItem.connect('item-selected', Lang.bind(this, function(){
+            //     if (this.selected_item) {
+            //         this.selected_item.actor.remove_style_pseudo_class('selected');
+            //         // if (!this.selected_item.is_to_be_used()) {
+            //         //     this.selected_item.hide_use_checkbox();
+            //         // }
+            //     }
+            //     this.selected_item = proxyItem;
+            //     // this.selected_item.show_use_checkbox();
+            //     this.selected_item.actor.add_style_pseudo_class('selected');
+            //     Util.ensureActorVisibleInScrollView(this._scrollView, this.selected_item.actor);
+            // }));
+            // proxyItem.connect('use-proxy', Lang.bind(this, function() {
+            //     if (this._proxy_to_be_used) {
+            //         this._proxy_to_be_used.set_to_be_used(false);
+            //     }
+            //     this._proxy_to_be_used = proxyItem;
+            // }));
         }
     }
 });
 
 const ProxyItem = new Lang.Class({
     Name: 'ProxyItem',
+    Extends: St.BoxLayout,
 
     _init: function (proxy) {
-        this.proxy = proxy;
-
-        this.actor = new St.BoxLayout({
+        this.parent({
             style_class: 'nm-dialog-item'
             ,can_focus: true
             ,reactive: true
         });
+        this.proxy = proxy;
 
         let icon = new St.Icon({
             style_class: 'nm-dialog-icon',
             icon_name: 'network-server-symbolic'
         });
-        this.actor.add(icon, {
+        this.add(icon, {
             expand: false,
             x_align: St.Align.START
         });
@@ -200,62 +195,22 @@ const ProxyItem = new Lang.Class({
         labels_box.add(label, {
             x_align: St.Align.START
         });
-
-        if (proxy.is_bastion) {
-            let bastion_label = new St.Label({
-                text: 'bastion',
-                style_class: 'bastion-label'
-            });
-            labels_box.add(bastion_label, {
-                x_align: St.Align.START
-            }); 
-        }
-        this.actor.add(labels_box, {
-            expand: true,
+        let protocol = new St.Label({
+            text: proxy.protocol,
+            style_class: 'favourtie-connection-details-label'
+        });
+        labels_box.add(protocol, {
             x_align: St.Align.START
         });
 
-        this._is_to_be_used = new CheckBox('Use', {
+        this.add(labels_box, {
+            expand: true,
+            x_align: St.Align.START
         });
-        this._is_to_be_used.actor.connect('clicked', Lang.bind(this, function() {
-            // this._proxy_to_be_used = this.proxy
-            this.emit('use-proxy');
-        }));
-        this.actor.add(this._is_to_be_used.actor, {
-        });
-        this.hide_use_checkbox();
-
-        
-        let action = new Clutter.ClickAction();
-        action.connect('clicked', Lang.bind(this, function () {
-            this.actor.grab_key_focus(); // needed for setting the correct focus
-        }));
-        this.actor.add_action(action);
-        this.actor.connect('key-focus-in', Lang.bind(this, function() {
-            this.emit('item-selected');
-        }));
-        
-    },
-
-    is_to_be_used: function() {
-        return this._is_to_be_used.actor.get_checked();
-    },
-
-    hide_use_checkbox: function() {
-        this._is_to_be_used.actor.visible = false;
-    },
-
-    show_use_checkbox: function() {
-        this._is_to_be_used.actor.visible = true;
     },
 
     get_proxy: function() {
         return this.proxy;
-    },
-
-    set_to_be_used: function(used) {
-        this._is_to_be_used.actor.set_checked(used);
     }
 
 });
-Signals.addSignalMethods(ProxyItem.prototype);

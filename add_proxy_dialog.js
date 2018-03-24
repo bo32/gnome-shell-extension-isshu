@@ -10,7 +10,7 @@ const Me = ExtensionUtils.getCurrentExtension();
 const SavedConfiguration = Me.imports.saved_configuration.SavedConfiguration;
 const ItemList = Me.imports.item_list.ItemList;
 
-const AddProxyDialog = new Lang.Class({
+var AddProxyDialog = new Lang.Class({
     Name: 'AddProxyDialog',
     Extends: ModalDialog.ModalDialog,
 
@@ -79,7 +79,7 @@ const AddProxyDialog = new Lang.Class({
         protocol_box.add(protocol_label);
 
         this._itemBox = new ItemList();
-        let protocols = ['HTTP', 'Socks4', 'Socks5'];
+        let protocols = ['http', 'socks4', 'socks5'];
         for (var protocol of protocols) {
             var box = new St.BoxLayout({});
             box.add(new St.Label({text: protocol}));
@@ -126,7 +126,7 @@ const AddProxyDialog = new Lang.Class({
 
 });
 
-const DeleteProxyDialog = new Lang.Class({
+var DeleteProxyDialog = new Lang.Class({
     Name: 'DeleteProxyDialog',
     Extends: ModalDialog.ModalDialog,
 

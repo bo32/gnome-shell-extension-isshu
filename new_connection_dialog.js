@@ -303,7 +303,7 @@ var NewConnectionDialog = new Lang.Class({
         var connection = this.savedConfig.get_connection_from_details(address, port, username, use_private_key, use_telnet);
         
         if (this.proxies_displayed) {
-            connection.proxy = this.proxyPanel.get_selected_proxy();
+            connection.proxy = this.proxyPanel.get_selected_proxy_value();
         }
         this.savedConfig.save_connection_as_a_latest(connection);
 
