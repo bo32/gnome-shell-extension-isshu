@@ -178,6 +178,15 @@ const ProxyItem = new Lang.Class({
             ,reactive: true
         });
 
+        let icon = new St.Icon({
+            style_class: 'nm-dialog-icon',
+            icon_name: 'network-server-symbolic'
+        });
+        this.actor.add(icon, {
+            expand: false,
+            x_align: St.Align.START
+        });
+
         let labels_box = new St.BoxLayout({
             style_class: 'nm-dialog-item, favourite-box'
             ,can_focus: true
