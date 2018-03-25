@@ -23,13 +23,12 @@ var SSHConnection = new Lang.Class({
             }
 
             if (connection.proxy) {
-                if (connection.proxy.is_bastion) {
-                    command.push('-J');
-                    command.push(connection.username + '@' + connection.proxy.address);
-                } else {
-                    command.push('-D');
-                    command.push(connection.proxy.address + ':' + connection.proxy.port);
-                }
+                // -o ProxyCommand='nc --proxy-type socks5 --proxy 91.236.116.7:9050 %h %p'
+                command.push('-o');
+                command.push("ProxyCommand='nc " 
+                    + "--proxy-type " + connection.proxy.protocol 
+                    + " --proxy " + connection.proxy.address 
+                    + ":" + connection.proxy.port + " %h %p'");
             }
 
             if (connection.username === '') {
