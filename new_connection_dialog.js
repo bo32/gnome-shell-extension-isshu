@@ -201,7 +201,7 @@ var NewConnectionDialog = new Lang.Class({
         // FAVOURITE BOX
 
         let favBox_header = new St.Label({
-            style_class: 'nm-dialog-header',
+            style_class: 'nm-dialog-header favourites-panel',
             text: 'Favourite connections'
         });
         this.favConnectionsBox = new FavouriteConnectionsBox();
