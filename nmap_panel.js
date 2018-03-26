@@ -277,15 +277,16 @@ const NmapItem = new Lang.Class({
         });
 
         // SEARCH FOR PORTS BUTTON
-        let scan_ports_icon = new St.Icon({
-            style_class: 'nm-dialog-icon'
-        });
-        scan_ports_icon.set_icon_name('preferences-system-search-symbolic');
+        // let scan_ports_icon = new St.Icon({
+        //     style_class: 'nm-dialog-icon'
+        // });
+        // scan_ports_icon.set_icon_name('preferences-system-search-symbolic');
         this.scan_ports_button = new St.Button({
             style_class: 'button item-button margin-left',
-            visible: false
+            visible: false,
+            label: 'Scan ports'
         });
-        this.scan_ports_button.set_child(scan_ports_icon);
+        // this.scan_ports_button.set_child(scan_ports_icon);
         this.scan_ports_button.connect('clicked', Lang.bind(this, function() {
             this.scan_ports();
         }));

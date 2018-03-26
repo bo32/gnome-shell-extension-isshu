@@ -205,7 +205,7 @@ var NewConnectionDialog = new Lang.Class({
             text: 'Favourite connections'
         });
         this.favConnectionsBox = new FavouriteConnectionsBox();
-        this.favConnectionsBox.custom_signals.connect('load-favourite', Lang.bind(this, this.load_favourite_connection));
+        this.favConnectionsBox.custom_signals.connect('favourite-loaded', Lang.bind(this, this.load_favourite_connection));
         this.favConnectionsBox.custom_signals.connect('save-favourite', Lang.bind(this, this.add_favourite));
         this.favConnectionsBox.custom_signals.connect('favourite-deleted', Lang.bind(this, function() {
             this.rebuild_favourite_menu = true;

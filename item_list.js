@@ -33,11 +33,13 @@ var ItemList = new Lang.Class({
         action.connect('clicked', Lang.bind(this, function () {
             if (this.selected_item) {
                 this.selected_item.remove_style_pseudo_class('selected');
+                this.selected_item.custom_signals.emit('item-deselected');
             }
             item.grab_key_focus(); // needed for setting the correct focus
             this.selected_item = item;
             item.add_style_pseudo_class('selected');
             Util.ensureActorVisibleInScrollView(this._scrollView, this.selected_item);
+            item.custom_signals.emit('item-selected');
         }));
         item.add_action(action);
         // item.connect('key-focus-in', Lang.bind(item, function() {
@@ -45,6 +47,14 @@ var ItemList = new Lang.Class({
         // }));
 
         this.add_child(item);
+    },
+
+    remove_item: function(item) {
+        this.remove_child(item);
+    },
+
+    remove_all_items: function() {
+        this.remove_all_children();
     },
 
     get_scroll_view: function() {
