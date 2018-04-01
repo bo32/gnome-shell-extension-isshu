@@ -292,12 +292,12 @@ var FavouriteItem = new Lang.Class({
 
         this.custom_signals.connect('item-selected', Lang.bind(this, function(){
             this.show_unfav_button();
-            this.view_fav_button.visible = true;
+            this.show_view_connection_button();
             this.show_load_fav_button();
         }));
         this.custom_signals.connect('item-deselected', Lang.bind(this, function(){
             this.hide_unfav_button();
-            this.view_fav_button.visible = false;
+            this.hide_view_connection_button();
             this.hide_load_fav_button();
         }));
     },
@@ -321,6 +321,14 @@ var FavouriteItem = new Lang.Class({
 
     hide_unfav_button: function() {
         this.unfav_button.visible = false;
+    },
+
+    show_view_connection_button: function() {
+        this.view_fav_button.visible = true;
+    },
+
+    hide_view_connection_button: function() {
+        this.view_fav_button.visible = false;
     },
 
     show_load_fav_button: function() {
