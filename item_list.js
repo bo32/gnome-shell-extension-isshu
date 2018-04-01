@@ -46,9 +46,9 @@ var ItemList = new Lang.Class({
             }
         }));
         item.add_action(action);
-        // item.connect('key-focus-in', Lang.bind(item, function() {
-        //     item.emit('item-selected');
-        // }));
+        item.connect('key-focus-in', Lang.bind(item, function() {
+            action.emit('clicked', item);
+        }));
 
         this.add_child(item);
     },
