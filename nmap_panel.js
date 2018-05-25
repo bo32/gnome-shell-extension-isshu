@@ -130,7 +130,7 @@ var NmapPanel = new Lang.Class({
     },
 
     is_nmap_installed: function() {
-        let [res, out, err, status] = GLib.spawn_command_line_sync('which --skip-alias nmap');
+        [res, out, err, status] = GLib.spawn_command_line_sync('which nmap');
         // it seems that if the command exists, the status value is 0, and 256 otherwise
         return status == 0;
     },
