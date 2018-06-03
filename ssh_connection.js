@@ -40,7 +40,24 @@ var SSHConnection = new Lang.Class({
         }
         global.log(command.join(' '));
 
-        Util.spawn([Settings.get_string('terminal-client'), '--command', command.join(' ')]);
+        Util.spawn([Settings.get_string('terminal-client'), 
+                this._get_terminal_option(), 
+                command.join(' ')]);
+    },
+
+    _get_terminal_option() {
+        switch(Settings.get_string('terminal-client')) {
+            case 'tilda':
+                return '-c';
+            case 'gnome-shell':
+            case 'guake':
+            case 'terminator':
+            case 'xterm':
+            case 'sakura':
+            // the list is too long !!!
+            default:
+                return '-e';
+        }
     }
 
 });
