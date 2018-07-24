@@ -22,6 +22,15 @@ var SSHConnection = new Lang.Class({
                 command.push(Settings.get_string('ssh-key-path'));
             }
 
+            if (connection.proxy) {
+                // -o ProxyCommand='nc --proxy-type socks5 --proxy 91.236.116.7:9050 %h %p'
+                command.push('-o');
+                command.push("ProxyCommand='nc " 
+                    + "--proxy-type " + connection.proxy.protocol 
+                    + " --proxy " + connection.proxy.address 
+                    + ":" + connection.proxy.port + " %h %p'");
+            }
+
             if (connection.username === '') {
                 command.push(connection.address);
             } else {

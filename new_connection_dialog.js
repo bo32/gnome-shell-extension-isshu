@@ -12,6 +12,7 @@ const Settings = Convenience.getSettings();
 const FavouriteConnectionsBox = Me.imports.favourite_connections_box.FavouriteConnectionsBox;
 const SavedConfiguration = Me.imports.saved_configuration.SavedConfiguration;
 const NmapPanel = Me.imports.nmap_panel.NmapPanel;
+const ProxyPanel = Me.imports.proxy_panel.ProxyPanel;
 const SSHConfiguration = Me.imports.ssh_config.SSHConfiguration;
 const SSHConnection = Me.imports.ssh_connection.SSHConnection;
 
@@ -28,6 +29,15 @@ var NewConnectionDialog = new Lang.Class({
     },
 
     _buildLayout: function () {
+
+        this.main_container = new St.BoxLayout({
+            vertical: false
+        });
+
+        this.central_container = new St.BoxLayout({
+            vertical: true
+        });
+
         let headline = new St.BoxLayout({
             style_class: 'nm-dialog-header-hbox',
             min_width: 550
@@ -49,7 +59,7 @@ var NewConnectionDialog = new Lang.Class({
         headline.add(icon);
         headline.add(titleBox);
 
-        this.contentLayout.add(headline);
+        this.central_container.add(headline);
         
 
         // ADDRESS BOX
@@ -68,8 +78,8 @@ var NewConnectionDialog = new Lang.Class({
         this.address_field.connect('key_release_event', Lang.bind(this, function() {
             // remove the error message if it is present
             let name = this.error_message.get_name();
-            if(this.contentLayout.find_child_by_name(name) != undefined) {
-                this.contentLayout.remove_child(this.error_message);
+            if(this.central_container.find_child_by_name(name) != undefined) {
+                this.central_container.remove_child(this.error_message);
             }
         }));
         address_box.add(this.address_field);
@@ -104,7 +114,7 @@ var NewConnectionDialog = new Lang.Class({
             x_align: St.Align.END
         });
 
-        this.contentLayout.add(host_box, {
+        this.central_container.add(host_box, {
             y_align: St.Align.START
         });
 
@@ -179,7 +189,7 @@ var NewConnectionDialog = new Lang.Class({
             y_align: St.Align.MIDDLE
         });
 
-        this.contentLayout.add(auth_box, {
+        this.central_container.add(auth_box, {
             y_align: St.Align.START
         });
 
@@ -191,28 +201,37 @@ var NewConnectionDialog = new Lang.Class({
         // FAVOURITE BOX
 
         let favBox_header = new St.Label({
-            style_class: 'nm-dialog-header',
+            style_class: 'nm-dialog-header favourites-panel',
             text: 'Favourite connections'
         });
         this.favConnectionsBox = new FavouriteConnectionsBox();
-        this.favConnectionsBox.custom_signals.connect('load-favourite', Lang.bind(this, this.load_favourite_connection));
+        this.favConnectionsBox.custom_signals.connect('favourite-loaded', Lang.bind(this, this.load_favourite_connection));
         this.favConnectionsBox.custom_signals.connect('save-favourite', Lang.bind(this, this.add_favourite));
         this.favConnectionsBox.custom_signals.connect('favourite-deleted', Lang.bind(this, function() {
             this.rebuild_favourite_menu = true;
             this.rebuild_favourite_folders_menu = true;
         }));
-        this.contentLayout.add(favBox_header, {
+        this.central_container.add(favBox_header, {
             expand: false
         });
-        this.contentLayout.add(this.favConnectionsBox, {
+        this.central_container.add(this.favConnectionsBox, {
             expand: true
         });
         this.nmap_displayed = false;
+        this.proxies_displayed = false;
+
+        this.main_container.add(this.central_container);
+
+        this.contentLayout.add(this.main_container);
 
         this._connectButton = this.addButton({
             action: Lang.bind(this, this.connect_ssh),
             label: "Connect",
             key: Clutter.Return
+        });
+        this._proxyButton = this.addButton({
+            action: Lang.bind(this, this.showProxyPanel),
+            label: "Socks Proxy"
         });
         this._nmapButton = this.addButton({
             action: Lang.bind(this, this.showNmap),
@@ -264,7 +283,7 @@ var NewConnectionDialog = new Lang.Class({
     },
 
     show_error_message: function(label) {
-        this.contentLayout.add(label, {
+        this.central_container.add(label, {
             y_align: St.Align.START
         });
     },
@@ -282,6 +301,10 @@ var NewConnectionDialog = new Lang.Class({
         var use_telnet = this.use_telnet.actor.get_checked();
 
         var connection = this.savedConfig.get_connection_from_details(address, port, username, use_private_key, use_telnet);
+        
+        if (this.proxies_displayed) {
+            connection.proxy = this.proxyPanel.get_selected_proxy_value();
+        }
         this.savedConfig.save_connection_as_a_latest(connection);
 
         let ssh_connection = new SSHConnection();
@@ -302,6 +325,18 @@ var NewConnectionDialog = new Lang.Class({
         this.build_and_add_nmap_panel();
     },
 
+    showProxyPanel: function() {
+        if (!this.proxies_displayed) {
+            this.proxyPanel = new ProxyPanel();
+            this.main_container.add(this.proxyPanel);
+            this.proxies_displayed = true;
+            this.proxyPanel.custom_signals.connect('close-proxy', Lang.bind(this, function() {
+                this.main_container.remove_child(this.proxyPanel);
+                this.proxies_displayed = false;
+            }));
+        }
+    },
+
     is_nmap_displayed: function() {
         return this.nmap_displayed;
     },
@@ -317,7 +352,7 @@ var NewConnectionDialog = new Lang.Class({
 
     build_and_add_nmap_panel: function() {
         this.nmap_panel = new NmapPanel();
-        this.contentLayout.add(this.nmap_panel, {
+        this.central_container.add(this.nmap_panel, {
             expand: false
         });
         this.nmap_panel.custom_signals.connect('load-nmap', Lang.bind(this, function() {
@@ -332,11 +367,11 @@ var NewConnectionDialog = new Lang.Class({
         this.nmap_displayed = true;
 
         this.nmap_panel.custom_signals.connect('refresh-nmap', Lang.bind(this, function() {
-            this.contentLayout.remove_child(this.nmap_panel);
+            this.central_container.remove_child(this.nmap_panel);
             this.build_and_add_nmap_panel();
         }));
         this.nmap_panel.custom_signals.connect('close-nmap', Lang.bind(this, function() {
-            this.contentLayout.remove_child(this.nmap_panel);
+            this.central_container.remove_child(this.nmap_panel);
             this.nmap_displayed = false;
         }));
     },

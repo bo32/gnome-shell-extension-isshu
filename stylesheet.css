@@ -39,13 +39,26 @@
 .warning-label {
     border: 1px rgb(36, 36, 36);
     border-radius: 5px;
-    font: bold;
+    font-weight: bold;
     padding: .8em;
     margin: 12px 4px 10px 4px;
     background-color: #215d9c;
 }
 
+.info-label {
+    border: 1px rgb(36, 36, 36);
+    border-radius: 5px;
+    padding: .8em;
+    color:  rgb(36, 36, 36);
+    margin: 12px 4px 10px 4px;
+    background-color: #53a6ff;
+}
+
 .nmap-panel {
+    padding-top: 15px;
+}
+
+.favourites-panel {
     padding-top: 15px;
 }
 
@@ -64,4 +77,9 @@
 .folder-name {
     font-style: italic;
     color: #68b1ff;
+}
+
+.bastion-label {
+    font-style: italic;
+    font-size: .7em;
 }

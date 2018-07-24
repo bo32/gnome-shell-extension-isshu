@@ -12,6 +12,8 @@ const SavedConfiguration = Me.imports.saved_configuration.SavedConfiguration;
 const CustomSignals = Me.imports.custom_signals.CustomSignals;
 const ConfirmUnfavDialog = Me.imports.confirm_dialog.ConfirmUnfavDialog;
 const ConfirmUpdateFavDialog = Me.imports.confirm_dialog.ConfirmUpdateFavDialog;
+const ViewConnectionDialog = Me.imports.view_connection_dialog.ViewConnectionDialog;
+const ItemList = Me.imports.item_list.ItemList;
 
 var FavouriteConnectionsBox = new Lang.Class({
     Name: 'FavouriteConnectionsBox',
@@ -90,19 +92,8 @@ var FavouriteConnectionsBox = new Lang.Class({
         });
         content_box.add(folder_box);
 
-        this._itemBox = new St.BoxLayout({
-            vertical: true
-        });
-        this._scrollView = new St.ScrollView({
-            style_class: 'nm-dialog-scroll-view margin-top'
-        });
-        this._scrollView.set_x_expand(true);
-        this._scrollView.set_y_expand(true);
-        this._scrollView.set_policy(Gtk.PolicyType.NEVER,
-            Gtk.PolicyType.AUTOMATIC);
-        this._scrollView.add_actor(this._itemBox);
-        
-        content_box.add(this._scrollView);
+        this._itemBox = new ItemList();
+        content_box.add(this._itemBox.get_scroll_view());
         this.add_child(content_box);
 
         this.add_favourite_items();
@@ -112,42 +103,30 @@ var FavouriteConnectionsBox = new Lang.Class({
         let fav_connections = this.savedConfig.get_favourite_connections();
         for (let fav in fav_connections) {
             let fav_item = new FavouriteItem(fav_connections[fav], fav);
-            this._itemBox.add_child(fav_item.actor);
-            fav_item.connect('favourite-deleted', Lang.bind(this, function() {
-                this._itemBox.remove_child(fav_item.actor);
+            this._itemBox.add_item(fav_item);
+            fav_item.custom_signals.connect('delete-favourite', Lang.bind(this, function() {
+                this._itemBox.remove_item(fav_item);
                 this.custom_signals.emit('favourite-deleted');
             }));
-            fav_item.connect('item-selected', Lang.bind(this, function(){
-                if (this.selected_item) {
-                    this.selected_item.actor.remove_style_pseudo_class('selected');
-                    this.selected_item.hide_unfav_button();
-                    this.selected_item.hide_load_fav_button();
-                }
-                this.selected_item = fav_item;
-                this.selected_item.actor.add_style_pseudo_class('selected');
-                this.selected_item.show_unfav_button();
-                this.selected_item.show_load_fav_button();
-                Util.ensureActorVisibleInScrollView(this._scrollView, this.selected_item.actor);
-            }));
-            fav_item.connect('load-favourite', Lang.bind(this, function() {
-                this.label_field.set_text(this.selected_item.connection.label);
+            fav_item.custom_signals.connect('load-favourite', Lang.bind(this, function() {
+                this.label_field.set_text(this._itemBox.get_selected_item().connection.label);
                 let folder = '';
-                if (this.selected_item.connection.folder !== undefined) {
-                    folder = this.selected_item.connection.folder;
+                if (this._itemBox.get_selected_item().connection.folder !== undefined) {
+                    folder = this._itemBox.get_selected_item().connection.folder;
                 }
                 this.folder_field.set_text(folder);
-                this.custom_signals.emit('load-favourite');
+                this.custom_signals.emit('favourite-loaded');
             }));
         }
     },
 
     refresh: function() {
-        this._itemBox.remove_all_children();
+        this._itemBox.remove_all_items();
         this.add_favourite_items();
     },
 
     get_selected_item: function() {
-        return this.selected_item;
+        return this._itemBox.get_selected_item();
     },
 
     get_favourite_label_entry: function() {
@@ -162,18 +141,25 @@ var FavouriteConnectionsBox = new Lang.Class({
 
 var FavouriteItem = new Lang.Class({
     Name: 'FavouriteItem',
+    Extends: St.BoxLayout,
 
     _init: function (connection, index) {
-        this.connection = connection;
-        this.index = index;
-
-        this.savedConfig = new SavedConfiguration();
-
-        this.actor = new St.BoxLayout({
+        this.parent({
             style_class: 'nm-dialog-item'
             ,can_focus: true
             ,reactive: true
         });
+        this.connection = connection;
+        this.index = index;
+        this.custom_signals = new CustomSignals();
+
+        this.savedConfig = new SavedConfiguration();
+
+        // this.actor = new St.BoxLayout({
+        //     style_class: 'nm-dialog-item'
+        //     ,can_focus: true
+        //     ,reactive: true
+        // });
 
         let labels_box = new St.BoxLayout({
             style_class: 'favourite-box'
@@ -190,7 +176,7 @@ var FavouriteItem = new Lang.Class({
         } else {
             icon.set_icon_name('starred-symbolic');
         }
-        this.actor.add(icon, {
+        this.add(icon, {
             expand: false,
             x_align: St.Align.START
         });
@@ -237,7 +223,7 @@ var FavouriteItem = new Lang.Class({
         labels_box.add(details, {
             x_align: St.Align.START
         });
-        this.actor.add(labels_box, {
+        this.add(labels_box, {
             expand: true,
             x_align: St.Align.START
         });
@@ -253,7 +239,22 @@ var FavouriteItem = new Lang.Class({
         });
         this.load_fav_button.set_child(load_fav_icon);
         this.load_fav_button.connect('clicked', Lang.bind(this, this.load_favourite));
-        this.actor.add(this.load_fav_button, {
+        this.add(this.load_fav_button, {
+            x_align: St.Align.END
+        });
+
+        // VIEW FAVOURITE CONNECTION DETAILS BUTTON
+        let view_fav_icon = new St.Icon({
+            style_class: 'nm-dialog-icon'
+        });
+        view_fav_icon.set_icon_name('edit-find-symbolic');
+        this.view_fav_button = new St.Button({
+            style_class: 'button item-button',
+            visible: false
+        });
+        this.view_fav_button.set_child(view_fav_icon);
+        this.view_fav_button.connect('clicked', Lang.bind(this, this.view_favourite));
+        this.add(this.view_fav_button, {
             x_align: St.Align.END
         });
 
@@ -268,18 +269,18 @@ var FavouriteItem = new Lang.Class({
         });
         this.unfav_button.set_child(unfav_icon);
         this.unfav_button.connect('clicked', Lang.bind(this, this.remove_favourite));
-        this.actor.add(this.unfav_button, {
+        this.add(this.unfav_button, {
             x_align: St.Align.END
         });
 
-        let action = new Clutter.ClickAction();
-        action.connect('clicked', Lang.bind(this, function () {
-            this.actor.grab_key_focus(); // needed for setting the correct focus
-        }));
-        this.actor.add_action(action);
-        this.actor.connect('key-focus-in', Lang.bind(this, function() {
-            this.emit('item-selected');
-        }));
+        // let action = new Clutter.ClickAction();
+        // action.connect('clicked', Lang.bind(this, function () {
+        //     this.actor.grab_key_focus(); // needed for setting the correct focus
+        // }));
+        // this.actor.add_action(action);
+        // this.actor.connect('key-focus-in', Lang.bind(this, function() {
+        //     this.emit('item-selected');
+        // }));
         // TODO start ssh command enter pressing enter on the favourite connection
         // this.actor.connect('key-press-event', Lang.bind(this, function(o, e) {
         //     let symbol = e.get_key_symbol();
@@ -287,6 +288,18 @@ var FavouriteItem = new Lang.Class({
         //         global.log('here');
         //     }
         // }));
+
+
+        this.custom_signals.connect('item-selected', Lang.bind(this, function(){
+            this.show_unfav_button();
+            this.show_view_connection_button();
+            this.show_load_fav_button();
+        }));
+        this.custom_signals.connect('item-deselected', Lang.bind(this, function(){
+            this.hide_unfav_button();
+            this.hide_view_connection_button();
+            this.hide_load_fav_button();
+        }));
     },
 
     get_connection: function() {
@@ -298,7 +311,7 @@ var FavouriteItem = new Lang.Class({
         confirm.open();
         confirm.connect('confirm-delete-fav', Lang.bind(this, function() {
             this.savedConfig.remove_connection_from_favourites(this.index);
-            this.emit('favourite-deleted');
+            this.custom_signals.emit('delete-favourite');
         }));
     },
 
@@ -310,6 +323,14 @@ var FavouriteItem = new Lang.Class({
         this.unfav_button.visible = false;
     },
 
+    show_view_connection_button: function() {
+        this.view_fav_button.visible = true;
+    },
+
+    hide_view_connection_button: function() {
+        this.view_fav_button.visible = false;
+    },
+
     show_load_fav_button: function() {
         this.load_fav_button.visible = true;
     },
@@ -319,8 +340,13 @@ var FavouriteItem = new Lang.Class({
     },
 
     load_favourite: function() {
-        this.emit('load-favourite');
+        this.custom_signals.emit('load-favourite');
+    },
+
+    view_favourite: function() {
+        var dialog = new ViewConnectionDialog(this.connection);
+        dialog.open();
     }
 });
-Signals.addSignalMethods(FavouriteItem.prototype);
+// Signals.addSignalMethods(FavouriteItem.prototype);
 
