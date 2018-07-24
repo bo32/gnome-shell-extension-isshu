@@ -49,7 +49,7 @@ var SSHConnection = new Lang.Class({
         switch(Settings.get_string('terminal-client')) {
             case 'tilda':
                 return '-c';
-            case 'gnome-shell':
+            case 'gnome-terminal':
             case 'guake':
             case 'terminator':
             case 'xterm':
