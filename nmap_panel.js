@@ -15,6 +15,7 @@ const Convenience = Me.imports.convenience;
 const Settings = Convenience.getSettings();
 const CustomSignals = Me.imports.custom_signals.CustomSignals;
 const NMapParser = Me.imports.nmap_parser.NMapParser;
+const ItemList = Me.imports.item_list.ItemList;
 
 var NmapPanel = new Lang.Class({
     Name: 'NmapPanel',
@@ -93,26 +94,27 @@ var NmapPanel = new Lang.Class({
             x_align: St.Align.END
         });
 
-        this._itemBox = new St.BoxLayout({
-            vertical: true
-        });
-        this._scrollView = new St.ScrollView({
-            style_class: 'nm-dialog-scroll-view'
-        });
-        this._scrollView.set_x_expand(true);
-        this._scrollView.set_y_expand(true);
-        this._scrollView.set_policy(Gtk.PolicyType.NEVER,
-            Gtk.PolicyType.AUTOMATIC);
-        this._scrollView.add_actor(this._itemBox);
+        // this._itemBox = new St.BoxLayout({
+        //     vertical: true
+        // });
+        // this._scrollView = new St.ScrollView({
+        //     style_class: 'nm-dialog-scroll-view listbox-top-margin'
+        // });
+        // this._scrollView.set_x_expand(true);
+        // this._scrollView.set_y_expand(true);
+        // this._scrollView.set_policy(Gtk.PolicyType.NEVER,
+        //     Gtk.PolicyType.AUTOMATIC);
+        // this._scrollView.add_actor(this._itemBox);
 
         let container = new St.BoxLayout({
             vertical: true,
             x_expand: true
         });
+        this._itemBox = new ItemList();
         container.add(header_box, {
             x_expand: true
         });
-        container.add(this._scrollView);
+        container.add(this._itemBox.get_scroll_view());
 
         this.add_child(container);
 
@@ -126,7 +128,7 @@ var NmapPanel = new Lang.Class({
         } else {
             item = new NmapErrorItem();
         }
-        this._itemBox.add_child(item.actor);
+        this._itemBox.add_item(item);
     },
 
     is_nmap_installed: function() {
@@ -158,25 +160,13 @@ var NmapPanel = new Lang.Class({
             let hosts = parser.find_hosts(res);
 
             // remove the loading item before adding the results
-            this._itemBox.remove_all_children();
+            this._itemBox.remove_all_items();
             
             for (let h in hosts) {
                 let item = new NmapItem(hosts[h]);
                 this.all_items.push(item);
-                this._itemBox.add_child(item.actor);
-                item.connect('item-selected', Lang.bind(this, function(){
-                    if (this.selected_item) {
-                        this.selected_item.actor.remove_style_pseudo_class('selected');
-                        this.selected_item.hide_load_nmap_button();
-                        this.selected_item.hide_scan_ports_button();
-                    }
-                    this.selected_item = item;
-                    this.selected_item.actor.add_style_pseudo_class('selected');
-                    this.selected_item.show_load_nmap_button();
-                    this.selected_item.show_scan_ports_button();
-                    Util.ensureActorVisibleInScrollView(this._scrollView, this.selected_item.actor);
-                }));
-                item.connect('load-nmap', Lang.bind(this, function(){
+                this._itemBox.add_item(item);
+                item.custom_signals.connect('load-nmap', Lang.bind(this, function(){
                     this.custom_signals.emit('load-nmap');
                 }));
             }
@@ -192,26 +182,28 @@ var NmapPanel = new Lang.Class({
     },
 
     get_selected_item: function() {
-        return this.selected_item;
+        return this._itemBox.get_selected_item();
     },
 });
 
 const ListItem = new Lang.Class({
     Name: 'ListItem',
+    Extends: St.BoxLayout,
 
     _init: function (text) {
 
-        this.actor = new St.BoxLayout({
+        this.parent({
             style_class: 'nm-dialog-item'
             ,can_focus: true
             ,reactive: true
         });
+        this.custom_signals = new CustomSignals();
 
         let label = new St.Label({
             text: text
         });
 
-        this.actor.add(label, {
+        this.add(label, {
             expand: true,
             x_align: St.Align.START
         });
@@ -234,7 +226,7 @@ const ListItem = new Lang.Class({
         let spinnerIcon = Gio.File.new_for_uri('resource:///org/gnome/shell/theme/process-working.svg');
         this.spinner = new Animation.AnimatedIcon(spinnerIcon, 16);
         // spinner.actor.show();
-        this.actor.add_child(this.spinner.actor);
+        this.add_child(this.spinner.actor);
         // this.spinner.play();
 		Tweener.addTween(this.spinner.actor, {
 			opacity: 255,
@@ -252,14 +244,14 @@ const NmapItem = new Lang.Class({
 
         this.host = host;
 
-        let action = new Clutter.ClickAction();
-        action.connect('clicked', Lang.bind(this, function () {
-            this.actor.grab_key_focus(); // needed for setting the correct focus
-        }));
-        this.actor.add_action(action);
-        this.actor.connect('key-focus-in', Lang.bind(this, function() {
-            this.emit('item-selected');
-        }));
+        // let action = new Clutter.ClickAction();
+        // action.connect('clicked', Lang.bind(this, function () {
+        //     this.actor.grab_key_focus(); // needed for setting the correct focus
+        // }));
+        // this.actor.add_action(action);
+        // this.actor.connect('key-focus-in', Lang.bind(this, function() {
+        //     this.emit('item-selected');
+        // }));
 
         let ports_box = new St.BoxLayout({
             vertical: true
@@ -272,24 +264,25 @@ const NmapItem = new Lang.Class({
         });
         ports_box.add(this.ssh_port);
         ports_box.add(this.telnet_port);
-        this.actor.add(ports_box, {
+        this.add(ports_box, {
             x_align: St.Align.END
         });
 
         // SEARCH FOR PORTS BUTTON
-        let scan_ports_icon = new St.Icon({
-            style_class: 'nm-dialog-icon'
-        });
-        scan_ports_icon.set_icon_name('preferences-system-search-symbolic');
+        // let scan_ports_icon = new St.Icon({
+        //     style_class: 'nm-dialog-icon'
+        // });
+        // scan_ports_icon.set_icon_name('preferences-system-search-symbolic');
         this.scan_ports_button = new St.Button({
             style_class: 'button item-button margin-left',
-            visible: false
+            visible: false,
+            label: 'Scan ports'
         });
-        this.scan_ports_button.set_child(scan_ports_icon);
+        // this.scan_ports_button.set_child(scan_ports_icon);
         this.scan_ports_button.connect('clicked', Lang.bind(this, function() {
             this.scan_ports();
         }));
-        this.actor.add(this.scan_ports_button, {
+        this.add(this.scan_ports_button, {
             x_align: St.Align.END
         });
 
@@ -304,11 +297,21 @@ const NmapItem = new Lang.Class({
         });
         this.load_nmap_button.set_child(load_nmap_icon);
         this.load_nmap_button.connect('clicked', Lang.bind(this, function() {
-            this.emit('load-nmap');
+            this.custom_signals.emit('load-nmap');
         }));
-        this.actor.add(this.load_nmap_button, {
+        this.add(this.load_nmap_button, {
             x_align: St.Align.END
         });
+
+
+        this.custom_signals.connect('item-deselected', Lang.bind(this, function(){
+            this.hide_load_nmap_button();
+            this.hide_scan_ports_button();
+        }));
+        this.custom_signals.connect('item-selected', Lang.bind(this, function(){
+            this.show_load_nmap_button();
+            this.show_scan_ports_button();
+        }));
     },
 
     show_load_nmap_button: function() {
@@ -373,7 +376,6 @@ const NmapItem = new Lang.Class({
     }
 
 });
-Signals.addSignalMethods(NmapItem.prototype);
 
 const NmapErrorItem = new Lang.Class({
     Name: 'NmapErrorItem',
