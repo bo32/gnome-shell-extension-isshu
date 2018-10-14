@@ -9,6 +9,8 @@ const Clutter = imports.gi.Clutter;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const ItemList = Me.imports.item_list.ItemList;
+const Convenience = Me.imports.convenience;
+const Settings = Convenience.getSettings();
 
 const SSH_FOLDER = '.ssh'
 const KNOWN_HOSTS_FILENAME = 'known_hosts'
@@ -23,63 +25,67 @@ var KnownHostsDialog = new Lang.Class({
     },
 
     _buildLayout: function () {
-        let homeFolder = Gio.file_new_for_path(GLib.get_home_dir());
-        let sshFolder = homeFolder.get_child(SSH_FOLDER);
+        this.known_hosts_filepath = Settings.get_string('ssh-known-hosts-path');
+        let known_hosts_file = Gio.file_new_for_path(this.known_hosts_filepath);
+        global.log(this.known_hosts_filepath);
+        global.log(known_hosts_file.get_path());
 
-        if (!sshFolder.query_exists(null)) {
-            // TODO
+        if (this.known_hosts_filepath === '' || !known_hosts_file.query_exists(null)) {
+            let error_label = new St.Label({
+                style_class: 'nm-dialog-header',
+                y_align: St.Align.END,
+                text: 'The location of your known_hosts file is not set. Please edit it in the Preferences.'
+            });
+
+            this.contentLayout.add(error_label, {
+                y_align: St.Align.START,
+                y_expand: false
+            });
+        } else {
+            this.content = Shell.get_file_contents_utf8_sync(this.known_hosts_filepath);
+            this.lines = this.content.match(/[^\r\n]+/g);
+
+            let container = new St.BoxLayout({
+                vertical: true,
+                x_expand: true
+            });
+
+            let header_box = new St.BoxLayout({
+                vertical: false
+            });
+            let title = new St.Label({
+                style_class: 'nm-dialog-header',
+                y_align: St.Align.END,
+                text: this.known_hosts_filepath
+            });
+            header_box.add(title, {
+                expand: true
+            });
+            container.add(header_box, {
+                x_expand: true
+            });
+
+            this._itemBox = new ItemList();
+            container.add(this._itemBox.get_scroll_view());
+
+            this.contentLayout.add(container, {
+                y_align: St.Align.START,
+                y_expand: false
+            });
+
+            this.lines.forEach(Lang.bind(this, function(l, i) {
+                let item = new KnownHostItem(l, i);
+                global.log(i + ': ' + l);
+                this._itemBox.add_item(item);
+            }));
+
+            this._confirmButton = this.addButton({
+                action: Lang.bind(this, this.confirm),
+                label: "Confirm",
+                key: Clutter.Return
+            });
         }
 
-        let known_hosts_file = sshFolder.get_child(KNOWN_HOSTS_FILENAME);
-        if (!known_hosts_file.query_exists(null)) {
-            // TODO
-        }
-
-        // TODO
-        this.known_hosts_filepath = GLib.get_home_dir() + "/" + SSH_FOLDER + "/" + KNOWN_HOSTS_FILENAME;
-
-        this.content = Shell.get_file_contents_utf8_sync(this.known_hosts_filepath);
-        this.lines = this.content.match(/[^\r\n]+/g);
-
-        let container = new St.BoxLayout({
-            vertical: true,
-            x_expand: true
-        });
-
-        let header_box = new St.BoxLayout({
-            vertical: false
-        });
-        let title = new St.Label({
-            style_class: 'nm-dialog-header',
-            y_align: St.Align.END,
-            text: this.known_hosts_filepath
-        });
-        header_box.add(title, {
-            expand: true
-        });
-        container.add(header_box, {
-            x_expand: true
-        });
-
-        this._itemBox = new ItemList();
-        container.add(this._itemBox.get_scroll_view());
-
-        this.contentLayout.add(container, {
-            y_align: St.Align.START,
-            y_expand: false
-        });
-
-        this.lines.forEach(Lang.bind(this, function(l, i) {
-            let item = new KnownHostItem(l, i);
-            global.log(i + ': ' + l);
-            this._itemBox.add_item(item);
-        }));
-
-        this._confirmButton = this.addButton({
-            action: Lang.bind(this, this.confirm),
-            label: "Confirm",
-            key: Clutter.Return
-        });
         this._cancelButton = this.addButton({
             action: Lang.bind(this, this.close_dialog),
             label: _("Cancel"),
