@@ -6,17 +6,20 @@ const Gio = imports.gi.Gio;
 const Lang = imports.lang;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
+const Clutter = imports.gi.Clutter;
+
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const ConnectionsMenu = Me.imports.menus.connections_menu.ConnectionsMenu;
 const FavouriteConnectionsMenu = Me.imports.menus.favourite_connections_menu.FavouriteConnectionsMenu;
 const LatestConnectionsMenu = Me.imports.menus.latest_connections_menu.LatestConnectionsMenu;
 const FolderConnectionsMenu = Me.imports.menus.folder_connections_menu.FolderConnectionsMenu;
+const HelpMenu = Me.imports.menus.help_menu.HelpMenu;
 const NewConnectionDialog = Me.imports.new_connection_dialog.NewConnectionDialog;
 const SavedConfiguration = Me.imports.saved_configuration.SavedConfiguration;
+const Constants = Me.imports.constants;
 
-
-let icon_size = 16;
+let icon_size = Constants.ICON_SIZE;
 
 const ISSHUMenuButton = new Lang.Class({
     Name: 'ISSHU.ISSHUMenuButton',
@@ -36,7 +39,10 @@ const ISSHUMenuButton = new Lang.Class({
             icon
         );
         newConnectionMenu.actor.add(
-            new St.Label({text: 'New connection', x_expand: true})
+            new St.Label({
+                text: 'New connection', 
+                y_align: Clutter.ActorAlign.END,
+                x_expand: true})
         );
         newConnectionMenu.connect('activate', Lang.bind(this, function() {
             this.newConnectionDialog = new NewConnectionDialog();
@@ -68,6 +74,9 @@ const ISSHUMenuButton = new Lang.Class({
             this.favourite_folder_menus.push(folderMenu);
             this.menu.addMenuItem(folderMenu);
         }
+
+        /* Help menu */
+        this.menu.addMenuItem(new HelpMenu());
     },
 
     rebuild_favourite_menu: function() {
