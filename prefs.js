@@ -64,12 +64,28 @@ const SSHPrefsWidget = new GObject.Class({
             halign: Gtk.Align.FILL,
             text: Settings.get_string('ssh-key-path')
         });
+        let ssh_config = new SSHConfiguration();
         if (Settings.get_string('ssh-key-path') === '') {
-            let ssh_config = new SSHConfiguration();
             this.ssh_key_location_field.set_text(ssh_config.get_private_key_default_location());
         }
 		this._grid.attach(ssh_key_location_label, 0, 2, 1, 1);
         this._grid.attach(this.ssh_key_location_field, 1, 2, 3, 1);
+
+        /* SSH known_hosts file location */
+        let known_hosts_file_location_label = new Gtk.Label({
+			label: 'SSH known_hosts file location',
+			halign: Gtk.Align.START
+		});
+		this.known_hosts_file_location_field = new Gtk.Entry({
+			hexpand: true,
+            halign: Gtk.Align.FILL,
+            text: Settings.get_string('ssh-known-hosts-path')
+        });
+        if (Settings.get_string('ssh-known-hosts-path') === '') {
+            this.known_hosts_file_location_field.set_text(ssh_config.get_known_hosts_file_default_location());
+        }
+		this._grid.attach(known_hosts_file_location_label, 0, 3, 1, 1);
+        this._grid.attach(this.known_hosts_file_location_field, 1, 3, 3, 1);
         
         this.vbox.add(this._grid);
         
@@ -94,6 +110,9 @@ const SSHPrefsWidget = new GObject.Class({
             }
             if (this.ssh_key_location_field.get_text() != Settings.get_string('ssh-key-path')) {
                 Settings.set_string('ssh-key-path', this.ssh_key_location_field.get_text());
+            }
+            if (this.known_hosts_file_location_field.get_text() != Settings.get_string('ssh-known-hosts-path')) {
+                Settings.set_string('ssh-known-hosts-path', this.known_hosts_file_location_field.get_text());
             }
         }));
 

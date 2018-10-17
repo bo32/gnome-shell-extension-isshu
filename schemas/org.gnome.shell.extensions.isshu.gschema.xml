@@ -14,5 +14,9 @@
             <default>''</default>
         </key>
 
+        <key type="s" name="ssh-known-hosts-path">
+            <default>''</default>
+        </key>
+
     </schema>
 </schemalist>

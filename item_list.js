@@ -20,6 +20,8 @@ var ItemList = new Lang.Class({
         this._scrollView.set_y_expand(true);
         this._scrollView.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC);
         this._scrollView.add_actor(this);
+
+        this._items = []
     },
 
     // item must be a St.Widget
@@ -51,6 +53,7 @@ var ItemList = new Lang.Class({
         }));
 
         this.add_child(item);
+        this._items.push(item);
     },
 
     remove_item: function(item) {
@@ -59,6 +62,14 @@ var ItemList = new Lang.Class({
 
     remove_all_items: function() {
         this.remove_all_children();
+    },
+
+    get_item: function(index) {
+        return this._items[index];
+    },
+
+    get_length: function() {
+        return this._items.length;
     },
 
     get_scroll_view: function() {
