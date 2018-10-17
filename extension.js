@@ -15,6 +15,7 @@ const FavouriteConnectionsMenu = Me.imports.menus.favourite_connections_menu.Fav
 const LatestConnectionsMenu = Me.imports.menus.latest_connections_menu.LatestConnectionsMenu;
 const FolderConnectionsMenu = Me.imports.menus.folder_connections_menu.FolderConnectionsMenu;
 const HelpMenu = Me.imports.menus.help_menu.HelpMenu;
+const KnownHostsMenu = Me.imports.menus.known_hosts_menu.KnownHostsMenu;
 const NewConnectionDialog = Me.imports.new_connection_dialog.NewConnectionDialog;
 const SavedConfiguration = Me.imports.saved_configuration.SavedConfiguration;
 const Constants = Me.imports.constants;
@@ -77,6 +78,8 @@ const ISSHUMenuButton = new Lang.Class({
 
         /* Help menu */
         this.menu.addMenuItem(new HelpMenu());
+        /* Known_hosts menu */
+        this.menu.addMenuItem(new KnownHostsMenu());
     },
 
     rebuild_favourite_menu: function() {

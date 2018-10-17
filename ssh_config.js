@@ -24,7 +24,22 @@ var SSHConfiguration = new Lang.Class({
         return ssh_key_file.query_exists(null);
     },
 
-    get_default_location: function() {
+    is_knwon_hosts_present: function() {
+        var ssh_known_hosts_path = Settings.get_string('ssh-known-hosts-path');
+
+        if (ssh_known_hosts_path === '') {
+            return false;
+        }
+
+        var ssh_known_hosts_file = Gio.file_new_for_path(ssh_known_hosts_path);
+        return ssh_known_hosts_file.query_exists(null);
+    },
+
+    get_private_key_default_location: function() {
         return GLib.get_home_dir() + '/.ssh/id_rsa';
+    },
+
+    get_known_hosts_file_default_location: function() {
+        return GLib.get_home_dir() + '/.ssh/known_hosts';
     }
 });
