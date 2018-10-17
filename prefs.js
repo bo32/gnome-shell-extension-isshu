@@ -66,7 +66,7 @@ const SSHPrefsWidget = new GObject.Class({
         });
         let ssh_config = new SSHConfiguration();
         if (Settings.get_string('ssh-key-path') === '') {
-            this.ssh_key_location_field.set_text(ssh_config.get_default_location());
+            this.ssh_key_location_field.set_text(ssh_config.get_private_key_default_location());
         }
 		this._grid.attach(ssh_key_location_label, 0, 2, 1, 1);
         this._grid.attach(this.ssh_key_location_field, 1, 2, 3, 1);

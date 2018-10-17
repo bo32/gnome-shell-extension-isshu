@@ -35,7 +35,7 @@ var SSHConfiguration = new Lang.Class({
         return ssh_known_hosts_file.query_exists(null);
     },
 
-    get_default_location: function() {
+    get_private_key_default_location: function() {
         return GLib.get_home_dir() + '/.ssh/id_rsa';
     },
 

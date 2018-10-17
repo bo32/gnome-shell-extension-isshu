@@ -16,6 +16,9 @@ const ProxyPanel = Me.imports.proxy_panel.ProxyPanel;
 const SSHConfiguration = Me.imports.ssh_config.SSHConfiguration;
 const SSHConnection = Me.imports.ssh_connection.SSHConnection;
 
+const USE_PRIVATE_KEY_LABEL = 'Use private key authentication'
+const USE_PRIVATE_KEY_LABEL_NO_KEY = USE_PRIVATE_KEY_LABEL + ' (no key)'
+
 var NewConnectionDialog = new Lang.Class({
     Name: 'NewConnectionDialog',
     Extends: ModalDialog.ModalDialog,
@@ -29,6 +32,7 @@ var NewConnectionDialog = new Lang.Class({
     },
 
     _buildLayout: function () {
+        this.ssh_config = new SSHConfiguration();
 
         this.main_container = new St.BoxLayout({
             vertical: false
@@ -146,24 +150,23 @@ var NewConnectionDialog = new Lang.Class({
             style_class: 'margin-left'
         });
 
-        this.use_private_key = new CheckBox('Use private key authentication', {
+        this.use_private_key = new CheckBox(USE_PRIVATE_KEY_LABEL, {
         });
         this.use_telnet = new CheckBox('Use Telnet', {
         });
         this.use_telnet.actor.connect('clicked', Lang.bind(this, function() {
             if(this.use_telnet.actor.get_checked()) {
-                this.use_private_key.actor.reactive = false;
-                this.use_private_key.getLabelActor().add_style_class_name('deactivated-checkbox');
+                this.set_use_private_box_checkbox_reactive(false);
                 this.port_field.set_hint_text('23 (default)');
             } else {
-                this.use_private_key.actor.reactive = true;
-                this.use_private_key.getLabelActor().remove_style_class_name('deactivated-checkbox');
+                this.set_use_private_box_checkbox_reactive(true);
                 this.port_field.set_hint_text('22 (default)');
             }
-            if (this.port_field.get_text() === '') { // updates the hint text
+            if (this.port_field.get_text() === '') { // displays the hint text when the field is empty
                 this.port_field.set_text('');
             }
-        })),
+        }));
+        this.set_use_private_box_checkbox_reactive(true);
         
         check_boxes.add(this.use_private_key.actor, {
             y_align: St.Align.START
@@ -171,15 +174,6 @@ var NewConnectionDialog = new Lang.Class({
         check_boxes.add(this.use_telnet.actor, {
             y_align: St.Align.START
         });
-        
-        let ssh_config = new SSHConfiguration();
-        if (ssh_config.is_private_key_present()) {
-            this.use_private_key.actor.reactive = true;
-        } else {
-            let label = this.use_private_key.getLabelActor();
-            label.add_style_class_name('deactivated-checkbox');
-            this.use_private_key.actor.reactive = false;
-        }
 
         auth_box.add(user_box, {
             y_align: St.Align.START
@@ -335,6 +329,22 @@ var NewConnectionDialog = new Lang.Class({
                 this.proxies_displayed = false;
             }));
         }
+    },
+
+    set_use_private_box_checkbox_reactive: function(reactive) {
+        if (!this.ssh_config.is_private_key_present()) {
+            this.use_private_key.getLabelActor().add_style_class_name('deactivated-checkbox');
+            this.use_private_key.actor.reactive = false;
+            this.use_private_key.setLabel(USE_PRIVATE_KEY_LABEL_NO_KEY);
+            return;
+        }
+
+        if (reactive) {
+            this.use_private_key.getLabelActor().remove_style_class_name('deactivated-checkbox');
+        } else {
+            this.use_private_key.getLabelActor().add_style_class_name('deactivated-checkbox');
+        }
+        this.use_private_key.actor.reactive = reactive;
     },
 
     is_nmap_displayed: function() {
