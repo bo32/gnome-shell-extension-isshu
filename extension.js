@@ -76,10 +76,10 @@ const ISSHUMenuButton = new Lang.Class({
             this.menu.addMenuItem(folderMenu);
         }
 
-        /* Help menu */
-        this.menu.addMenuItem(new HelpMenu());
         /* Known_hosts menu */
         this.menu.addMenuItem(new KnownHostsMenu());
+        /* Help menu */
+        this.menu.addMenuItem(new HelpMenu());
     },
 
     rebuild_favourite_menu: function() {
