@@ -1,6 +1,6 @@
 {
     "uuid": "isshu@bo32.github.com", 
-    "shell-version": ["3.22", "3.22.2", "3.23", "3.24"], 
+    "shell-version": ["3.22", "3.22.2", "3.23", "3.24", "3.28"], 
     "description": "SSH utility. Allows the user saving a history of the few last connections, keep a list of favourites, but also use the results of Nmap. For the latter, it requires Nmap to be installed.", 
     "name": "IsshU",
     "url": "https://github.com/bo32/gnome-shell-extension-isshu",
