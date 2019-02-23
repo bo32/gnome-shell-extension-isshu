@@ -1,1 +1,1 @@
-const ICON_SIZE = 16;
+var ICON_SIZE = 16;
