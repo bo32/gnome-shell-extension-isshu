@@ -78,6 +78,9 @@ const ISSHUMenuButton = new Lang.Class({
 
         /* Known_hosts menu */
         this.menu.addMenuItem(new KnownHostsMenu());
+
+        
+
         /* Help menu */
         this.menu.addMenuItem(new HelpMenu());
     },
