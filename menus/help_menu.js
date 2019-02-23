@@ -24,7 +24,7 @@ var HelpMenu = new Lang.Class({
         );
         this.actor.add(
             new St.Label({
-                text: 'Help', 
+                text: 'Help (online)', 
                 y_align: Clutter.ActorAlign.END,
                 x_expand: true})
         );

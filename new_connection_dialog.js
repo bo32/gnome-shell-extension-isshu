@@ -15,6 +15,7 @@ const NmapPanel = Me.imports.nmap_panel.NmapPanel;
 const ProxyPanel = Me.imports.proxy_panel.ProxyPanel;
 const SSHConfiguration = Me.imports.ssh_config.SSHConfiguration;
 const SSHConnection = Me.imports.ssh_connection.SSHConnection;
+const ExtraOptionsPanel = Me.imports.extra_options_panel.ExtraOptionsPanel;
 
 const USE_PRIVATE_KEY_LABEL = 'Use private key authentication'
 const USE_PRIVATE_KEY_LABEL_NO_KEY = USE_PRIVATE_KEY_LABEL + ' (no key)'
@@ -190,6 +191,12 @@ var NewConnectionDialog = new Lang.Class({
         this.error_message = new St.Label({
             style_class: 'error-message',
             name: 'error_message'
+        });
+
+        // Extras SSH Options
+        let extra_options_panel = new ExtraOptionsPanel();
+        this.central_container.add(extra_options_panel, {
+            expand: true
         });
 
         // FAVOURITE BOX
