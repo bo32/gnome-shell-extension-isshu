@@ -195,8 +195,8 @@ var NewConnectionDialog = new Lang.Class({
         });
 
         // Extras SSH Options
-        let extra_options_panel = new ExtraOptionsPanel();
-        this.central_container.add(extra_options_panel, {
+        this.extra_options_panel = new ExtraOptionsPanel();
+        this.central_container.add(this.extra_options_panel, {
             expand: true
         });
 
@@ -281,6 +281,7 @@ var NewConnectionDialog = new Lang.Class({
         connection.username = this.user_field.get_text();
         connection.use_private_key = this.use_private_key.actor.get_checked();
         connection.use_telnet = this.use_telnet.actor.get_checked();
+        connection.inline_options = this.extra_options_panel.get_inline_options();
         this.savedConfig.save_connection_as_a_favourite(connection);
         this.rebuild_favourite_menu = true;
         this.rebuild_favourite_folders_menu = true;
@@ -323,8 +324,9 @@ var NewConnectionDialog = new Lang.Class({
         var port = this.port_field.get_text();
         var use_private_key = this.use_private_key.actor.get_checked();
         var use_telnet = this.use_telnet.actor.get_checked();
+        var inline_options = this.extra_options_panel.get_inline_options();
 
-        var connection = this.savedConfig.get_connection_from_details(address, port, username, use_private_key, use_telnet);
+        var connection = this.savedConfig.get_connection_from_details(address, port, username, use_private_key, use_telnet, inline_options);
         if (this.proxies_displayed) {
             connection.proxy = this.proxyPanel.get_selected_proxy_value();
         }

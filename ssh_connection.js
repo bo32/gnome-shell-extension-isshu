@@ -55,6 +55,7 @@ var SSHConnection = new Lang.Class({
             command.push(this.connection.address);
             command.push(this.connection.port);
         }
+        command.push(this.connection.inline_options)
         return command.join(' ');
     },
 

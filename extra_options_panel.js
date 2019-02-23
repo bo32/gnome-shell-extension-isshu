@@ -21,13 +21,17 @@ var ExtraOptionsPanel = new Lang.Class({
         });
         container.add(options_label);
 
-        let options_field = new St.Entry({
+        this.options_field = new St.Entry({
             style_class: 'run-dialog-entry'
         });
-        container.add(options_field, {
+        container.add(this.options_field, {
             expand: true
         });
 
         this.add_child(container);
+    },
+
+    get_inline_options: function() {
+        return this.options_field.get_text();
     }
 });
