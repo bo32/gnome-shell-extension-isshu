@@ -18,5 +18,9 @@
             <default>''</default>
         </key>
 
+        <key type="b" name="enable-inline-options">
+            <default>false</default>
+        </key>
+
     </schema>
 </schemalist>

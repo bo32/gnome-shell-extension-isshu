@@ -194,11 +194,13 @@ var NewConnectionDialog = new Lang.Class({
             name: 'error_message'
         });
 
-        // Extras SSH Options
+        // Inline SSH Options
         this.extra_options_panel = new ExtraOptionsPanel();
-        this.central_container.add(this.extra_options_panel, {
-            expand: true
-        });
+        if (Settings.get_boolean('enable-inline-options')) {
+            this.central_container.add(this.extra_options_panel, {
+                expand: true
+            });
+        }
 
         // FAVOURITE BOX
 
@@ -243,10 +245,6 @@ var NewConnectionDialog = new Lang.Class({
             action: Lang.bind(this, this.showNmap),
             label: "NMap"
         });
-        // this._prefButton = this.addButton({
-        //     action: Lang.bind(this, this.showPreferences),
-        //     label: "Preferences"
-        // });
         this._cancelButton = this.addButton({
             action: Lang.bind(this, this.close_dialog),
             label: _("Cancel"),
@@ -281,7 +279,11 @@ var NewConnectionDialog = new Lang.Class({
         connection.username = this.user_field.get_text();
         connection.use_private_key = this.use_private_key.actor.get_checked();
         connection.use_telnet = this.use_telnet.actor.get_checked();
-        connection.inline_options = this.extra_options_panel.get_inline_options();
+        if (Settings.get_boolean('enable-inline-options')) {
+            connection.inline_options = this.extra_options_panel.get_inline_options();
+        } else {
+            connection.inline_options = '';
+        }
         this.savedConfig.save_connection_as_a_favourite(connection);
         this.rebuild_favourite_menu = true;
         this.rebuild_favourite_folders_menu = true;
@@ -324,7 +326,10 @@ var NewConnectionDialog = new Lang.Class({
         var port = this.port_field.get_text();
         var use_private_key = this.use_private_key.actor.get_checked();
         var use_telnet = this.use_telnet.actor.get_checked();
-        var inline_options = this.extra_options_panel.get_inline_options();
+        var inline_options = '';
+        if (Settings.get_boolean('enable-inline-options')) {
+            inline_options = this.extra_options_panel.get_inline_options();
+        }
 
         var connection = this.savedConfig.get_connection_from_details(address, port, username, use_private_key, use_telnet, inline_options);
         if (this.proxies_displayed) {
