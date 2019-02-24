@@ -2,7 +2,7 @@ const ModalDialog = imports.ui.modalDialog;
 const Lang = imports.lang;
 const St = imports.gi.St;
 const Clutter = imports.gi.Clutter;
-
+const Clipboard = St.Clipboard.get_default();
 
 var SeeCommandDialog = new Lang.Class({
     Name: 'SeeCommandDialog',
@@ -10,7 +10,7 @@ var SeeCommandDialog = new Lang.Class({
 
     _init: function (connection) {
         this.parent();
-        this.connection = connection;
+        this.connection_string = connection;
         this._buildLayout();
     },
 
@@ -38,7 +38,7 @@ var SeeCommandDialog = new Lang.Class({
         this.contentLayout.add(headline);
         
         let connection_label = new St.Label({
-            text: this.connection,
+            text: this.connection_string,
             style_class: 'info-label'
         });
 
@@ -54,6 +54,10 @@ var SeeCommandDialog = new Lang.Class({
             y_expand: false
         });
 
+        this._clipButton = this.addButton({
+            action: Lang.bind(this, this.copy_to_clip),
+            label: "Copy command"
+        });
         this._cancelButton = this.addButton({
             action: Lang.bind(this, this.close_dialog),
             label: "Close",
@@ -63,6 +67,10 @@ var SeeCommandDialog = new Lang.Class({
 
     close_dialog: function() {
         this.close();
+    },
+
+    copy_to_clip: function() {
+        Clipboard.set_text(St.ClipboardType.CLIPBOARD, this.connection_string);
     }
 
 });
