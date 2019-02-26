@@ -133,19 +133,21 @@ var SavedConfiguration = new Lang.Class({
 			"username": connection.username,
 			"use_private_key": connection.use_private_key,
             "use_telnet": connection.use_telnet,
+            "inline_options": connection.inline_options,
             "folder": connection.folder + ''
         };
 
         return result;
     },
 
-    get_connection_from_details: function(address, port, username, use_private_key, use_telnet) {
+    get_connection_from_details: function(address, port, username, use_private_key, use_telnet, inline_options) {
         let connection = new Array();
         connection.address = address;
         connection.username = username;
         connection.port = port;
         connection.use_private_key = use_private_key;
         connection.use_telnet = use_telnet;
+        connection.inline_options = inline_options;
         return connection;
     },
 
