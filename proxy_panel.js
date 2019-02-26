@@ -14,7 +14,7 @@ const AddProxyDialog = Me.imports.add_proxy_dialog.AddProxyDialog;
 const DeleteProxyDialog = Me.imports.add_proxy_dialog.DeleteProxyDialog;
 const ItemList = Me.imports.item_list.ItemList;
 
-const ProxyPanel = new Lang.Class({
+var ProxyPanel = new Lang.Class({
     Name: 'ProxyPanel',
     Extends: St.Widget,
 
@@ -161,7 +161,7 @@ const ProxyPanel = new Lang.Class({
     }
 });
 
-const ProxyItem = new Lang.Class({
+var ProxyItem = new Lang.Class({
     Name: 'ProxyItem',
     Extends: St.BoxLayout,
 

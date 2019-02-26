@@ -15,6 +15,7 @@ const FavouriteConnectionsMenu = Me.imports.menus.favourite_connections_menu.Fav
 const LatestConnectionsMenu = Me.imports.menus.latest_connections_menu.LatestConnectionsMenu;
 const FolderConnectionsMenu = Me.imports.menus.folder_connections_menu.FolderConnectionsMenu;
 const HelpMenu = Me.imports.menus.help_menu.HelpMenu;
+const PreferencesMenu = Me.imports.menus.preferences_menu.PreferencesMenu;
 const KnownHostsMenu = Me.imports.menus.known_hosts_menu.KnownHostsMenu;
 const NewConnectionDialog = Me.imports.new_connection_dialog.NewConnectionDialog;
 const SavedConfiguration = Me.imports.saved_configuration.SavedConfiguration;
@@ -51,10 +52,6 @@ const ISSHUMenuButton = new Lang.Class({
             this.newConnectionDialog.connect('rebuild-favourite-menu', Lang.bind(this, this.rebuild_favourite_menu));
             this.newConnectionDialog.connect('rebuild-latest-menu', Lang.bind(this, this.rebuild_latest_menu));
             this.newConnectionDialog.connect('rebuild-favourite-folder-menus', Lang.bind(this, this.rebuild_favourite_folder_menus));
-            this.newConnectionDialog.connect('open-preferences', Lang.bind(this, function() {
-                launch_extension_prefs(Me.uuid);
-                this.newConnectionDialog.close_dialog();
-            }));
         }));
         this.menu.addMenuItem(newConnectionMenu);
 
@@ -78,6 +75,14 @@ const ISSHUMenuButton = new Lang.Class({
 
         /* Known_hosts menu */
         this.menu.addMenuItem(new KnownHostsMenu());
+
+        /* Preferences menu */
+        var preferences_menu = new PreferencesMenu();
+        this.menu.addMenuItem(preferences_menu);
+        preferences_menu.custom_signals.connect('open-preferences', function() {
+            launch_extension_prefs(Me.uuid);
+        });
+
         /* Help menu */
         this.menu.addMenuItem(new HelpMenu());
     },

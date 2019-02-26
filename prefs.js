@@ -86,6 +86,20 @@ const SSHPrefsWidget = new GObject.Class({
         }
 		this._grid.attach(known_hosts_file_location_label, 0, 3, 1, 1);
         this._grid.attach(this.known_hosts_file_location_field, 1, 3, 3, 1);
+
+        /* Enable inline options */
+        let enable_inline_options_label = new Gtk.Label({
+			label: 'Enable inline options',
+			halign: Gtk.Align.START
+		});
+		this.enable_inline_options_switch = new Gtk.Switch({
+			hexpand: true,
+            halign: Gtk.Align.END,
+            active: Settings.get_boolean('enable-inline-options')
+        });
+		this._grid.attach(enable_inline_options_label, 0, 4, 3, 1);
+        this._grid.attach(this.enable_inline_options_switch, 1, 4, 1, 1);
+
         
         this.vbox.add(this._grid);
         
@@ -114,6 +128,10 @@ const SSHPrefsWidget = new GObject.Class({
             if (this.known_hosts_file_location_field.get_text() != Settings.get_string('ssh-known-hosts-path')) {
                 Settings.set_string('ssh-known-hosts-path', this.known_hosts_file_location_field.get_text());
             }
+            if (this.enable_inline_options_switch.active != Settings.get_boolean('enable-inline-options')) {
+                Settings.set_boolean('enable-inline-options', this.enable_inline_options_switch.active);
+            }
+
         }));
 
         return scrollingWindow;

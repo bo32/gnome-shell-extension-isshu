@@ -15,6 +15,8 @@ const NmapPanel = Me.imports.nmap_panel.NmapPanel;
 const ProxyPanel = Me.imports.proxy_panel.ProxyPanel;
 const SSHConfiguration = Me.imports.ssh_config.SSHConfiguration;
 const SSHConnection = Me.imports.ssh_connection.SSHConnection;
+const ExtraOptionsPanel = Me.imports.extra_options_panel.ExtraOptionsPanel;
+const SeeCommandDialog = Me.imports.dialogs.see_command_dialog.SeeCommandDialog;
 
 const USE_PRIVATE_KEY_LABEL = 'Use private key authentication'
 const USE_PRIVATE_KEY_LABEL_NO_KEY = USE_PRIVATE_KEY_LABEL + ' (no key)'
@@ -192,6 +194,14 @@ var NewConnectionDialog = new Lang.Class({
             name: 'error_message'
         });
 
+        // Inline SSH Options
+        this.extra_options_panel = new ExtraOptionsPanel();
+        if (Settings.get_boolean('enable-inline-options')) {
+            this.central_container.add(this.extra_options_panel, {
+                expand: true
+            });
+        }
+
         // FAVOURITE BOX
 
         let favBox_header = new St.Label({
@@ -223,6 +233,10 @@ var NewConnectionDialog = new Lang.Class({
             label: "Connect",
             key: Clutter.Return
         });
+        this._see_command_button = this.addButton({
+            action: Lang.bind(this, this.see_command),
+            label: "See command"
+        });
         this._proxyButton = this.addButton({
             action: Lang.bind(this, this.showProxyPanel),
             label: "Socks Proxy"
@@ -230,10 +244,6 @@ var NewConnectionDialog = new Lang.Class({
         this._nmapButton = this.addButton({
             action: Lang.bind(this, this.showNmap),
             label: "NMap"
-        });
-        this._prefButton = this.addButton({
-            action: Lang.bind(this, this.showPreferences),
-            label: "Preferences"
         });
         this._cancelButton = this.addButton({
             action: Lang.bind(this, this.close_dialog),
@@ -269,6 +279,11 @@ var NewConnectionDialog = new Lang.Class({
         connection.username = this.user_field.get_text();
         connection.use_private_key = this.use_private_key.actor.get_checked();
         connection.use_telnet = this.use_telnet.actor.get_checked();
+        if (Settings.get_boolean('enable-inline-options')) {
+            connection.inline_options = this.extra_options_panel.get_inline_options();
+        } else {
+            connection.inline_options = '';
+        }
         this.savedConfig.save_connection_as_a_favourite(connection);
         this.rebuild_favourite_menu = true;
         this.rebuild_favourite_folders_menu = true;
@@ -282,7 +297,25 @@ var NewConnectionDialog = new Lang.Class({
         });
     },
 
+    see_command: function() {
+        let connection_json = this.get_ssh_command_json();
+        let ssh_connection = new SSHConnection(connection_json);
+        let connection_string = ssh_connection.get_ssh_connection_as_string();
+        new SeeCommandDialog(connection_string).open();
+    },
+
     connect_ssh: function() {
+        let connection_json = this.get_ssh_command_json();
+        this.savedConfig.save_connection_as_a_latest(connection_json);
+
+        let ssh_connection = new SSHConnection(connection_json);
+        ssh_connection.start();
+
+        this.rebuild_latest_menu = true;
+        this.close_dialog();
+    },
+
+    get_ssh_command_json: function() {
         var address = this.address_field.get_text();
         if (address === '') {
             this.error_message.set_text('Enter a server name or IP address.');
@@ -293,19 +326,16 @@ var NewConnectionDialog = new Lang.Class({
         var port = this.port_field.get_text();
         var use_private_key = this.use_private_key.actor.get_checked();
         var use_telnet = this.use_telnet.actor.get_checked();
+        var inline_options = '';
+        if (Settings.get_boolean('enable-inline-options')) {
+            inline_options = this.extra_options_panel.get_inline_options();
+        }
 
-        var connection = this.savedConfig.get_connection_from_details(address, port, username, use_private_key, use_telnet);
-        
+        var connection = this.savedConfig.get_connection_from_details(address, port, username, use_private_key, use_telnet, inline_options);
         if (this.proxies_displayed) {
             connection.proxy = this.proxyPanel.get_selected_proxy_value();
         }
-        this.savedConfig.save_connection_as_a_latest(connection);
-
-        let ssh_connection = new SSHConnection();
-        ssh_connection.start(connection);
-
-        this.rebuild_latest_menu = true;
-        this.close_dialog();
+        return connection;
     },
 
     showPreferences: function() {
