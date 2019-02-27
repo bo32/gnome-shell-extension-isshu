@@ -20,8 +20,8 @@ var SSHMenuItem = new Lang.Class({
         );
 
         this.connect('activate', Lang.bind(this, function() {
-		    let ssh_connection = new SSHConnection();
-            ssh_connection.start(this.connection);
+		    let ssh_connection = new SSHConnection(this.connection);
+            ssh_connection.start();
         }));
     },
 
