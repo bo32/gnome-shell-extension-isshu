@@ -11,27 +11,25 @@ const Me = ExtensionUtils.getCurrentExtension();
 const ItemList = Me.imports.item_list.ItemList;
 const Convenience = Me.imports.convenience;
 const Settings = Convenience.getSettings();
+const GObject = imports.gi.GObject;
+const CustomSignals = Me.imports.custom_signals.CustomSignals;
 
 const SSH_FOLDER = '.ssh'
 const KNOWN_HOSTS_FILENAME = 'known_hosts'
 
-var KnownHostsDialog = new Lang.Class({
-    Name: 'KnownHostsDialog',
-    Extends: ModalDialog.ModalDialog,
+var KnownHostsDialog = class KnownHostsDialog extends ModalDialog.ModalDialog {
 
-    _init: function () {
-        this.parent();
+    constructor() {
+        super();
         this._buildLayout();
-    },
+    }
 
-    _buildLayout: function () {
+    _buildLayout() {
         this.known_hosts_filepath = Settings.get_string('ssh-known-hosts-path');
-        let known_hosts_file = Gio.file_new_for_path(this.known_hosts_filepath);
-        global.log(this.known_hosts_filepath);
-        global.log(known_hosts_file.get_path());
+        var known_hosts_file = Gio.file_new_for_path(this.known_hosts_filepath);
 
         if (this.known_hosts_filepath === '' || !known_hosts_file.query_exists(null)) {
-            let error_label = new St.Label({
+            var error_label = new St.Label({
                 style_class: 'nm-dialog-header',
                 y_align: St.Align.END,
                 text: 'The location of your known_hosts file is not set. Please edit it in the Preferences.'
@@ -45,15 +43,15 @@ var KnownHostsDialog = new Lang.Class({
             this.content = Shell.get_file_contents_utf8_sync(this.known_hosts_filepath);
             this.lines = this.content.match(/[^\r\n]+/g);
 
-            let container = new St.BoxLayout({
+            var container = new St.BoxLayout({
                 vertical: true,
                 x_expand: true
             });
 
-            let header_box = new St.BoxLayout({
+            var header_box = new St.BoxLayout({
                 vertical: false
             });
-            let title = new St.Label({
+            var title = new St.Label({
                 style_class: 'nm-dialog-header',
                 y_align: St.Align.END,
                 text: this.known_hosts_filepath
@@ -73,17 +71,25 @@ var KnownHostsDialog = new Lang.Class({
                 y_expand: false
             });
 
-            this.lines.forEach(Lang.bind(this, function(l, i) {
-                let item = new KnownHostItem(l, i);
-                global.log(i + ': ' + l);
-                this._itemBox.add_item(item);
-            }));
+            if (this.lines) {
+                this.lines.forEach(Lang.bind(this, function(l, i) {
+                    var item = new KnownHostItem(l, i);
+                    item.custom_signals.connect('known_host_marked', Lang.bind(this, function() {
+                        var reactive = this.get_count_items_to_be_deleted() > 0;
+                        this._confirmButton.set_reactive(reactive);
+                    }));
+                    this._itemBox.add_item(item);
+                }));
+            } else {
+                this._itemBox.add_item(new NoEntriesItem());
+            }
 
             this._confirmButton = this.addButton({
                 action: Lang.bind(this, this.confirm),
                 label: "Confirm",
                 key: Clutter.Return
             });
+            this._confirmButton.set_reactive(false);
         }
 
         this._cancelButton = this.addButton({
@@ -95,60 +101,71 @@ var KnownHostsDialog = new Lang.Class({
             x_fill: false,
             x_align: St.Align.END
         });
-    },
+    }
 
-    confirm: function() {
-        for (let i = this._itemBox.get_length() - 1; i >= 0; i--) {
-            let item = this._itemBox.get_item(i);
+    get_count_items_to_be_deleted() {
+        var result = 0;
+        for (var i = 0; i < this._itemBox.get_length(); i++) {
+            var item = this._itemBox.get_item(i);
+            if (item.is_to_be_removed()) {
+                result++;
+            }
+        }
+        return result;
+    }
+
+    confirm() {
+        for (var i = this._itemBox.get_length() - 1; i >= 0; i--) {
+            var item = this._itemBox.get_item(i);
             if (item.is_to_be_removed()) {
                 this.lines.splice(item.get_index(), 1);
             }
         }
-        let new_content = this.lines.join('\r\n');
-        let file = Gio.file_new_for_path(this.known_hosts_filepath);
-        let raw = file.replace(null, false, Gio.FileCreateFlags.NONE, null);
-        let out = Gio.BufferedOutputStream.new_sized(raw, 4096);
+        var new_content = this.lines.join('\r\n');
+        var file = Gio.file_new_for_path(this.known_hosts_filepath);
+        var raw = file.replace(null, false, Gio.FileCreateFlags.NONE, null);
+        var out = Gio.BufferedOutputStream.new_sized(raw, 4096);
         Shell.write_string_to_stream(out, new_content);
         out.close(null);
 
         this.close();
-    },
+    }
 
-    close_dialog: function() {
+    close_dialog() {
         this.close();
     }
 
-});
+};
 
-const KnownHostItem = new Lang.Class({
-    Name: 'KnownHostItem',
-    Extends: St.BoxLayout,
+const KnownHostItem = GObject.registerClass(class KnownHostItem extends St.BoxLayout {
 
-    _init: function (text, index) {
-        this.parent({
+    _init(text, index) {
+        super._init({
             style_class: 'nm-dialog-item'
             ,can_focus: true
             ,reactive: true
         });
 
+        this.custom_signals = new CustomSignals();
+
         this.text = text;
         this.index = index;
-        let parts = text.match(/[^ ]+/g);
-        let host = parts[0];
-        let algorithm = parts[1];
-        let public_key = parts[2];
+        var parts = text.match(/[^ ]+/g);
+        var host = parts[0];
+        var algorithm = parts[1];
+        var public_key = parts[2];
 
         this.to_be_removed = false;
 
-        let label = new St.Label({
+        var label = new St.Label({
             text: host
         });
 
-        let algorithm_label = new St.Label({
+        var algorithm_label = new St.Label({
             text: algorithm
         });
 
-        let public_key_label = new St.Label({
+        var public_key_label = new St.Label({
             text: public_key
         });
 
@@ -157,25 +174,10 @@ const KnownHostItem = new Lang.Class({
             x_align: St.Align.START
         });
 
-        // let see_button = new St.Button({
-        //     style_class: 'button item-button margin-left'
-        // });
-        // let see_icon = new St.Icon({
-        //     style_class: 'nm-dialog-icon'
-        // });
-        // see_icon.set_icon_name('view-more-horizontal-symbolic');
-        // see_button.set_child(see_icon);
-        // see_button.connect('clicked', Lang.bind(this, function() {
-        //     // TODO
-        // }));
-        // this.add(see_button, {
-        //     x_align: St.Align.END
-        // });
-
         this.remove_button = new St.Button({
             style_class: 'button item-button'
         });
-        let remove_icon = new St.Icon({
+        var remove_icon = new St.Icon({
             style_class: 'nm-dialog-icon'
         });
         remove_icon.set_icon_name('user-trash-symbolic');
@@ -185,6 +187,7 @@ const KnownHostItem = new Lang.Class({
             this.remove_button.visible = false;
             this.reapply_button.visible = true;
             this.to_be_removed = !this.to_be_removed;
+            this.custom_signals.emit('known_host_marked');
         }));
         this.add(this.remove_button, {
             x_align: St.Align.END
@@ -194,7 +197,7 @@ const KnownHostItem = new Lang.Class({
             style_class: 'button item-button margin-left',
             visible: false
         });
-        let reapply_icon = new St.Icon({
+        var reapply_icon = new St.Icon({
             style_class: 'nm-dialog-icon'
         });
         reapply_icon.set_icon_name('edit-undo-symbolic');
@@ -204,22 +207,46 @@ const KnownHostItem = new Lang.Class({
             this.remove_button.visible = true;
             this.reapply_button.visible = false;
             this.to_be_removed = !this.to_be_removed;
+            this.custom_signals.emit('known_host_marked');
         }));
         this.add(this.reapply_button, {
             x_align: St.Align.END
         });
-    },
+    }
 
-    get_text: function() {
+    get_text() {
         return this.text;
-    },
+    }
 
-    get_index: function() {
+    get_index() {
         return this.index;
-    },
+    }
 
-    is_to_be_removed: function() {
+    is_to_be_removed() {
         return this.to_be_removed;
     }
+
+});
+
+const NoEntriesItem = GObject.registerClass(class NoEntriesItem extends St.BoxLayout {
+
+    _init() {
+        super._init({
+            style_class: 'nm-dialog-item'
+            ,can_focus: false
+            ,reactive: false
+        });
+
+        var label = new St.Label({
+            text: "No entries in the file."
+        });
+
+        this.add(label, {
+            expand: true,
+            x_align: St.Align.START
+        });
+
+    }
+
 
 });

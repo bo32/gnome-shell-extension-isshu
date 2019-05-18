@@ -9,14 +9,11 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const Constants = Me.imports.constants;
 
-var HelpMenu = new Lang.Class({
+var HelpMenu = class HelpMenu extends PopupMenu.PopupBaseMenuItem {
 
-	Name: 'HelpMenu',
-	Extends: PopupMenu.PopupBaseMenuItem,
-
-    _init: function() {
-        this.parent();
-        let icon = new St.Icon();
+    constructor() {
+        super();
+        var icon = new St.Icon();
         icon.gicon = Gio.icon_new_for_string('help-about-symbolic');
         icon.icon_size = Constants.ICON_SIZE;
         this.actor.add(
@@ -33,5 +30,5 @@ var HelpMenu = new Lang.Class({
 			Util.spawn(['xdg-open', 'https://github.com/bo32/gnome-shell-extension-isshu/wiki/Issues']);
         });
 
-	},
-});
+	}
+};

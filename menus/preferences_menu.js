@@ -9,14 +9,11 @@ const Me = ExtensionUtils.getCurrentExtension();
 const Constants = Me.imports.constants;
 const CustomSignals = Me.imports.custom_signals.CustomSignals;
 
-var PreferencesMenu = new Lang.Class({
+var PreferencesMenu = class PreferencesMenu extends PopupMenu.PopupBaseMenuItem {
 
-	Name: 'PreferencesMenu',
-	Extends: PopupMenu.PopupBaseMenuItem,
-
-    _init: function() {
-        this.parent();
-        let icon = new St.Icon();
+    constructor() {
+        super();
+        var icon = new St.Icon();
         icon.gicon = Gio.icon_new_for_string('system-run-symbolic');
         icon.icon_size = Constants.ICON_SIZE;
         this.actor.add(
@@ -34,5 +31,5 @@ var PreferencesMenu = new Lang.Class({
             this.custom_signals.emit('open-preferences');
         }));
 
-	},
-});
+	}
+};

@@ -4,29 +4,27 @@ const St = imports.gi.St;
 const Clutter = imports.gi.Clutter;
 const Clipboard = St.Clipboard.get_default();
 
-var SeeCommandDialog = new Lang.Class({
-    Name: 'SeeCommandDialog',
-    Extends: ModalDialog.ModalDialog,
+var SeeCommandDialog = class SeeCommandDialog extends ModalDialog.ModalDialog {
 
-    _init: function (connection) {
-        this.parent();
+    constructor(connection) {
+        super();
         this.connection_string = connection;
         this._buildLayout();
-    },
+    }
 
-    _buildLayout: function () {
-        let headline = new St.BoxLayout({
+    _buildLayout() {
+        var headline = new St.BoxLayout({
             style_class: 'nm-dialog-header-hbox'
         });
 
-        let icon = new St.Icon({
+        var icon = new St.Icon({
             style_class: 'nm-dialog-header-icon'
         });
 
-        let titleBox = new St.BoxLayout({
+        var titleBox = new St.BoxLayout({
             vertical: true
         });
-        let title = new St.Label({
+        var title = new St.Label({
             style_class: 'nm-dialog-header',
             text: _("SSH command preview")
         });
@@ -37,12 +35,12 @@ var SeeCommandDialog = new Lang.Class({
 
         this.contentLayout.add(headline);
         
-        let connection_label = new St.Label({
+        var connection_label = new St.Label({
             text: this.connection_string,
             style_class: 'info-label'
         });
 
-        let box = new St.BoxLayout({
+        var box = new St.BoxLayout({
             vertical: true
         });
         box.add(connection_label, {
@@ -63,14 +61,14 @@ var SeeCommandDialog = new Lang.Class({
             label: "Close",
             default: true
         });
-    },
+    }
 
-    close_dialog: function() {
+    close_dialog() {
         this.close();
-    },
+    }
 
-    copy_to_clip: function() {
+    copy_to_clip() {
         Clipboard.set_text(St.ClipboardType.CLIPBOARD, this.connection_string);
     }
 
-});
+};

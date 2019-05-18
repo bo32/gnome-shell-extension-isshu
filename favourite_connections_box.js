@@ -1,5 +1,6 @@
 const Lang = imports.lang;
 const St = imports.gi.St;
+const GObject = imports.gi.GObject;
 const Clutter = imports.gi.Clutter; 
 const Gtk = imports.gi.Gtk;
 const Signals = imports.signals;
@@ -15,27 +16,25 @@ const ConfirmUpdateFavDialog = Me.imports.confirm_dialog.ConfirmUpdateFavDialog;
 const ViewConnectionDialog = Me.imports.view_connection_dialog.ViewConnectionDialog;
 const ItemList = Me.imports.item_list.ItemList;
 
-var FavouriteConnectionsBox = new Lang.Class({
-    Name: 'FavouriteConnectionsBox',
-    Extends: St.Widget,
+var FavouriteConnectionsBox = GObject.registerClass(class FavouriteConnectionsBox extends St.Widget {
 
-    _init: function () {
-        this.parent({
+    _init() {
+        super._init({
             layout_manager: new Clutter.BinLayout()
         });
 
         this.savedConfig = new SavedConfiguration();
         this.custom_signals = new CustomSignals();
 
-        let content_box = new St.BoxLayout({
+        var content_box = new St.BoxLayout({
             vertical: true,
             x_expand: true
         });
 
-        let favourite_label_box = new St.BoxLayout({
+        var favourite_label_box = new St.BoxLayout({
             vertical: false
         });
-        let label = new St.Label({
+        var label = new St.Label({
             text: 'Favourite\'s label' + ':  ',
             y_align: Clutter.ActorAlign.CENTER
         });
@@ -47,7 +46,7 @@ var FavouriteConnectionsBox = new Lang.Class({
         });
             
         // SAVE CONNECTION AS FAVOURITE BUTTON
-        let fav_icon = new St.Icon({
+        var fav_icon = new St.Icon({
             style_class: 'nm-dialog-icon'
         });
         fav_icon.set_icon_name('media-floppy-symbolic');
@@ -55,14 +54,14 @@ var FavouriteConnectionsBox = new Lang.Class({
             style_class: 'button custom-button'
         });
         this.fav_button.set_child(fav_icon);
-        this.fav_button.connect('clicked', Lang.bind(this, function() {
+        this.fav_button.connect('clicked', function() {
             // we first check if the label is already used or not.
             // if not, we save it directly.
             // if yes, we show the confirm dialog.
-            let new_label = this.get_favourite_label_entry();
-            let existing_fav = this.savedConfig.get_favourite_by_label(new_label);
+            var new_label = this.get_favourite_label_entry();
+            var existing_fav = this.savedConfig.get_favourite_by_label(new_label);
             if (existing_fav != null) {
-                let confirm = new ConfirmUpdateFavDialog(existing_fav);
+                var confirm = new ConfirmUpdateFavDialog(existing_fav);
                 confirm.open();
                 confirm.connect('confirm-update-fav', Lang.bind(this, function() {
                     this.custom_signals.emit('save-favourite');
@@ -70,17 +69,15 @@ var FavouriteConnectionsBox = new Lang.Class({
             } else {
                 this.custom_signals.emit('save-favourite');
             }
-        }));
+        }.bind(this));
 
-        favourite_label_box.add(this.fav_button, {
-
-        });
+        favourite_label_box.add(this.fav_button, {});
         content_box.add(favourite_label_box);
 
-        let folder_box = new St.BoxLayout({
+        var folder_box = new St.BoxLayout({
             // vertical: false
         });
-        let folder_label = new St.Label({
+        var folder_label = new St.Label({
             text: 'Folder (optional)' + ':  ',
             y_align: Clutter.ActorAlign.CENTER
         });
@@ -97,12 +94,12 @@ var FavouriteConnectionsBox = new Lang.Class({
         this.add_child(content_box);
 
         this.add_favourite_items();
-    },
+    }
 
-    add_favourite_items: function() {
-        let fav_connections = this.savedConfig.get_favourite_connections();
-        for (let fav in fav_connections) {
-            let fav_item = new FavouriteItem(fav_connections[fav], fav);
+    add_favourite_items() {
+        var fav_connections = this.savedConfig.get_favourite_connections();
+        for (var fav in fav_connections) {
+            var fav_item = new FavouriteItem(fav_connections[fav], fav);
             this._itemBox.add_item(fav_item);
             fav_item.custom_signals.connect('delete-favourite', Lang.bind(this, function() {
                 this._itemBox.remove_item(fav_item);
@@ -110,7 +107,7 @@ var FavouriteConnectionsBox = new Lang.Class({
             }));
             fav_item.custom_signals.connect('load-favourite', Lang.bind(this, function() {
                 this.label_field.set_text(this._itemBox.get_selected_item().connection.label);
-                let folder = '';
+                var folder = '';
                 if (this._itemBox.get_selected_item().connection.folder !== undefined) {
                     folder = this._itemBox.get_selected_item().connection.folder;
                 }
@@ -118,33 +115,31 @@ var FavouriteConnectionsBox = new Lang.Class({
                 this.custom_signals.emit('favourite-loaded');
             }));
         }
-    },
+    }
 
-    refresh: function() {
+    refresh() {
         this._itemBox.remove_all_items();
         this.add_favourite_items();
-    },
+    }
 
-    get_selected_item: function() {
+    get_selected_item() {
         return this._itemBox.get_selected_item();
-    },
+    }
 
-    get_favourite_label_entry: function() {
+    get_favourite_label_entry() {
         return this.label_field.get_text();
-    },
+    }
 
-    get_folder_name: function() {
+    get_folder_name() {
         return this.folder_field.get_text();
     }
 
 });
 
-var FavouriteItem = new Lang.Class({
-    Name: 'FavouriteItem',
-    Extends: St.BoxLayout,
+var FavouriteItem = GObject.registerClass(class FavouriteItem extends St.BoxLayout {
 
-    _init: function (connection, index) {
-        this.parent({
+    _init(connection, index) {
+        super._init({
             style_class: 'nm-dialog-item'
             ,can_focus: true
             ,reactive: true
@@ -161,14 +156,14 @@ var FavouriteItem = new Lang.Class({
         //     ,reactive: true
         // });
 
-        let labels_box = new St.BoxLayout({
+        var labels_box = new St.BoxLayout({
             style_class: 'favourite-box'
             ,can_focus: true
             ,reactive: true
             ,vertical: true
         });
 
-        let icon = new St.Icon({
+        var icon = new St.Icon({
             style_class: 'nm-dialog-icon'
         });
         if (connection.folder !== undefined && connection.folder !== '') {
@@ -181,20 +176,20 @@ var FavouriteItem = new Lang.Class({
             x_align: St.Align.START
         });
 
-        let label_and_folder_box = new St.BoxLayout({
+        var label_and_folder_box = new St.BoxLayout({
             vertical: false
         });
 
-        let label = new St.Label({
+        var label = new St.Label({
             text: connection.label
         });
-        let folder_label_value = '';
-        let style_class = '';
+        var folder_label_value = '';
+        var style_class = '';
         if (connection.folder !== undefined && connection.folder !== '') {
             folder_label_value = connection.folder;
             style_class = 'folder-name margin-right';
         }
-        let folder_label = new St.Label({
+        var folder_label = new St.Label({
             text: folder_label_value,
             style_class: style_class
         });
@@ -208,7 +203,7 @@ var FavouriteItem = new Lang.Class({
         labels_box.add(label_and_folder_box, {
             x_align: St.Align.START
         });
-        let details_text = '';
+        var details_text = '';
         if (connection.username != '') {
             details_text += connection.username + '@';
         }
@@ -216,7 +211,7 @@ var FavouriteItem = new Lang.Class({
         if (connection.port != '') {
             details_text += ':' + connection.port
         }
-        let details = new St.Label({
+        var details = new St.Label({
             text: details_text,
             style_class: 'favourtie-connection-details-label'
         });
@@ -229,7 +224,7 @@ var FavouriteItem = new Lang.Class({
         });
 
         // LOAD FAVOURITE BUTTON
-        let load_fav_icon = new St.Icon({
+        var load_fav_icon = new St.Icon({
             style_class: 'nm-dialog-icon'
         });
         load_fav_icon.set_icon_name('document-edit-symbolic');
@@ -244,7 +239,7 @@ var FavouriteItem = new Lang.Class({
         });
 
         // VIEW FAVOURITE CONNECTION DETAILS BUTTON
-        let view_fav_icon = new St.Icon({
+        var view_fav_icon = new St.Icon({
             style_class: 'nm-dialog-icon'
         });
         view_fav_icon.set_icon_name('edit-find-symbolic');
@@ -259,7 +254,7 @@ var FavouriteItem = new Lang.Class({
         });
 
         // DELETE FAVOURITE BUTTON
-        let unfav_icon = new St.Icon({
+        var unfav_icon = new St.Icon({
             style_class: 'nm-dialog-icon'
         });
         unfav_icon.set_icon_name('user-trash-symbolic');
@@ -273,7 +268,7 @@ var FavouriteItem = new Lang.Class({
             x_align: St.Align.END
         });
 
-        // let action = new Clutter.ClickAction();
+        // var action = new Clutter.ClickAction();
         // action.connect('clicked', Lang.bind(this, function () {
         //     this.actor.grab_key_focus(); // needed for setting the correct focus
         // }));
@@ -283,7 +278,7 @@ var FavouriteItem = new Lang.Class({
         // }));
         // TODO start ssh command enter pressing enter on the favourite connection
         // this.actor.connect('key-press-event', Lang.bind(this, function(o, e) {
-        //     let symbol = e.get_key_symbol();
+        //     var symbol = e.get_key_symbol();
         //     if (symbol == Clutter.Return || symbol == Clutter.KP_Enter) {
         //         global.log('here');
         //     }
@@ -300,50 +295,50 @@ var FavouriteItem = new Lang.Class({
             this.hide_view_connection_button();
             this.hide_load_fav_button();
         }));
-    },
+    }
 
-    get_connection: function() {
+    get_connection() {
         return this.connection;
-    },
+    }
 
-    remove_favourite: function() {
-        let confirm = new ConfirmUnfavDialog(this.connection);
+    remove_favourite() {
+        var confirm = new ConfirmUnfavDialog(this.connection);
         confirm.open();
         confirm.connect('confirm-delete-fav', Lang.bind(this, function() {
             this.savedConfig.remove_connection_from_favourites(this.index);
             this.custom_signals.emit('delete-favourite');
         }));
-    },
+    }
 
-    show_unfav_button: function() {
+    show_unfav_button() {
         this.unfav_button.visible = true;
-    },
+    }
 
-    hide_unfav_button: function() {
+    hide_unfav_button() {
         this.unfav_button.visible = false;
-    },
+    }
 
-    show_view_connection_button: function() {
+    show_view_connection_button() {
         this.view_fav_button.visible = true;
-    },
+    }
 
-    hide_view_connection_button: function() {
+    hide_view_connection_button() {
         this.view_fav_button.visible = false;
-    },
+    }
 
-    show_load_fav_button: function() {
+    show_load_fav_button() {
         this.load_fav_button.visible = true;
-    },
+    }
 
-    hide_load_fav_button: function() {
+    hide_load_fav_button() {
         this.load_fav_button.visible = false;
-    },
+    }
 
-    load_favourite: function() {
+    load_favourite() {
         this.custom_signals.emit('load-favourite');
-    },
+    }
 
-    view_favourite: function() {
+    view_favourite() {
         var dialog = new ViewConnectionDialog(this.connection);
         dialog.open();
     }

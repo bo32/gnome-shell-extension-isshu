@@ -11,36 +11,32 @@ const Settings = Convenience.getSettings();
 const SSHMenuItem = Me.imports.ssh_menu_item.SSHMenuItem;
 const SavedConfiguration = Me.imports.saved_configuration.SavedConfiguration;
 
-var ConnectionsMenu = new Lang.Class({
+var ConnectionsMenu = class ConnectionsMenu	extends PopupMenu.PopupSubMenuMenuItem {
 
-	Name: 'ConnectionsMenu',
-	Extends: PopupMenu.PopupSubMenuMenuItem,
-
-    _init: function(label, icon) {
-		this.parent(label, true);
+	constructor(label, icon) {
+		super(label, true);
 		this.icon.gicon = Gio.icon_new_for_string(icon);
 		this.icon.icon_size = 16;
 
 		this.savedConfig = new SavedConfiguration();
 
-		// this.add_menus(connections);
 
 		this.controlsBox = new St.BoxLayout({
-            name: 'controlsBox',
-            style_class: 'control-box'
-        });
-	},
+			name: 'controlsBox',
+			style_class: 'control-box'
+		});
+	}
 
-	add_menus: function(connections) {
+	add_menus(connections) {
 		for(var c in connections) {
 			var menuItem = new SSHMenuItem(connections[c]);
 			this.menu.addMenuItem(menuItem);
 		}
-	},
+	}
 
-	rebuild: function(connections) {
+	rebuild(connections) {
 		this.menu.removeAll();
 		this.add_menus(connections);
 	}
 
-});
+};

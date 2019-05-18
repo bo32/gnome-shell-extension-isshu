@@ -1,15 +1,14 @@
 const Lang = imports.lang;
 const St = imports.gi.St;
+const GObject = imports.gi.GObject;
 const Gtk = imports.gi.Gtk;
 const Clutter = imports.gi.Clutter;
 const Util = imports.misc.util;
 
-var ItemList = new Lang.Class({
-    Name: 'ItemList',
-    Extends: St.BoxLayout,
+var ItemList = GObject.registerClass(class ItemList extends St.BoxLayout {
 
-    _init: function() {
-        this.parent({
+    _init() {
+        super._init({
             vertical: true
         });
 
@@ -21,17 +20,17 @@ var ItemList = new Lang.Class({
         this._scrollView.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC);
         this._scrollView.add_actor(this);
 
-        this._items = []
-    },
+        this._items = [];
+    }
 
     // item must be a St.Widget
-    add_item: function(item) {
+    add_item(item) {
 
         item.add_style_class_name('nm-dialog-item');
         item.set_can_focus(true);
         item.set_reactive(true);
 
-        let action = new Clutter.ClickAction();
+        var action = new Clutter.ClickAction();
         action.connect('clicked', Lang.bind(this, function () {
             if (this.selected_item) {
                 this.selected_item.remove_style_pseudo_class('selected');
@@ -54,29 +53,29 @@ var ItemList = new Lang.Class({
 
         this.add_child(item);
         this._items.push(item);
-    },
+    }
 
-    remove_item: function(item) {
+    remove_item(item) {
         this.remove_child(item);
-    },
+    }
 
-    remove_all_items: function() {
+    remove_all_items() {
         this.remove_all_children();
-    },
+    }
 
-    get_item: function(index) {
+    get_item(index) {
         return this._items[index];
-    },
+    }
 
-    get_length: function() {
+    get_length() {
         return this._items.length;
-    },
+    }
 
-    get_scroll_view: function() {
+    get_scroll_view() {
         return this._scrollView;
-    },
+    }
 
-    get_selected_item: function() {
+    get_selected_item() {
         return this.selected_item;
     }
 });

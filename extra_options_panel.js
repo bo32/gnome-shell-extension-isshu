@@ -1,21 +1,20 @@
 const Lang = imports.lang;
 const St = imports.gi.St;
 const Clutter = imports.gi.Clutter;
+const GObject = imports.gi.GObject;
 
-var ExtraOptionsPanel = new Lang.Class({
-    Name: 'ExtraOptionsPanel',
-    Extends: St.Widget,
+var ExtraOptionsPanel = GObject.registerClass(class ExtraOptionsPanel extends St.Widget {
 
-    _init: function() {
-        this.parent({
+    _init() {
+        super._init({
             layout_manager: new Clutter.BinLayout()
         });
-        let container = new St.BoxLayout({
+        var container = new St.BoxLayout({
             vertical: false,
             x_expand: true
         });
 
-        let options_label = new St.Label({
+        var options_label = new St.Label({
             text: 'Additional inline SSH options' + ':  ',
             y_align: Clutter.ActorAlign.CENTER
         });
@@ -29,9 +28,9 @@ var ExtraOptionsPanel = new Lang.Class({
         });
 
         this.add_child(container);
-    },
+    }
 
-    get_inline_options: function() {
+    get_inline_options() {
         return this.options_field.get_text();
     }
 });

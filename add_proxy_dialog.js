@@ -10,25 +10,23 @@ const Me = ExtensionUtils.getCurrentExtension();
 const SavedConfiguration = Me.imports.saved_configuration.SavedConfiguration;
 const ItemList = Me.imports.item_list.ItemList;
 
-var AddProxyDialog = new Lang.Class({
-    Name: 'AddProxyDialog',
-    Extends: ModalDialog.ModalDialog,
+var AddProxyDialog = class AddProxyDialog extends ModalDialog.ModalDialog {
 
-    _init: function () {
-        this.parent();
+    constructor() {
+        super();
         this._buildLayout();
         this.saved_configuration = new SavedConfiguration();
-    },
+    }
 
-    _buildLayout: function () {
-        let headline = new St.BoxLayout({
+    _buildLayout() {
+        var headline = new St.BoxLayout({
             style_class: 'nm-dialog-header-hbox'
         });
 
-        let titleBox = new St.BoxLayout({
+        var titleBox = new St.BoxLayout({
             vertical: true
         });
-        let title = new St.Label({
+        var title = new St.Label({
             style_class: 'nm-dialog-header',
             text: 'Add a new Socks proxy'
         });
@@ -39,11 +37,11 @@ var AddProxyDialog = new Lang.Class({
         this.contentLayout.add(headline);
 
         // ADDRESS BOX
-        let address_box = new St.BoxLayout({
+        var address_box = new St.BoxLayout({
             vertical: true
         });
 
-        let label = new St.Label({
+        var label = new St.Label({
             text: 'Address'
         });
         address_box.add(label);
@@ -54,11 +52,11 @@ var AddProxyDialog = new Lang.Class({
         address_box.add(this.address_field);
 
         // PORT BOX
-        let port_box = new St.BoxLayout({
+        var port_box = new St.BoxLayout({
             vertical: true
         });
 
-        let port_label = new St.Label({
+        var port_label = new St.Label({
             text: 'Port'
         });
         port_box.add(port_label);
@@ -69,17 +67,17 @@ var AddProxyDialog = new Lang.Class({
         port_box.add(this.port_field);
 
         // PROTOCOL BOX
-        let protocol_box = new St.BoxLayout({
+        var protocol_box = new St.BoxLayout({
             vertical: true
         });
 
-        let protocol_label = new St.Label({
+        var protocol_label = new St.Label({
             text: 'Protocol'
         });
         protocol_box.add(protocol_label);
 
         this._itemBox = new ItemList();
-        let protocols = ['http', 'socks4', 'socks5'];
+        var protocols = ['http', 'socks4', 'socks5'];
         for (var protocol of protocols) {
             var box = new St.BoxLayout({});
             box.add(new St.Label({text: protocol}));
@@ -105,9 +103,9 @@ var AddProxyDialog = new Lang.Class({
             x_fill: false,
             x_align: St.Align.END
         });
-    },
+    }
 
-    confirm: function() {
+    confirm() {
         var proxy = [];
         proxy.address = this.address_field.get_text();
         proxy.port = this.port_field.get_text();
@@ -118,34 +116,32 @@ var AddProxyDialog = new Lang.Class({
         this.saved_configuration.add_new_proxy(proxy);
         this.emit('proxy-added');
         this.close();
-    },
+    }
 
-    close_dialog: function() {
+    close_dialog() {
         this.close();
     }
 
-});
+};
 
-var DeleteProxyDialog = new Lang.Class({
-    Name: 'DeleteProxyDialog',
-    Extends: ModalDialog.ModalDialog,
+var DeleteProxyDialog = class DeleteProxyDialog extends ModalDialog.ModalDialog {
 
-    _init: function (proxy) {
-        this.parent();
+    constructor(proxy) {
+        super();
         this._buildLayout(proxy);
         this.saved_configuration = new SavedConfiguration();
-    },
+    }
 
-    _buildLayout: function (proxy) {
+    _buildLayout(proxy) {
         this.proxy = proxy;
-        let headline = new St.BoxLayout({
+        var headline = new St.BoxLayout({
             style_class: 'nm-dialog-header-hbox'
         });
 
-        let titleBox = new St.BoxLayout({
+        var titleBox = new St.BoxLayout({
             vertical: true
         });
-        let title = new St.Label({
+        var title = new St.Label({
             style_class: 'nm-dialog-header',
             text: 'Delete proxy'
         });
@@ -155,7 +151,7 @@ var DeleteProxyDialog = new Lang.Class({
 
         this.contentLayout.add(headline);
 
-        let label = new St.Label({
+        var label = new St.Label({
             text: 'Are you sure you want to delete the proxy ' + proxy.address + ':' + proxy.port + ' from your favourites?'
         });
         this.contentLayout.add(label);
@@ -174,16 +170,16 @@ var DeleteProxyDialog = new Lang.Class({
             x_fill: false,
             x_align: St.Align.END
         });
-    },
+    }
 
-    confirm: function() {
+    confirm() {
         this.saved_configuration.delete_proxy(this.proxy);
         this.emit('proxy-deleted');
         this.close();
-    },
+    }
 
-    close_dialog: function() {
+    close_dialog() {
         this.close();
     }
 
-});
+};

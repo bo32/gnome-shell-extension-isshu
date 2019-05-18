@@ -6,21 +6,20 @@ const Me = ExtensionUtils.getCurrentExtension();
 const Convenience = Me.imports.convenience;
 const Settings = Convenience.getSettings();
 
-var SSHConnection = new Lang.Class({
-	Name: 'SSHConnection',
+var SSHConnection = class SSHConnection {
 
-	_init: function(connection) {
+	constructor(connection) {
         this.connection = connection;
-    },
+    }
 
-    start: function() {
+    start() {
         var command = this.get_ssh_connection_as_string();
         Util.spawn([Settings.get_string('terminal-client'), 
                 this._get_terminal_option(), 
                 command]);
-    },
+    }
 
-    get_ssh_connection_as_string: function() {
+    get_ssh_connection_as_string() {
         var command = [];
 
         if (!this.connection.use_telnet) {
@@ -57,7 +56,7 @@ var SSHConnection = new Lang.Class({
         }
         command.push(this.connection.inline_options)
         return command.join(' ');
-    },
+    }
 
     _get_terminal_option() {
         switch(Settings.get_string('terminal-client')) {
@@ -74,4 +73,4 @@ var SSHConnection = new Lang.Class({
         }
     }
 
-});
+};

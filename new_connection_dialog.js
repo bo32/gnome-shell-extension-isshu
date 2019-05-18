@@ -21,19 +21,17 @@ const SeeCommandDialog = Me.imports.dialogs.see_command_dialog.SeeCommandDialog;
 const USE_PRIVATE_KEY_LABEL = 'Use private key authentication'
 const USE_PRIVATE_KEY_LABEL_NO_KEY = USE_PRIVATE_KEY_LABEL + ' (no key)'
 
-var NewConnectionDialog = new Lang.Class({
-    Name: 'NewConnectionDialog',
-    Extends: ModalDialog.ModalDialog,
+var NewConnectionDialog = class NewConnectionDialog extends ModalDialog.ModalDialog {
 
-    _init: function () {
-        this.parent({
+    constructor() {
+        super({
             styleClass: 'nm-dialog'
         });
         this.savedConfig = new SavedConfiguration();
         this._buildLayout();
-    },
+    }
 
-    _buildLayout: function () {
+    _buildLayout() {
         this.ssh_config = new SSHConfiguration();
 
         this.main_container = new St.BoxLayout({
@@ -44,19 +42,19 @@ var NewConnectionDialog = new Lang.Class({
             vertical: true
         });
 
-        let headline = new St.BoxLayout({
+        var headline = new St.BoxLayout({
             style_class: 'nm-dialog-header-hbox',
             min_width: 550
         });
 
-        let icon = new St.Icon({
+        var icon = new St.Icon({
             style_class: 'nm-dialog-header-icon'
         });
 
-        let titleBox = new St.BoxLayout({
+        var titleBox = new St.BoxLayout({
             vertical: true
         });
-        let title = new St.Label({
+        var title = new St.Label({
             style_class: 'nm-dialog-header',
             text: _("New connection")
         });
@@ -69,11 +67,11 @@ var NewConnectionDialog = new Lang.Class({
         
 
         // ADDRESS BOX
-        let address_box = new St.BoxLayout({
+        var address_box = new St.BoxLayout({
             vertical: true
         });
 
-        let label = new St.Label({
+        var label = new St.Label({
             text: 'Address'
 		});
         address_box.add(label);
@@ -83,7 +81,7 @@ var NewConnectionDialog = new Lang.Class({
         });
         this.address_field.connect('key_release_event', Lang.bind(this, function() {
             // remove the error message if it is present
-            let name = this.error_message.get_name();
+            var name = this.error_message.get_name();
             if(this.central_container.find_child_by_name(name) != undefined) {
                 this.central_container.remove_child(this.error_message);
             }
@@ -92,25 +90,24 @@ var NewConnectionDialog = new Lang.Class({
         this.setInitialKeyFocus(this.address_field);
 
         // PORT BOX
-        let port_box = new St.BoxLayout({
+        var port_box = new St.BoxLayout({
             vertical: true,
             width: '100',
             style_class: 'margin-left'
         });
 
-        let port_label = new St.Label({
+        var port_label = new St.Label({
             text: 'Port'
 		});
         port_box.add(port_label);
 
         this.port_field = new St.Entry({
-            hint_text: '22 (default)',
-            style_class: 'run-dialog-entry'
+            hint_text: '22 (default)'
         });
         port_box.add(this.port_field);
 
         // HOST BOX
-        let host_box = new St.BoxLayout({
+        var host_box = new St.BoxLayout({
             vertical: false
         });
         host_box.add(address_box, {
@@ -124,15 +121,15 @@ var NewConnectionDialog = new Lang.Class({
             y_align: St.Align.START
         });
 
-        let auth_box = new St.BoxLayout({
+        var auth_box = new St.BoxLayout({
             vertical: false
         });
 
-        let user_box = new St.BoxLayout({
+        var user_box = new St.BoxLayout({
             vertical: true
         });
 
-        let user_label = new St.Label({
+        var user_label = new St.Label({
             text: 'User'
 		});
         user_box.add(user_label, {
@@ -147,7 +144,7 @@ var NewConnectionDialog = new Lang.Class({
             y_align: St.Align.START
         });
 
-        let check_boxes = new St.BoxLayout({
+        var check_boxes = new St.BoxLayout({
             vertical: true,
             style_class: 'margin-left'
         });
@@ -204,7 +201,7 @@ var NewConnectionDialog = new Lang.Class({
 
         // FAVOURITE BOX
 
-        let favBox_header = new St.Label({
+        var favBox_header = new St.Label({
             style_class: 'nm-dialog-header favourites-panel',
             text: 'Favourite connections'
         });
@@ -258,19 +255,19 @@ var NewConnectionDialog = new Lang.Class({
         this.rebuild_latest_menu = false;
         this.rebuild_favourite_menu = false;
         this.rebuild_favourite_folders_menu = false;
-    },
+    }
 
-    add_favourite: function() {
-        let connection = new Array();
-        let label = this.favConnectionsBox.get_favourite_label_entry();
+    add_favourite() {
+        var connection = new Array();
+        var label = this.favConnectionsBox.get_favourite_label_entry();
         if (label === '') {
             label = 'no-name';
         }
-        let folder = this.favConnectionsBox.get_folder_name();
+        var folder = this.favConnectionsBox.get_folder_name();
         connection.folder = folder.toString();
         connection.label = label;
         connection.address = this.address_field.get_text();
-        let port = this.port_field.get_text();
+        var port = this.port_field.get_text();
         if (port.length == 0) {
             connection.port = 22;
         } else {
@@ -289,67 +286,77 @@ var NewConnectionDialog = new Lang.Class({
         this.rebuild_favourite_folders_menu = true;
 
         this.favConnectionsBox.refresh();
-    },
+    }
 
-    show_error_message: function(label) {
+    show_error_message(label) {
         this.central_container.add(label, {
             y_align: St.Align.START
         });
-    },
+    }
 
-    see_command: function() {
-        let connection_json = this.get_ssh_command_json();
-        let ssh_connection = new SSHConnection(connection_json);
-        let connection_string = ssh_connection.get_ssh_connection_as_string();
+    see_command() {
+        var connection_json = this.get_ssh_command_json();
+        if (connection_json == -1)
+            return;
+        global.log(connection_json);
+        var ssh_connection = new SSHConnection(connection_json);
+        var connection_string = ssh_connection.get_ssh_connection_as_string();
         new SeeCommandDialog(connection_string).open();
-    },
+    }
 
-    connect_ssh: function() {
-        let connection_json = this.get_ssh_command_json();
+    connect_ssh() {
+        var connection_json = this.get_ssh_command_json();
         this.savedConfig.save_connection_as_a_latest(connection_json);
 
-        let ssh_connection = new SSHConnection(connection_json);
+        var ssh_connection = new SSHConnection(connection_json);
         ssh_connection.start();
 
         this.rebuild_latest_menu = true;
         this.close_dialog();
-    },
+    }
 
-    get_ssh_command_json: function() {
+    get_ssh_command_json() {
         var address = this.address_field.get_text();
         if (address === '') {
             this.error_message.set_text('Enter a server name or IP address.');
             this.show_error_message(this.error_message);
-            return;
+            return -1;
         }
-        var username = this.user_field.get_text();
-        var port = this.port_field.get_text();
-        var use_private_key = this.use_private_key.actor.get_checked();
-        var use_telnet = this.use_telnet.actor.get_checked();
+        
+        var connection = {
+            "address": address,
+            "port": this.port_field.get_text(),
+            "username": this.user_field.get_text(),
+            "use_private_key": this.use_private_key.actor.get_checked(),
+            "use_telnet": this.use_telnet.actor.get_checked()
+        };
+
         var inline_options = '';
         if (Settings.get_boolean('enable-inline-options')) {
             inline_options = this.extra_options_panel.get_inline_options();
         }
-
-        var connection = this.savedConfig.get_connection_from_details(address, port, username, use_private_key, use_telnet, inline_options);
+        connection.inline_options = inline_options;
+        
         if (this.proxies_displayed) {
             connection.proxy = this.proxyPanel.get_selected_proxy_value();
         }
+        global.log(JSON.stringify(connection));
+        
         return connection;
-    },
+    }
 
-    showPreferences: function() {
+    showPreferences() {
         this.emit('open-preferences');
-    },
+    }
 
-    showNmap: function() {
+    showNmap() {
         if (this.is_nmap_displayed()) {
             return;
         }
         this.build_and_add_nmap_panel();
-    },
+    }
 
-    showProxyPanel: function() {
+    showProxyPanel() {
         if (!this.proxies_displayed) {
             this.proxyPanel = new ProxyPanel();
             this.main_container.add(this.proxyPanel);
@@ -359,9 +366,9 @@ var NewConnectionDialog = new Lang.Class({
                 this.proxies_displayed = false;
             }));
         }
-    },
+    }
 
-    set_use_private_box_checkbox_reactive: function(reactive) {
+    set_use_private_box_checkbox_reactive(reactive) {
         if (!this.ssh_config.is_private_key_present()) {
             this.use_private_key.getLabelActor().add_style_class_name('deactivated-checkbox');
             this.use_private_key.actor.reactive = false;
@@ -375,28 +382,28 @@ var NewConnectionDialog = new Lang.Class({
             this.use_private_key.getLabelActor().add_style_class_name('deactivated-checkbox');
         }
         this.use_private_key.actor.reactive = reactive;
-    },
+    }
 
-    is_nmap_displayed: function() {
+    is_nmap_displayed() {
         return this.nmap_displayed;
-    },
+    }
 
-    load_favourite_connection: function() {
-        let connection = this.favConnectionsBox.get_selected_item().get_connection();
+    load_favourite_connection() {
+        var connection = this.favConnectionsBox.get_selected_item().get_connection();
         this.address_field.set_text(connection.address);
         this.port_field.set_text(connection.port);
         this.user_field.set_text(connection.username);
         this.use_private_key.actor.set_checked(connection.use_private_key);
         this.use_telnet.actor.set_checked(connection.use_telnet);
-    },
+    }
 
-    build_and_add_nmap_panel: function() {
+    build_and_add_nmap_panel() {
         this.nmap_panel = new NmapPanel();
         this.central_container.add(this.nmap_panel, {
             expand: false
         });
         this.nmap_panel.custom_signals.connect('load-nmap', Lang.bind(this, function() {
-            let address = this.nmap_panel.get_selected_item().get_host();
+            var address = this.nmap_panel.get_selected_item().get_host();
             this.address_field.set_text(address);
             this.address_field.grab_key_focus();
             this.port_field.set_text('');
@@ -414,9 +421,9 @@ var NewConnectionDialog = new Lang.Class({
             this.central_container.remove_child(this.nmap_panel);
             this.nmap_displayed = false;
         }));
-    },
+    }
 
-    close_dialog: function() {
+    close_dialog() {
         if(this.rebuild_favourite_menu) {
             this.emit('rebuild-favourite-menu');
         }
@@ -429,4 +436,4 @@ var NewConnectionDialog = new Lang.Class({
         this.close();
     }
 
-});
+};
