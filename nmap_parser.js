@@ -8,17 +8,16 @@ const Convenience = Me.imports.convenience;
 const XML = Me.imports.utils.rexml;
 const Settings = Convenience.getSettings();
 
-var NMapParser = new Lang.Class({
-	Name: 'NMapParser',
+var NMapParser = class NMapParser {
 
-	_init: function() {
-    },
+	constructor() {
+    }
 
-    find_hosts: function(output) {
+    find_hosts(output) {
         var results = [];
 
-        let clean_xml = this.cleanup_xml(output);
-        let xdoc = new XML.REXML(clean_xml);
+        var clean_xml = this.cleanup_xml(output);
+        var xdoc = new XML.REXML(clean_xml);
         
         var hosts = xdoc.rootElement.childElements;
         for(var host of hosts) {
@@ -30,20 +29,20 @@ var NMapParser = new Lang.Class({
             }
         }
         return results;
-    },
+    }
 
-    cleanup_xml: function(raw_xml) {
-        let clean_xml = raw_xml.split(/\<\?\s*xml(.*?).*\?\>/).join('');
+    cleanup_xml(raw_xml) {
+        var clean_xml = raw_xml.split(/\<\?\s*xml(.*?).*\?\>/).join('');
         clean_xml = clean_xml.split(/<!--[\s\S]*?-->/g).join('');
         clean_xml = clean_xml.split(/<!DOCTYPE nmaprun>/g).join('');
         return clean_xml;
-    },
+    }
 
-    find_ports: function(output) {
-        let clean_xml = this.cleanup_xml(output);
-        let xdoc = new XML.REXML(clean_xml);
+    find_ports(output) {
+        var clean_xml = this.cleanup_xml(output);
+        var xdoc = new XML.REXML(clean_xml);
         
-        let results = [];
+        var results = [];
         var nodes = xdoc.rootElement.childElements;
 
         for (var node of nodes) {
@@ -54,7 +53,7 @@ var NMapParser = new Lang.Class({
                         var ports = child.childElements;
                         for (var port of ports) {
                             if (port.name === 'port') {
-                                let tmp = port.attribute('portid');
+                                var tmp = port.attribute('portid');
                                 var port_children = port.childElements;
                                 for (var port_child of port_children) {
                                     if (port_child.name === 'service') {
@@ -71,4 +70,4 @@ var NMapParser = new Lang.Class({
         }
         return results;
     }
-});
+};

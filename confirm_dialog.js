@@ -2,31 +2,32 @@ const ModalDialog = imports.ui.modalDialog;
 const Lang = imports.lang;
 const St = imports.gi.St;
 const Clutter = imports.gi.Clutter;
+const GObject = imports.gi.GObject;
 
 
-var ConfirmDialog = new Lang.Class({
-    Name: 'ConfirmDialog',
-    Extends: ModalDialog.ModalDialog,
+var ConfirmDialog = class ConfirmDialog extends ModalDialog.ModalDialog {
 
-    _init: function (connection) {
-        this.parent();
+    constructor(connection, signal_label, label) {
+        super();
+        this.signal_label = signal_label;
+        this.label = label;
         this.connection = connection;
         this._buildLayout();
-    },
+    }
 
-    _buildLayout: function () {
-        let headline = new St.BoxLayout({
+    _buildLayout() {
+        var headline = new St.BoxLayout({
             style_class: 'nm-dialog-header-hbox'
         });
 
-        let icon = new St.Icon({
+        var icon = new St.Icon({
             style_class: 'nm-dialog-header-icon'
         });
 
-        let titleBox = new St.BoxLayout({
+        var titleBox = new St.BoxLayout({
             vertical: true
         });
-        let title = new St.Label({
+        var title = new St.Label({
             style_class: 'nm-dialog-header',
             text: _("Confirm")
         });
@@ -37,16 +38,16 @@ var ConfirmDialog = new Lang.Class({
 
         this.contentLayout.add(headline);
 
-        let label = new St.Label({
+        var label = new St.Label({
             text: this.label
         });
         
-        let connection_label = new St.Label({
+        var connection_label = new St.Label({
             text: this.connection.label,
             style_class: 'warning-label'
         });
 
-        let box = new St.BoxLayout({
+        var box = new St.BoxLayout({
             vertical: true
         });
         box.add(label, {
@@ -75,40 +76,36 @@ var ConfirmDialog = new Lang.Class({
             x_fill: false,
             x_align: St.Align.END
         });
-    },
+    }
 
-    confirm: function() {
-        this.emit(this.signal);
-        this.close();
-    },
-
-    close_dialog: function() {
+    confirm() {
+        this.emit(this.signal_label);
         this.close();
     }
 
-});
-
-var ConfirmUnfavDialog = new Lang.Class({
-    Name: 'ConfirmUnfavDialog',
-    Extends: ConfirmDialog,
-
-    _init: function (connection) {
-        this.signal = 'confirm-delete-fav';
-        this.label = 'Are you sure you want to remove the following connection?';
-        this.parent(connection);
+    close_dialog() {
+        this.close();
     }
 
-});
+};
 
-var ConfirmUpdateFavDialog = new Lang.Class({
-    Name: 'ConfirmUpdateFavDialog',
-    Extends: ConfirmDialog,
+var ConfirmUnfavDialog = class  ConfirmUnfavDialog extends ConfirmDialog {
 
-    _init: function (connection) {
-        this.signal = 'confirm-update-fav';
-        this.label = 'Are you sure you want to update the following connection?';
-        this.parent(connection);
+    constructor(connection) {
+        var signal_label = 'confirm-delete-fav';
+        var label = 'Are you sure you want to remove the following connection?';
+        super(connection, signal_label, label);
     }
 
-});
+};
+
+var ConfirmUpdateFavDialog = class  ConfirmUpdateFavDialog extends ConfirmDialog {
+
+    constructor(connection) {
+        var signal_label = 'confirm-update-fav';
+        var label = 'Are you sure you want to update the following connection?';
+        super(connection, signal_label, label);
+    }
+
+};
 

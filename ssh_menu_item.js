@@ -6,13 +6,12 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const SSHConnection = Me.imports.ssh_connection.SSHConnection;
 
-var SSHMenuItem = new Lang.Class({
-    Name: 'SSHMenuItem',
-    Extends: PopupMenu.PopupBaseMenuItem,
+var SSHMenuItem = 
+    class SSHMenuItem
+    extends PopupMenu.PopupBaseMenuItem {
 
-	_init: function(connection) {
-        this.parent();
-
+	constructor(connection) {
+        super();
         this.connection = connection;
 
         this.actor.add(
@@ -20,9 +19,9 @@ var SSHMenuItem = new Lang.Class({
         );
 
         this.connect('activate', Lang.bind(this, function() {
-		    let ssh_connection = new SSHConnection(this.connection);
+		    var ssh_connection = new SSHConnection(this.connection);
             ssh_connection.start();
         }));
-    },
+    }
 
-});
+};

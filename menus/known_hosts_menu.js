@@ -8,17 +8,15 @@ const Clutter = imports.gi.Clutter;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const KnownHostsDialog = Me.imports.dialogs.known_hosts_dialog.KnownHostsDialog;
+const Constants = Me.imports.constants;
 
-var KnownHostsMenu = new Lang.Class({
+var KnownHostsMenu = class KnownHostsMenu extends PopupMenu.PopupBaseMenuItem {
 
-	Name: 'KnownHostsMenu',
-	Extends: PopupMenu.PopupBaseMenuItem,
-
-    _init: function() {
-        this.parent();
-        let icon = new St.Icon();
+    constructor() {
+        super();
+        var icon = new St.Icon();
         icon.gicon = Gio.icon_new_for_string('accessories-text-editor-symbolic');
-        icon.icon_size = 16;
+        icon.icon_size = Constants.ICON_SIZE;
         this.actor.add(
             icon
         );
@@ -30,9 +28,9 @@ var KnownHostsMenu = new Lang.Class({
         );
 
         this.connect('activate', function() {
-            let dialog = new KnownHostsDialog();
+            var dialog = new KnownHostsDialog();
             dialog.open();
         });
 
-	},
-});
+	}
+};

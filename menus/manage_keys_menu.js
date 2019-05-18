@@ -9,14 +9,11 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const KnownHostsDialog = Me.imports.dialogs.known_hosts_dialog.KnownHostsDialog;
 
-var ManageKeysMenu = new Lang.Class({
+var ManageKeysMenu = class ManageKeysMenu extends PopupMenu.PopupBaseMenuItem {
 
-	Name: 'ManageKeysMenu',
-	Extends: PopupMenu.PopupBaseMenuItem,
-
-    _init: function() {
-        this.parent();
-        let icon = new St.Icon();
+    constructor() {
+        super();
+        var icon = new St.Icon();
         icon.gicon = Gio.icon_new_for_string('dialog-password-symbolic');
         icon.icon_size = 16;
         this.actor.add(
@@ -30,9 +27,9 @@ var ManageKeysMenu = new Lang.Class({
         );
 
         this.connect('activate', function() {
-            let dialog = new KnownHostsDialog();
+            var dialog = new KnownHostsDialog();
             dialog.open();
         });
 
-	},
-});
+	}
+};

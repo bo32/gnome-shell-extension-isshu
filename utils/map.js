@@ -1,58 +1,54 @@
 const Lang = imports.lang;
 
-var MapOfArrays = new Lang.Class({
-    Name: 'MapOfArrays',
+var MapOfArrays = class MapOfArrays {
 
-	_init: function() {
+	constructor() {
         this.keys = [];
-    },
+    }
 
-    add: function(key, element) {
+    add(key, element) {
         this.keys.push(key);
-        let tmp = [element];
+        var tmp = [element];
         this.keys[key] = tmp;
-    },
+    }
 
-    appendValue: function(key, element) {
+    appendValue(key, element) {
         this.keys[key].push(element);
-    },
+    }
 
-    exists: function(key) {
+    exists(key) {
         return this.keys[key] !== undefined;
-    },
+    }
 
-    get: function(key) {
+    get(key) {
         if (key !== undefined && key !== '') {
             return this.keys['' + key];
         }
-    },
+    }
 
-    get_keys: function() {
+    get_keys() {
         return this.keys;
-    },
+    }
 
-    get_values: function() {
+    get_values() {
         var results = [];
         for(var v of this.values) {
             results.push(v);
         }
         return results;
-    },
+    }
 
-    size: function() {
+    size() {
         return this.get_keys().length;
-    },
+    }
 
-    list: function() {
+    list() {
         for (var key of this.get_keys()) {
             global.log("Key " + key + ":");
-            // for (var v of this.get(key)) {
-            //     global.log(" - " + v.label);
-            // }
         }
-    },
+    }
 
-    print: function() {
+    print() {
         for (var key of this.get_keys()) {
             var str = "[" + key + "] - [";
             for (var v of this.get(key)) {
@@ -64,4 +60,4 @@ var MapOfArrays = new Lang.Class({
         }
     }
 
-});
+};

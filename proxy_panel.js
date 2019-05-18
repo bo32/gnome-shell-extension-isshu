@@ -2,6 +2,7 @@ const Lang = imports.lang;
 const Clutter = imports.gi.Clutter; 
 const St = imports.gi.St;
 const Gtk = imports.gi.Gtk;
+const GObject = imports.gi.GObject;
 const Signals = imports.signals;
 const Util = imports.misc.util;
 const CheckBox = imports.ui.checkBox.CheckBox;
@@ -14,42 +15,40 @@ const AddProxyDialog = Me.imports.add_proxy_dialog.AddProxyDialog;
 const DeleteProxyDialog = Me.imports.add_proxy_dialog.DeleteProxyDialog;
 const ItemList = Me.imports.item_list.ItemList;
 
-var ProxyPanel = new Lang.Class({
-    Name: 'ProxyPanel',
-    Extends: St.Widget,
+var ProxyPanel = GObject.registerClass(class ProxyPanel extends St.Widget {
 
-	_init: function() {
-        this.parent({
+	_init() {
+        super._init({
             layout_manager: new Clutter.BinLayout()
         });
 
         this.custom_signals = new CustomSignals();
 
-        let header_box = new St.BoxLayout({
+        var header_box = new St.BoxLayout({
             vertical: false
         });
 
         this._proxy_to_be_used = null;
 
-        let title = new St.Label({
+        var title = new St.Label({
             style_class: 'nm-dialog-header',
             y_align: St.Align.END,
             text: 'Socks Proxy'
         });
 
         // Add button
-        let add_icon = new St.Icon({
+        var add_icon = new St.Icon({
             style_class: 'nm-dialog-icon'
         });
         add_icon.set_icon_name('list-add-symbolic');
         
-        let add_button = new St.Button({
+        var add_button = new St.Button({
             style_class: 'button header-button'
         });
         add_button.set_child(add_icon);
 
         add_button.connect('clicked', Lang.bind(this, function() {
-            let add_dialog = new AddProxyDialog();
+            var add_dialog = new AddProxyDialog();
             add_dialog.open();
             add_dialog.connect('proxy-added', Lang.bind(this, function() {
                 this.re_build_item_box();
@@ -57,18 +56,18 @@ var ProxyPanel = new Lang.Class({
         }));
 
         // Delete button
-        let del_icon = new St.Icon({
+        var del_icon = new St.Icon({
             style_class: 'nm-dialog-icon'
         });
         del_icon.set_icon_name('list-remove-symbolic');
 
-        let del_button = new St.Button({
+        var del_button = new St.Button({
             style_class: 'button header-button'
         });
         del_button.set_child(del_icon);
 
         del_button.connect('clicked', Lang.bind(this, function() {
-            let del_dialog = new DeleteProxyDialog(this.get_selected_proxy_value());
+            var del_dialog = new DeleteProxyDialog(this.get_selected_proxy_value());
             del_dialog.open();
             del_dialog.connect('proxy-deleted', Lang.bind(this, function() {
                 this.re_build_item_box();
@@ -76,12 +75,12 @@ var ProxyPanel = new Lang.Class({
         }));
 
         // Close button
-        let close_icon = new St.Icon({
+        var close_icon = new St.Icon({
             style_class: 'nm-dialog-icon'
         });
         close_icon.set_icon_name('window-close-symbolic');
         
-        let proxy_close_button = new St.Button({
+        var proxy_close_button = new St.Button({
             style_class: 'button header-button'
         });
         proxy_close_button.set_child(close_icon);
@@ -105,7 +104,7 @@ var ProxyPanel = new Lang.Class({
 
         this._itemBox = new ItemList();
 
-        let container = new St.BoxLayout({
+        var container = new St.BoxLayout({
             vertical: true,
             x_expand: true,
             style_class: 'margin-left'
@@ -117,27 +116,30 @@ var ProxyPanel = new Lang.Class({
 
         this.add_child(container);
         this.build_item_box();
-    },
+    }
 
-    get_selected_proxy: function() {
+    get_selected_proxy() {
         return this._itemBox.get_selected_item();
-    },
+    }
 
-    get_selected_proxy_value: function() {
-        return this.get_selected_proxy().get_proxy();
-    },
+    get_selected_proxy_value() {
+        if (this.get_selected_proxy())
+            return this.get_selected_proxy().get_proxy();
+        else
+            return '';
+    }
 
-    re_build_item_box: function() {
+    re_build_item_box() {
         this._itemBox.remove_all_children();
         this.build_item_box();
-    },
+    }
 
-    build_item_box: function() {
+    build_item_box() {
 
         this.savedConfig = new SavedConfiguration();
-        let proxies = this.savedConfig.get_favourite_proxies();
+        var proxies = this.savedConfig.get_favourite_proxies();
         for (var proxy of proxies) {
-            let proxyItem = new ProxyItem(proxy);
+            var proxyItem = new ProxyItem(proxy);
             this._itemBox.add_item(proxyItem);
             // proxyItem.connect('item-selected', Lang.bind(this, function(){
             //     if (this.selected_item) {
@@ -161,19 +163,17 @@ var ProxyPanel = new Lang.Class({
     }
 });
 
-var ProxyItem = new Lang.Class({
-    Name: 'ProxyItem',
-    Extends: St.BoxLayout,
+var ProxyItem = GObject.registerClass(class ProxyItem extends St.BoxLayout {
 
-    _init: function (proxy) {
-        this.parent({
+    _init(proxy) {
+        super._init({
             style_class: 'nm-dialog-item'
             ,can_focus: true
             ,reactive: true
         });
         this.proxy = proxy;
 
-        let icon = new St.Icon({
+        var icon = new St.Icon({
             style_class: 'nm-dialog-icon',
             icon_name: 'network-server-symbolic'
         });
@@ -182,20 +182,20 @@ var ProxyItem = new Lang.Class({
             x_align: St.Align.START
         });
 
-        let labels_box = new St.BoxLayout({
+        var labels_box = new St.BoxLayout({
             style_class: 'nm-dialog-item, favourite-box'
             ,can_focus: true
             ,reactive: true
             ,vertical: true
         });
 
-        let label = new St.Label({
+        var label = new St.Label({
             text: proxy.address + ':' + proxy.port
         });
         labels_box.add(label, {
             x_align: St.Align.START
         });
-        let protocol = new St.Label({
+        var protocol = new St.Label({
             text: proxy.protocol,
             style_class: 'favourtie-connection-details-label'
         });
@@ -207,9 +207,9 @@ var ProxyItem = new Lang.Class({
             expand: true,
             x_align: St.Align.START
         });
-    },
+    }
 
-    get_proxy: function() {
+    get_proxy() {
         return this.proxy;
     }
 

@@ -3,6 +3,7 @@ const Util = imports.misc.util;
 const St = imports.gi.St;
 const Clutter = imports.gi.Clutter; 
 const Gtk = imports.gi.Gtk;
+const GObject = imports.gi.GObject;
 const Gio = imports.gi.Gio;
 const Main = imports.ui.main;
 const GLib = imports.gi.GLib; 
@@ -17,12 +18,10 @@ const CustomSignals = Me.imports.custom_signals.CustomSignals;
 const NMapParser = Me.imports.nmap_parser.NMapParser;
 const ItemList = Me.imports.item_list.ItemList;
 
-var NmapPanel = new Lang.Class({
-    Name: 'NmapPanel',
-    Extends: St.Widget,
+var NmapPanel = GObject.registerClass(class NmapPanel extends St.Widget {
 
-	_init: function() {
-        this.parent({
+	_init() {
+        super._init({
             layout_manager: new Clutter.BinLayout(),
             style_class: 'nmap-panel'
         });
@@ -30,45 +29,45 @@ var NmapPanel = new Lang.Class({
         this.custom_signals = new CustomSignals();
         this.all_items = [];
 
-        let header_box = new St.BoxLayout({
+        var header_box = new St.BoxLayout({
             vertical: false
         });
 
-        let nmap_title = new St.Label({
+        var nmap_title = new St.Label({
             style_class: 'nm-dialog-header',
             y_align: St.Align.END,
             text: 'Nmap results'
         });
         
         // close button
-        let close_icon = new St.Icon({
+        var close_icon = new St.Icon({
             style_class: 'nm-dialog-icon'
         });
         close_icon.set_icon_name('window-close-symbolic');
         
-        let nmap_close_button = new St.Button({
+        var nmap_close_button = new St.Button({
             style_class: 'button header-button'
         });
         nmap_close_button.set_child(close_icon);
 
         // refresh button
-        let refresh_icon = new St.Icon({
+        var refresh_icon = new St.Icon({
             style_class: 'nm-dialog-icon'
         });
         refresh_icon.set_icon_name('view-refresh-symbolic');
-        let nmap_refresh_button = new St.Button({
+        var nmap_refresh_button = new St.Button({
             style_class: 'button header-button'
         });
         nmap_refresh_button.set_child(refresh_icon);
 
-        let nmap_ports_button = new St.Button({
+        var nmap_ports_button = new St.Button({
             style_class: 'button header-button',
             label: 'Scan ports'
         });
 
         nmap_ports_button.connect('clicked', Lang.bind(this, function() {
-            for(let i in this.all_items) {
-                let item = this.all_items[i];
+            for(var i in this.all_items) {
+                var item = this.all_items[i];
                 item.scan_ports();
             }
         }));
@@ -94,19 +93,7 @@ var NmapPanel = new Lang.Class({
             x_align: St.Align.END
         });
 
-        // this._itemBox = new St.BoxLayout({
-        //     vertical: true
-        // });
-        // this._scrollView = new St.ScrollView({
-        //     style_class: 'nm-dialog-scroll-view listbox-top-margin'
-        // });
-        // this._scrollView.set_x_expand(true);
-        // this._scrollView.set_y_expand(true);
-        // this._scrollView.set_policy(Gtk.PolicyType.NEVER,
-        //     Gtk.PolicyType.AUTOMATIC);
-        // this._scrollView.add_actor(this._itemBox);
-
-        let container = new St.BoxLayout({
+        var container = new St.BoxLayout({
             vertical: true,
             x_expand: true
         });
@@ -119,7 +106,7 @@ var NmapPanel = new Lang.Class({
         this.add_child(container);
 
         // add items
-        let item;
+        var item;
         if (Settings.get_string('nmap-network') === '') {
             item = new ListItem('Enter a netword to scan in the Preferences menu.');
         } else if (this.is_nmap_installed()) {
@@ -129,41 +116,41 @@ var NmapPanel = new Lang.Class({
             item = new NmapErrorItem();
         }
         this._itemBox.add_item(item);
-    },
+    }
 
-    is_nmap_installed: function() {
-        let [res, out, err, status] = GLib.spawn_command_line_sync('which nmap');
+    is_nmap_installed() {
+        var [res, out, err, status] = GLib.spawn_command_line_sync('which nmap');
         // it seems that if the command exists, the status value is 0, and 256 otherwise
         return status == 0;
-    },
+    }
 
-    populate_nmap_list: function() {
+    populate_nmap_list() {
 
-        let cmd = ['nmap', '-sn', '-oX', '-', Settings.get_string('nmap-network')];
+        var cmd = ['nmap', '-sn', '-oX', '-', Settings.get_string('nmap-network')];
     
-        let subprocess = new Gio.Subprocess({
+        var subprocess = new Gio.Subprocess({
             argv: cmd,
             flags: Gio.SubprocessFlags.STDOUT_PIPE,
         });
         subprocess.init(null);
         subprocess.communicate_async(null, null, Lang.bind(this, function(obj, res) {
-            let [, out] = obj.communicate_utf8_finish(res);
+            var [, out] = obj.communicate_utf8_finish(res);
             this.add_nmap_items(out);
             // Mainloop.quit('main');
         }));
         // Mainloop.run('main');
-    },
+    }
 
-    add_nmap_items : function(res) {
+    add_nmap_items (res) {
         if (res !== null && res !== undefined) {
-            let parser = new NMapParser();
-            let hosts = parser.find_hosts(res);
+            var parser = new NMapParser();
+            var hosts = parser.find_hosts(res);
 
             // remove the loading item before adding the results
             this._itemBox.remove_all_items();
             
-            for (let h in hosts) {
-                let item = new NmapItem(hosts[h]);
+            for (var h in hosts) {
+                var item = new NmapItem(hosts[h]);
                 this.all_items.push(item);
                 this._itemBox.add_item(item);
                 item.custom_signals.connect('load-nmap', Lang.bind(this, function(){
@@ -171,35 +158,33 @@ var NmapPanel = new Lang.Class({
                 }));
             }
         } else {
-            let errMsg = "Error occurred when running 'nmap'";
+            var errMsg = "Error occurred when running 'nmap'";
             Main.notify(errMsg);
             log(errMsg);
         }
-    },
+    }
 
-    get_all_items: function() {
+    get_all_items() {
         return this.all_items;
-    },
+    }
 
-    get_selected_item: function() {
+    get_selected_item() {
         return this._itemBox.get_selected_item();
-    },
+    }
 });
 
-const ListItem = new Lang.Class({
-    Name: 'ListItem',
-    Extends: St.BoxLayout,
+const ListItem = GObject.registerClass(class ListItem extends St.BoxLayout {
 
-    _init: function (text) {
+    _init(text) {
 
-        this.parent({
+        super._init({
             style_class: 'nm-dialog-item'
             ,can_focus: true
             ,reactive: true
         });
         this.custom_signals = new CustomSignals();
 
-        let label = new St.Label({
+        var label = new St.Label({
             text: text
         });
 
@@ -210,9 +195,9 @@ const ListItem = new Lang.Class({
 
         this.spinner = null;
         this.add_spinner();
-    },
+    }
 
-    show_spinner: function(show) {
+    show_spinner(show) {
         if (show) {
             this.spinner.actor.show();
             this.spinner.play();
@@ -220,10 +205,10 @@ const ListItem = new Lang.Class({
             this.spinner.actor.hide();
             this.spinner.stop();
         }
-    },
+    }
 
-    add_spinner: function() {
-        let spinnerIcon = Gio.File.new_for_uri('resource:///org/gnome/shell/theme/process-working.svg');
+    add_spinner() {
+        var spinnerIcon = Gio.File.new_for_uri('resource:///org/gnome/shell/theme/process-working.svg');
         this.spinner = new Animation.AnimatedIcon(spinnerIcon, 16);
         // spinner.actor.show();
         this.add_child(this.spinner.actor);
@@ -235,25 +220,13 @@ const ListItem = new Lang.Class({
     }
 });
 
-const NmapItem = new Lang.Class({
-    Name: 'NmapItem',
-    Extends: ListItem,
+const NmapItem = GObject.registerClass(class NmapItem extends ListItem {
 
-    _init: function (host) {
-        this.parent(host);
-
+    _init(host) {
+        super._init(host);
         this.host = host;
 
-        // let action = new Clutter.ClickAction();
-        // action.connect('clicked', Lang.bind(this, function () {
-        //     this.actor.grab_key_focus(); // needed for setting the correct focus
-        // }));
-        // this.actor.add_action(action);
-        // this.actor.connect('key-focus-in', Lang.bind(this, function() {
-        //     this.emit('item-selected');
-        // }));
-
-        let ports_box = new St.BoxLayout({
+        var ports_box = new St.BoxLayout({
             vertical: true
         });
         this.ssh_port = new St.Label({
@@ -269,7 +242,7 @@ const NmapItem = new Lang.Class({
         });
 
         // SEARCH FOR PORTS BUTTON
-        // let scan_ports_icon = new St.Icon({
+        // var scan_ports_icon = new St.Icon({
         //     style_class: 'nm-dialog-icon'
         // });
         // scan_ports_icon.set_icon_name('preferences-system-search-symbolic');
@@ -287,7 +260,7 @@ const NmapItem = new Lang.Class({
         });
 
          // LOAD NMAP BUTTON
-        let load_nmap_icon = new St.Icon({
+        var load_nmap_icon = new St.Icon({
             style_class: 'nm-dialog-icon'
         });
         load_nmap_icon.set_icon_name('document-edit-symbolic');
@@ -305,61 +278,45 @@ const NmapItem = new Lang.Class({
 
 
         this.custom_signals.connect('item-deselected', Lang.bind(this, function(){
-            this.hide_load_nmap_button();
-            this.hide_scan_ports_button();
+            this.load_nmap_button.visible = false;
+            this.scan_ports_button.visible = false;
         }));
         this.custom_signals.connect('item-selected', Lang.bind(this, function(){
-            this.show_load_nmap_button();
-            this.show_scan_ports_button();
+            this.load_nmap_button.visible = true;
+            this.scan_ports_button.visible = true;
         }));
-    },
+    }
 
-    show_load_nmap_button: function() {
-        this.load_nmap_button.visible = true;
-    },
-
-    hide_load_nmap_button: function() {
-        this.load_nmap_button.visible = false;
-    },
-    
-    show_scan_ports_button: function() {
-        this.scan_ports_button.visible = true;
-    },
-
-    hide_scan_ports_button: function() {
-        this.scan_ports_button.visible = false;
-    },
-
-    get_host: function() {
+    get_host() {
         return this.host;
-    },
+    }
 
-    scan_ports: function() {
+    scan_ports() {
         this.clear_ports_results();
         this.show_spinner(true);
         global.log('scanning ports of ' + this.get_host());
-        let cmd = ['nmap', '-sT', '-oX', '-', this.get_host()];
-        let subprocess = new Gio.Subprocess({
+        var cmd = ['nmap', '-sT', '-oX', '-', this.get_host()];
+        var subprocess = new Gio.Subprocess({
             argv: cmd,
             flags: Gio.SubprocessFlags.STDOUT_PIPE,
         });
         subprocess.init(null);
         subprocess.communicate_async(null, null, Lang.bind(this, function(obj, res) {
-            let [, out] = obj.communicate_utf8_finish(res);
-            let parser = new NMapParser();
-            let ports = parser.find_ports(out);
+            var [, out] = obj.communicate_utf8_finish(res);
+            var parser = new NMapParser();
+            var ports = parser.find_ports(out);
             this.display_ports(ports);
             this.show_spinner(false);
         }));
-    },
+    }
 
-    display_ports: function(ports) {
-        let default_label = 'NONE';
+    display_ports(ports) {
+        var default_label = 'NONE';
 
         this.ssh_port.set_text('SSH port: ' + default_label);
         this.telnet_port.set_text('Telnet port: ' + default_label);
-        for (let p in ports) {
-            let port = ports[p];
+        for (var p in ports) {
+            var port = ports[p];
             if (port.protocol === 'ssh') {
                 this.ssh_port.set_text('SSH port: ' + port.value);
             }
@@ -368,30 +325,26 @@ const NmapItem = new Lang.Class({
                 this.telnet_port.set_text('Telnet port: ' + port.value);
             }
         }
-    },
+    }
 
-    clear_ports_results: function() {
+    clear_ports_results() {
         this.ssh_port.set_text('');
         this.telnet_port.set_text('');
     }
 
 });
 
-const NmapErrorItem = new Lang.Class({
-    Name: 'NmapErrorItem',
-    Extends: ListItem,
+const NmapErrorItem = GObject.registerClass(class NmapErrorItem extends ListItem {
 
-    _init: function() {
-        this.parent('NMap is not installed on your computer. Install it to benefit of this feature.');
+    _init() {
+        super._init('NMap is not installed on your computer. Install it to benefit of this feature.');
     }
 });
 
-const LoadingItem = new Lang.Class({
-    Name: 'LoadingItem',
-    Extends: ListItem,
+const LoadingItem = GObject.registerClass(class LoadingItem extends ListItem {
 
-    _init: function() {
-        this.parent('Loading...');
+    _init() {
+        super._init('Loading...');
         this.show_spinner(true);
     }
 });
